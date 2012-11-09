@@ -138,7 +138,7 @@
     <Resource Include="DXSplashScreen\Logo.png" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\..\..\..\Github\WFTP\DataProvider\DataProvider.csproj">
+    <ProjectReference Include="..\DataProvider\DataProvider.csproj">
       <Project>{4B87AA07-7E12-43F4-9973-C33E6F6B8FEF}</Project>
       <Name>DataProvider</Name>
     </ProjectReference>

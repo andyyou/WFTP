@@ -44,11 +44,15 @@ namespace WFTP
             }
         }
 
-        private void btnClose_Click(object sender, RoutedEventArgs e)
+        private void DragableGridMouseDown(object sender, MouseButtonEventArgs e)
         {
-            this.Close();
+            if (e.LeftButton == MouseButtonState.Pressed)
+                DragMove();
         }
 
-        
+        private void CloseButtonMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            Close();
+        }      
     }
 }
