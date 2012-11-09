@@ -32,15 +32,21 @@ namespace WFTP
             string account = txtID.Text.Trim();
             string pwd = txtPassword.Password;
 
-            var user = from employe in db.Employees
-                            where employe.Account == account && employe.Password == pwd
-                            select employe;
-
-            if (user.Count() > 0)
+            try
             {
-                Main window = new Main();
-                window.Show();
-                this.Close();
+                var user = from employe in db.Employees
+                           where employe.Account == account && employe.Password == pwd
+                           select employe;
+
+                if (user.Count() > 0)
+                {
+                    Main window = new Main();
+                    window.Show();
+                    this.Close();
+                }
+            }catch()
+            {
+                
             }
         }
 

@@ -10,7 +10,7 @@ namespace DataProvider
     {
         public static SqlConnection GetConnection()
         {
-            string str = "Data Source=WIN-APPUTU; Initial Catalog=WFTP; Persist Security Info=True;User ID=sa;Password=apputu.SQL;";
+            string str = "Data Source=192.168.100.248; Initial Catalog=WFTP; Persist Security Info=True;User ID=sa;Password=apputu.SQL;";
             SqlConnection conn = new SqlConnection(str);
 
             return conn;
@@ -18,7 +18,7 @@ namespace DataProvider
 
         public static string GetConnctionString()
         {
-            string str = "Data Source=WIN-APPUTU; Initial Catalog=WFTP; Persist Security Info=True;User ID=sa;Password=apputu.SQL;";
+            string str = "Data Source=192.168.100.248; Initial Catalog=WFTP; Persist Security Info=True;User ID=sa;Password=apputu.SQL;";
             return str;
         }
 
