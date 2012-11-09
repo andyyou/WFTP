@@ -11,6 +11,8 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using DataProvider;
+
 
 namespace WFTP
 {
@@ -22,6 +24,29 @@ namespace WFTP
         public MainWindow()
         {
             InitializeComponent();
+        }
+
+        private void btnLogin_Click(object sender, RoutedEventArgs e)
+        {
+            WFTPDbContext db = new WFTPDbContext();
+            string account = txtID.Text.Trim();
+            string pwd = txtPassword.Password;
+
+            var user = from employe in db.Employees
+                            where employe.Account == account && employe.Password == pwd
+                            select employe;
+
+            if (user.Count() > 0)
+            {
+                Main window = new Main();
+                window.Show();
+                this.Close();
+            }
+        }
+
+        private void btnClose_Click(object sender, RoutedEventArgs e)
+        {
+            this.Close();
         }
 
         

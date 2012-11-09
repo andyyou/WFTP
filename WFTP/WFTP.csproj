@@ -46,6 +46,7 @@
     <Reference Include="DevExpress.Xpf.Ribbon.v12.1, Version=12.1.7.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL" />
     <Reference Include="System" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Data.Linq" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
@@ -69,8 +70,8 @@
     <Compile Include="AdQuery.xaml.cs">
       <DependentUpon>AdQuery.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Index.xaml.cs">
-      <DependentUpon>Index.xaml</DependentUpon>
+    <Compile Include="Main.xaml.cs">
+      <DependentUpon>Main.xaml</DependentUpon>
     </Compile>
     <Compile Include="Upload.xaml.cs">
       <DependentUpon>Upload.xaml</DependentUpon>
@@ -98,7 +99,7 @@
       <DependentUpon>Login.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Page Include="Index.xaml">
+    <Page Include="Main.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -137,7 +138,17 @@
     <Resource Include="DXSplashScreen\Logo.png" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\Logo.jpg" />
+    <ProjectReference Include="..\..\..\..\..\..\..\Github\WFTP\DataProvider\DataProvider.csproj">
+      <Project>{4B87AA07-7E12-43F4-9973-C33E6F6B8FEF}</Project>
+      <Name>DataProvider</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\logo.jpg" />
+  </ItemGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <Resource Include="Images\logo.jpg" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
