@@ -18,7 +18,7 @@
         </EventTrigger>
     </Window.Triggers>
     <Grid x:Name="LayoutRoot">
-        <Grid x:Name="Splash" Width="450" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,100,0,0">
+        <Grid x:Name="SplashScreen" Width="450" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,100,0,0">
             <Grid x:Name="Back">
                 <Grid.Effect>
                     <DropShadowEffect ShadowDepth="1" Direction="-90" BlurRadius="10" Opacity="0.25"/>
