@@ -16,7 +16,7 @@ namespace WFTP
     /// <summary>
     /// Window1.xaml 的互動邏輯
     /// </summary>
-    public partial class Main : Window
+    public partial class Main : MahApps.Metro.Controls.MetroWindow
     {
         public Main()
         {
