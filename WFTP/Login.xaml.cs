@@ -66,6 +66,10 @@ namespace WFTP
                     window.Show();
                     this.Close();
                 }
+                else
+                {
+                    lblMessage.Content = "帳號或密碼有誤";
+                }
             }
         }
 

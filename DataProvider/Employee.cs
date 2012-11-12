@@ -2,14 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Linq;
 using System.Data.Linq;
 using System.Data.Linq.Mapping;
 
-
 namespace DataProvider
 {
-    
     [Table(Name = "Employee")]
     public class CEmployee
     {
@@ -36,6 +33,5 @@ namespace DataProvider
 
         [Column]
         public Boolean Activity;
-
     }
 }

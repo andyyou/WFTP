@@ -16,9 +16,10 @@
         </ResourceDictionary>
     </Window.Resources>
     <Grid>
-        <Button Content="資料查詢" Height="27" HorizontalAlignment="Left" Margin="20,12,0,0" Name="btnQuery" VerticalAlignment="Top" Width="75" FontWeight="Normal" FontSize="12" FontFamily="Microsoft JhengHei" />
+        <Button Content="資料查詢" Height="27" HorizontalAlignment="Left" Margin="20,12,0,0" Name="btnQuery" VerticalAlignment="Top" Width="75" FontWeight="Normal" FontSize="12" FontFamily="Microsoft JhengHei" Click="btnQuery_Click" />
         <Button Content="管理資料" Height="27" HorizontalAlignment="Left" Margin="112,12,0,0" Name="btnManage" VerticalAlignment="Top" Width="75" FontWeight="Normal" FontSize="12" FontFamily="Microsoft JhengHei" />
         <Button Content="上傳資料" Height="27" HorizontalAlignment="Left" Margin="204,12,0,0" Name="btnUpload" VerticalAlignment="Top" Width="75" FontWeight="Normal" FontSize="12" FontFamily="Microsoft JhengHei" />
         <Button Content="進階查詢" Height="27" HorizontalAlignment="Left" Margin="295,12,0,0" Name="btnAdvanceQuery" VerticalAlignment="Top" Width="75" FontWeight="Normal" FontSize="12" FontFamily="Microsoft JhengHei" />
+        <ListView Height="452" HorizontalAlignment="Left" Margin="20,89,0,0" Name="lvwClassify" VerticalAlignment="Top" Width="737" SelectionMode="Single" />
     </Grid>
 </Controls:MetroWindow>
