@@ -54,18 +54,13 @@ namespace WFTP
                 if (user.Count() > 0)
                 {
                     // 登入成功時儲存登入頁面相關欄位資料
-                    if (Convert.ToBoolean(togRememberId.IsChecked))
-                    {
-                        Properties.Settings.Default.Id = account;
-                        Properties.Settings.Default.RememberId = Convert.ToBoolean(togRememberId.IsChecked);
-                        Properties.Settings.Default.Save();
-                    }
-                    if (Convert.ToBoolean(togRememberPwd.IsChecked))
-                    {
-                        Properties.Settings.Default.Pwd = pwd;
-                        Properties.Settings.Default.RememberPwd = Convert.ToBoolean(togRememberPwd.IsChecked);
-                        Properties.Settings.Default.Save();
-                    }
+                    Properties.Settings.Default.Id = account;
+                    Properties.Settings.Default.RememberId = Convert.ToBoolean(togRememberId.IsChecked);
+
+                    Properties.Settings.Default.Pwd = pwd;
+                    Properties.Settings.Default.RememberPwd = Convert.ToBoolean(togRememberPwd.IsChecked);
+
+                    Properties.Settings.Default.Save();
 
                     Main window = new Main();
                     window.Show();
@@ -77,7 +72,10 @@ namespace WFTP
         private void DragableGridMouseDown(object sender, MouseButtonEventArgs e)
         {
             if (e.LeftButton == MouseButtonState.Pressed)
+            {
                 DragMove();
+            }
+
         }
 
         private void CloseButtonMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
