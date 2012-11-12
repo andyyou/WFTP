@@ -9,6 +9,7 @@ namespace ConsoleExam
     {
         static void Main(string[] args)
         {
+
         }
     }
 }

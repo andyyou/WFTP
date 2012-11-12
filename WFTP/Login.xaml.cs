@@ -67,8 +67,6 @@ namespace WFTP
                         Properties.Settings.Default.Save();
                     }
 
-
-
                     Main window = new Main();
                     window.Show();
                     this.Close();
