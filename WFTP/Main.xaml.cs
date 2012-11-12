@@ -10,6 +10,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using DataProvider;
 
 namespace WFTP
 {
@@ -46,7 +47,26 @@ namespace WFTP
         private void DragableGridMouseDown(object sender, MouseButtonEventArgs e)
         {
             if (e.LeftButton == MouseButtonState.Pressed)
+            {
                 DragMove();
+            }
+        }
+
+        private void btnQuery_Click(object sender, RoutedEventArgs e)
+        {
+            lvwClassify.Items.Clear();
+
+            WFTPDbContext db = new WFTPDbContext();
+
+            var lv1Classify = db.Lv1Classify;
+
+            foreach (var classifyItem in lv1Classify)
+            {
+                ListViewItem lvi = new ListViewItem();
+                lvi.Content = classifyItem.NickName;
+
+                lvwClassify.Items.Add(lvi);
+            }
         }
     }
 }

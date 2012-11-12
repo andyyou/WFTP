@@ -44,6 +44,7 @@
   <ItemGroup>
     <Compile Include="DBHelper.cs" />
     <Compile Include="Employee.cs" />
+    <Compile Include="Lv1Classify.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="WFTPDbContext.cs" />
   </ItemGroup>
