@@ -3,6 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
         xmlns:cal="http://www.caliburnproject.org"
+        Name="MainWindow"
         Title="工程資料庫系統"
         Height="600"
         Width="800"
@@ -66,5 +67,6 @@
             </Button>
         </Controls:WindowCommands>
     </Controls:MetroWindow.WindowCommands>
-    <Controls:TransitioningContentControl x:Name="transitioning" Width="775" Height="557" Transition="LeftTransition" />
+    <!--<Controls:TransitioningContentControl x:Name="transitioning" Width="{DynamicResource }" Height="557" Transition="LeftTransition" />-->
+    <Controls:TransitioningContentControl x:Name="transitioning" Transition="LeftTransition" />
 </Controls:MetroWindow>
