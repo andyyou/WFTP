@@ -71,7 +71,8 @@ namespace WFTP
 
         public void Navigate(UserControl nextPage)
         {
-            this.Content = nextPage;
+            //this.Content = nextPage;
+            this.transitioning.Content = nextPage;
         }
 
         public void Navigate(UserControl nextPage, object state)

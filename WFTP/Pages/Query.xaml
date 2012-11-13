@@ -8,6 +8,13 @@
              d:DesignWidth="800"
              FontFamily="Microsoft JhengHei">
     <Grid>
-        <ListView Height="452" HorizontalAlignment="Left" Margin="20,89,0,0" Name="lvwClassify" VerticalAlignment="Top" Width="737" SelectionMode="Single" />
+        <TabControl>
+            <TabItem Header="一般查詢">
+                <ListView Height="452" HorizontalAlignment="Left" Margin="20,89,0,0" Name="lvwClassify" VerticalAlignment="Top" Width="737" SelectionMode="Single" />
+            </TabItem>
+            <TabItem Header="進階查詢">
+                
+            </TabItem>
+        </TabControl>
     </Grid>
 </UserControl>
