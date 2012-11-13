@@ -2,9 +2,11 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
-        xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
-        xmlns:Behaviours="clr-namespace:MahApps.Metro.Behaviours;assembly=MahApps.Metro"
-        Title="資料查詢" Height="600" Width="800" FontFamily="Microsoft JhengHei" Icon="/WFTP;component/Icons/wintriss.ico">
+        Title="工程資料庫系統"
+        Height="600"
+        Width="800"
+        FontFamily="Microsoft JhengHei"
+        Icon="/WFTP;component/Icons/wintriss.ico">
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -27,7 +29,7 @@
                             <SolidColorBrush x:Key="BlackBrush" Color="White" />
                         </Rectangle.Resources>
                         <Rectangle.Fill>
-                            <VisualBrush Stretch="Fill" Visual="{StaticResource appbar_folder_ellipsis}" />
+                            <VisualBrush Stretch="Fill" Visual="{StaticResource appbar_page_search}" />
                         </Rectangle.Fill>
                     </Rectangle>
                     <TextBlock Text="資料查詢" Foreground="White" Margin="5,0,0,0" FontWeight="Normal" FontSize="12" FontFamily="Microsoft JhengHei" />
@@ -61,26 +63,6 @@
                     <TextBlock Text="上傳資料" Foreground="White" Margin="5,0,0,0" FontWeight="Normal" FontSize="12" FontFamily="Microsoft JhengHei" />
                 </StackPanel>
             </Button>
-            <!--Button #4 Advance Query-->
-            <Button Name="btnAdvanceQuery" Click="btnAdvanceQuery_Click">
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
-                    <Rectangle Width="20" Height="20">
-                        <Rectangle.Resources>
-                            <SolidColorBrush x:Key="BlackBrush" Color="White" />
-                        </Rectangle.Resources>
-                        <Rectangle.Fill>
-                            <VisualBrush Stretch="Fill" Visual="{StaticResource appbar_page_search}" />
-                        </Rectangle.Fill>
-                    </Rectangle>
-                    <TextBlock Text="進階查詢" Foreground="White" Margin="5,0,0,0" FontWeight="Normal" FontSize="12" FontFamily="Microsoft JhengHei" />
-                </StackPanel>
-            </Button>
         </Controls:WindowCommands>
     </Controls:MetroWindow.WindowCommands>
-    <i:Interaction.Behaviors>
-        <Behaviours:BorderlessWindowBehavior/>
-    </i:Interaction.Behaviors>
-    <Grid>
-        <ListView Height="452" HorizontalAlignment="Left" Margin="20,89,0,0" Name="lvwClassify" VerticalAlignment="Top" Width="737" SelectionMode="Single" />
-    </Grid>
 </Controls:MetroWindow>

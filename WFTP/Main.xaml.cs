@@ -10,7 +10,6 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
-using DataProvider;
 using MahApps.Metro.Controls;
 
 namespace WFTP
@@ -23,6 +22,8 @@ namespace WFTP
         public Main()
         {
             InitializeComponent();
+            Switcher.main = this;
+            Switcher.Switch(new Query());    
         }
 
         private void CloseButtonMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
@@ -55,53 +56,34 @@ namespace WFTP
 
         private void btnQuery_Click(object sender, RoutedEventArgs e)
         {
-            lvwClassify.Items.Clear();
-
-            WFTPDbContext db = new WFTPDbContext();
-
-            var lv1Classify = db.Lv1Classify;
-
-            foreach (var classifyItem in lv1Classify)
-            {
-                ListViewItem lvi = new ListViewItem();
-                lvi.Content = classifyItem.NickName;
-
-                Tile tile = new Tile();
-                tile.Title = classifyItem.NickName;
-                tile.Width = 115;
-                tile.Height = 115;
-                tile.Count = "5";
-
-                Image img = new Image();
-                img.Width = 50;
-                img.Height = 50;
-                BitmapImage bitmap = new BitmapImage();
-                bitmap.BeginInit();
-                bitmap.UriSource = new Uri(@"pack://application:,,,/WFTP;component/Images/logo.jpg");
-                bitmap.EndInit();
-
-                img.Source = bitmap;
-
-                tile.Content = img;
-
-                lvwClassify.Items.Add(tile);
-            }
+            Switcher.Switch(new Query()); 
         }
 
         private void btnManage_Click(object sender, RoutedEventArgs e)
         {
-            
+            Switcher.Switch(new Manage()); 
         }
 
         private void btnUpload_Click(object sender, RoutedEventArgs e)
         {
-            Slide s = new Slide();
-            
+            Switcher.Switch(new Upload());    
         }
 
-        private void btnAdvanceQuery_Click(object sender, RoutedEventArgs e)
+        public void Navigate(UserControl nextPage)
         {
+            this.Content = nextPage;
+        }
 
+        public void Navigate(UserControl nextPage, object state)
+        {
+            this.Content = nextPage;
+            ISwitchable s = nextPage as ISwitchable;
+
+            if (s != null)
+                s.UtilizeState(state);
+            else
+                throw new ArgumentException("NextPage is not ISwitchable! "
+                  + nextPage.Name.ToString());
         }
     }
 }

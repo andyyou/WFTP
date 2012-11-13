@@ -9,18 +9,28 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
 using System.Windows.Shapes;
 
 namespace WFTP
 {
     /// <summary>
-    /// AdQuery.xaml 的互動邏輯
+    /// Manage.xaml 的互動邏輯
     /// </summary>
-    public partial class AdQuery : Window
+    public partial class Manage : UserControl, ISwitchable
     {
-        public AdQuery()
+        public Manage()
         {
             InitializeComponent();
         }
+
+        #region ISwitchable Members
+
+        public void UtilizeState(object state)
+        {
+            throw new NotImplementedException();
+        }
+
+        #endregion
     }
 }

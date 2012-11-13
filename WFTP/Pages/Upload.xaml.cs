@@ -9,18 +9,28 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
 using System.Windows.Shapes;
 
 namespace WFTP
 {
     /// <summary>
-    /// Slide.xaml 的互動邏輯
+    /// Upload.xaml 的互動邏輯
     /// </summary>
-    public partial class Slide : Window
+    public partial class Upload : UserControl, ISwitchable
     {
-        public Slide()
+        public Upload()
         {
             InitializeComponent();
         }
+
+        #region ISwitchable Members
+
+        public void UtilizeState(object state)
+        {
+            throw new NotImplementedException();
+        }
+
+        #endregion
     }
 }
