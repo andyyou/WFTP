@@ -144,7 +144,6 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\Entypo.ttf" />
-    <None Include="Resources\logo.jpg" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\Entypo-license.txt" />

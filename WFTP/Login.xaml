@@ -19,8 +19,8 @@
         <Image Height="60" Margin="35,20,0,0" Name="image1" Stretch="Fill" VerticalAlignment="Top" Source="/WFTP;component/Images/logo.jpg" HorizontalAlignment="Left" Width="216" StretchDirection="Both" />
         <Label Content="帳號" Height="28" HorizontalAlignment="Left" Margin="34,90,0,0" Name="label1" VerticalAlignment="Top" FontSize="16" FontFamily="Microsoft JhengHei" />
         <Label Content="密碼" Height="28" HorizontalAlignment="Left" Margin="34,125,0,0" Name="label2" VerticalAlignment="Top" FontSize="16" FontFamily="Microsoft JhengHei" />
-        <TextBox Height="23" HorizontalAlignment="Left" Margin="75,93,0,0" Name="txtID" VerticalAlignment="Top" Width="120" Text="" FontFamily="Microsoft JhengHei" />
-        <PasswordBox Height="23" HorizontalAlignment="Left" Margin="75,127,0,0" Name="txtPassword" VerticalAlignment="Top" Width="120" FontFamily="Microsoft JhengHei" />
+        <TextBox Height="23" HorizontalAlignment="Left" Margin="75,93,0,0" Name="txtID" VerticalAlignment="Top" Width="120" Text="" FontFamily="Microsoft JhengHei" Controls:TextboxHelper.Watermark="請輸入帳號" Controls:TextboxHelper.ClearTextButton="True" />
+        <PasswordBox Height="23" HorizontalAlignment="Left" Margin="75,127,0,0" Name="txtPassword" VerticalAlignment="Top" Width="120" FontFamily="Microsoft JhengHei" Controls:TextboxHelper.Watermark="請輸入密碼" />
         <Button Content="{StaticResource appbar_arrow_right}" Height="50" Width="50" Margin="201,98,27,0" Name="btnLogin" VerticalAlignment="Top" Click="btnLogin_Click" FontWeight="Normal" Style="{DynamicResource MetroCircleButtonStyle}" FontFamily="Microsoft JhengHei" />
         <Controls:ToggleSwitch Name ="togRememberId" Margin="29,221,161,23" Header="記憶帳號" OnLabel="是" OffLabel="否" FontFamily="Microsoft JhengHei" />
         <Controls:ToggleSwitch Name ="togRememberPwd" Margin="146,221,44,23" Header="記憶密碼" OnLabel="是" OffLabel="否" FontFamily="Microsoft JhengHei" />
