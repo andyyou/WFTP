@@ -68,5 +68,21 @@ namespace WFTP
                 lvwClassify.Items.Add(lvi);
             }
         }
+
+        private void btnManage_Click(object sender, RoutedEventArgs e)
+        {
+            
+        }
+
+        private void btnUpload_Click(object sender, RoutedEventArgs e)
+        {
+            Slide s = new Slide();
+            
+        }
+
+        private void btnAdvanceQuery_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
     }
 }

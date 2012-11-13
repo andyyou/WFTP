@@ -2,6 +2,8 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+        xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+        xmlns:Behaviours="clr-namespace:MahApps.Metro.Behaviours;assembly=MahApps.Metro"
         Title="Upload" Height="600" Width="800" FontFamily="Microsoft JhengHei" Icon="/WFTP;component/Icons/wintriss.ico">
     <Window.Resources>
         <ResourceDictionary>
@@ -15,6 +17,9 @@
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Window.Resources>
+    <i:Interaction.Behaviors>
+        <Behaviours:BorderlessWindowBehavior ResizeWithGrip="False" />
+    </i:Interaction.Behaviors>
     <Grid>
         <ListView Height="206" Name="listView1" Margin="36,0,37,263" VerticalAlignment="Bottom" />
         <Button Content="選擇暫存目錄" Height="27" HorizontalAlignment="Left" Margin="36,35,0,0" Name="button1" VerticalAlignment="Top" Width="92" FontFamily="Microsoft JhengHei" FontSize="12" />
