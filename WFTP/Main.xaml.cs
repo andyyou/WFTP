@@ -11,13 +11,14 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using DataProvider;
+using MahApps.Metro.Controls;
 
 namespace WFTP
 {
     /// <summary>
-    /// Window1.xaml 的互動邏輯
+    /// Main.xaml 的互動邏輯
     /// </summary>
-    public partial class Main : MahApps.Metro.Controls.MetroWindow
+    public partial class Main : MetroWindow
     {
         public Main()
         {
@@ -65,7 +66,25 @@ namespace WFTP
                 ListViewItem lvi = new ListViewItem();
                 lvi.Content = classifyItem.NickName;
 
-                lvwClassify.Items.Add(lvi);
+                Tile tile = new Tile();
+                tile.Title = classifyItem.NickName;
+                tile.Width = 115;
+                tile.Height = 115;
+                tile.Count = "5";
+
+                Image img = new Image();
+                img.Width = 50;
+                img.Height = 50;
+                BitmapImage bitmap = new BitmapImage();
+                bitmap.BeginInit();
+                bitmap.UriSource = new Uri(@"pack://application:,,,/WFTP;component/Images/logo.jpg");
+                bitmap.EndInit();
+
+                img.Source = bitmap;
+
+                tile.Content = img;
+
+                lvwClassify.Items.Add(tile);
             }
         }
 
