@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:odc="clr-namespace:Odyssey.Controls;assembly=Odyssey"
              mc:Ignorable="d" 
              d:DesignHeight="600"
              d:DesignWidth="800"
@@ -10,6 +11,7 @@
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../Resources/Icons.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.AnimatedSingleRowTabControl.xaml" />
             </ResourceDictionary.MergedDictionaries>
 
@@ -30,12 +32,69 @@
                     </Setter.Value>
                 </Setter>
             </Style>
+            <XmlDataProvider x:Key="dataProvider" XPath="bc">
+                <x:XData>
+                    <bc xmlns="" title="Desktop">
+                        <bc title="Computer">
+                            <bc title="C:" >
+                                <bc title="Windows" >
+                                    <bc title="System32"/>
+                                    <bc title="ie7"/>
+                                    <bc title="Microsoft.NET"/>
+                                    <bc title="Fonts"/>
+                                    <bc title="Driver Cache"/>
+                                    <bc title="inf"/>
+                                </bc>
+                                <bc title="Program Files">
+                                    <bc title="Visual Studio"/>
+                                    <bc title="Office"/>
+                                </bc>
+                                <bc title="Users">
+                                    <bc title="Administrator"/>
+                                    <bc title="Guest"/>
+                                </bc>
+                            </bc>
+                            <bc title="D:"/>
+                        </bc>
+                        <bc title="Network">
+                            <bc title="odyssey">
+                                <bc title="public"/>
+                                <bc title="private"/>
+                            </bc>
+                            <bc title="daedalus">
+                                <bc title="system"/>
+                                <bc title="confidential"/>
+                            </bc>
+                        </bc>
+                    </bc>
+                </x:XData>
+            </XmlDataProvider>
+            <HierarchicalDataTemplate DataType="bc" 
+                  ItemsSource="{Binding XPath=*}">
+                <TextBlock Text="{Binding XPath=@title}" 
+                  Foreground="Red"/>
+            </HierarchicalDataTemplate>
         </ResourceDictionary>
     </UserControl.Resources>
     <Grid>
         <TabControl>
             <TabItem Header="一般查詢">
-                <ListView Name="lvwClassify" SelectionMode="Single" Margin="0,40,0,0" />
+                <DockPanel Margin="5">
+                    <WrapPanel DockPanel.Dock="Top">
+                        <Rectangle Width="20" Height="20">
+                            <Rectangle.Resources>
+                                <SolidColorBrush x:Key="BlackBrush" Color="#FF41BEE1" />
+                            </Rectangle.Resources>
+                            <Rectangle.Fill>
+                                <VisualBrush Stretch="Fill" Visual="{StaticResource appbar_arrow_right}" />
+                            </Rectangle.Fill>
+                        </Rectangle>
+                        <Rectangle Width="5" Height="20"/>
+                        <odc:BreadcrumbBar x:Name="navBar" TraceBinding="{Binding XPath=@title}"
+                                       Root="{StaticResource dataProvider}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Width="757" />
+                    </WrapPanel>
+                    <ListView Name="lvwClassify" SelectionMode="Single" Margin="0,40,0,0" />
+                </DockPanel>
             </TabItem>
             <TabItem Header="進階查詢">
                 
