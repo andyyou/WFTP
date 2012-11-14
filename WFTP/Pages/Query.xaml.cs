@@ -34,28 +34,29 @@ namespace WFTP
             WFTPDbContext db = new WFTPDbContext();
 
             var lv1Classify = db.Lv1Classify;
-
+            
             foreach (var classifyItem in lv1Classify)
             {
                 ListViewItem lvi = new ListViewItem();
                 lvi.Content = classifyItem.NickName;
 
-                Tile tile = new Tile();
-                tile.Title = classifyItem.NickName;
-                tile.Width = 115;
-                tile.Height = 115;
-                tile.Count = "5";
-
-                Image img = new Image();
-                img.Width = 50;
-                img.Height = 50;
                 BitmapImage bitmap = new BitmapImage();
                 bitmap.BeginInit();
-                bitmap.UriSource = new Uri(@"pack://application:,,,/WFTP;component/Images/logo.jpg");
+                bitmap.UriSource = new Uri(@"pack://application:,,,/WFTP;component/Icons/folder.ico");
                 bitmap.EndInit();
 
+                Image img = new Image();
+                img.Width = 60;
+                img.Height = 60;
                 img.Source = bitmap;
 
+                Tile tile = new Tile();
+                tile.Title = classifyItem.NickName;
+                tile.FontFamily = new FontFamily("Microsoft JhengHei");
+                tile.Width = 120;
+                tile.Height = 120;
+                tile.Count = "?";
+                tile.Margin = new Thickness(5, 5, 5, 5);
                 tile.Content = img;
 
                 lvwClassify.Items.Add(tile);
