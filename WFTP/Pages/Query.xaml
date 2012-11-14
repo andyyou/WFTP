@@ -12,12 +12,30 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.AnimatedSingleRowTabControl.xaml" />
             </ResourceDictionary.MergedDictionaries>
+
+            <Style TargetType="ListView">
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="ListView">
+                            <Border Background="{TemplateBinding ListView.Background}">
+                                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                                    <WrapPanel Orientation="Horizontal" 
+                                               Width="520"
+                                               VerticalAlignment="Center"
+                                               HorizontalAlignment="Center"
+                                               IsItemsHost="True" />
+                                </ScrollViewer>
+                            </Border>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
         </ResourceDictionary>
     </UserControl.Resources>
     <Grid>
         <TabControl>
             <TabItem Header="一般查詢">
-                <ListView Name="lvwClassify" SelectionMode="Single" Margin="0,40,0,0"/>
+                <ListView Name="lvwClassify" SelectionMode="Single" Margin="0,40,0,0" />
             </TabItem>
             <TabItem Header="進階查詢">
                 

@@ -69,6 +69,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Helper\ExtensionHelper.cs" />
     <Compile Include="ISwitchable.cs" />
     <Compile Include="Main.xaml.cs">
       <DependentUpon>Main.xaml</DependentUpon>
@@ -166,6 +167,16 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Icons\wintriss.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Icons\doc.ico" />
+    <Resource Include="Icons\folder.ico" />
+    <Resource Include="Icons\img.ico" />
+    <Resource Include="Icons\pdf.ico" />
+    <Resource Include="Icons\ppt.ico" />
+    <Resource Include="Icons\txt.ico" />
+    <Resource Include="Icons\unknown.ico" />
+    <Resource Include="Icons\xls.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
