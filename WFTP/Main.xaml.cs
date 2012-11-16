@@ -9,13 +9,14 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
 using System.Windows.Shapes;
 using MahApps.Metro.Controls;
 
 namespace WFTP
 {
     /// <summary>
-    /// Main.xaml 的互動邏輯
+    /// MainWindow.xaml 的互動邏輯
     /// </summary>
     public partial class Main : MetroWindow
     {
@@ -23,7 +24,7 @@ namespace WFTP
         {
             InitializeComponent();
             Switcher.main = this;
-            Switcher.Switch(new Query());    
+            Switcher.Switch(new WFTP.Pages.Query());
         }
 
         private void CloseButtonMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
@@ -56,18 +57,20 @@ namespace WFTP
 
         private void btnQuery_Click(object sender, RoutedEventArgs e)
         {
-            Switcher.Switch(new Query()); 
+            Switcher.Switch(new WFTP.Pages.Query()); 
         }
 
         private void btnManage_Click(object sender, RoutedEventArgs e)
         {
-            Switcher.Switch(new Manage()); 
+            Switcher.Switch(new WFTP.Pages.Manage());
         }
 
         private void btnUpload_Click(object sender, RoutedEventArgs e)
         {
-            Switcher.Switch(new Upload());    
+            Switcher.Switch(new WFTP.Pages.Upload());
         }
+
+        #region Switcher
 
         public void Navigate(UserControl nextPage)
         {
@@ -81,10 +84,16 @@ namespace WFTP
             ISwitchable s = nextPage as ISwitchable;
 
             if (s != null)
+            {
                 s.UtilizeState(state);
+            }
             else
+            {
                 throw new ArgumentException("NextPage is not ISwitchable! "
                   + nextPage.Name.ToString());
+            }
         }
+
+        #endregion
     }
 }

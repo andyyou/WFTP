@@ -25,37 +25,25 @@ namespace WFTP.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("True")]
-        public bool RememberId {
-            get {
-                return ((bool)(this["RememberId"]));
-            }
-            set {
-                this["RememberId"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool RememberPwd {
-            get {
-                return ((bool)(this["RememberPwd"]));
-            }
-            set {
-                this["RememberPwd"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("123")]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
         public string Id {
             get {
                 return ((string)(this["Id"]));
             }
             set {
                 this["Id"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool RememberId {
+            get {
+                return ((bool)(this["RememberId"]));
+            }
+            set {
+                this["RememberId"] = value;
             }
         }
         
@@ -68,6 +56,18 @@ namespace WFTP.Properties {
             }
             set {
                 this["Pwd"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool RememberPwd {
+            get {
+                return ((bool)(this["RememberPwd"]));
+            }
+            set {
+                this["RememberPwd"] = value;
             }
         }
     }

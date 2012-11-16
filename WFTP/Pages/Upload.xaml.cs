@@ -12,7 +12,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace WFTP
+namespace WFTP.Pages
 {
     /// <summary>
     /// Upload.xaml 的互動邏輯

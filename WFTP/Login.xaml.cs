@@ -9,20 +9,21 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
 using System.Windows.Shapes;
 using DataProvider;
+using MahApps.Metro.Controls;
 
 namespace WFTP
 {
     /// <summary>
-    /// MainWindow.xaml 的互動邏輯
+    /// Login.xaml 的互動邏輯
     /// </summary>
-    public partial class MainWindow : MahApps.Metro.Controls.MetroWindow
+    public partial class Login : MetroWindow
     {
-        public MainWindow()
+        public Login()
         {
             InitializeComponent();
+
             if (Properties.Settings.Default.RememberId)
             {
                 txtID.Text = Properties.Settings.Default.Id;
@@ -79,12 +80,11 @@ namespace WFTP
             {
                 DragMove();
             }
-
         }
 
         private void CloseButtonMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
             Close();
-        }   
+        }
     }
 }

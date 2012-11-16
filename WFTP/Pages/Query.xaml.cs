@@ -14,10 +14,10 @@ using System.Windows.Shapes;
 using DataProvider;
 using MahApps.Metro.Controls;
 
-namespace WFTP
+namespace WFTP.Pages
 {
     /// <summary>
-    /// Main.xaml 的互動邏輯
+    /// Query.xaml 的互動邏輯
     /// </summary>
     public partial class Query : UserControl, ISwitchable
     {
@@ -34,7 +34,7 @@ namespace WFTP
             WFTPDbContext db = new WFTPDbContext();
 
             var lv1Classify = db.Lv1Classify;
-            
+
             foreach (var classifyItem in lv1Classify)
             {
                 ListViewItem lvi = new ListViewItem();
