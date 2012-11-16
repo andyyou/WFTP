@@ -5,7 +5,7 @@
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{376D46BC-5069-47E9-A76F-1D853ACD3A76}</ProjectGuid>
+    <ProjectGuid>{F24B9962-3075-48C8-B7A3-700716CDC806}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>WFTP</RootNamespace>
@@ -36,22 +36,15 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Caliburn.Micro, Version=1.3.1.0, Culture=neutral, PublicKeyToken=8e5891231f2ed21f, processorArchitecture=MSIL">
-      <HintPath>..\packages\Caliburn.Micro.1.3.1\lib\net40\Caliburn.Micro.dll</HintPath>
-    </Reference>
     <Reference Include="MahApps.Metro">
       <HintPath>..\packages\MahApps.Metro.0.10.0.0\lib\net40\MahApps.Metro.dll</HintPath>
     </Reference>
-    <Reference Include="Odyssey">
-      <HintPath>..\Odyssey.dll</HintPath>
-    </Reference>
+    <Reference Include="Odyssey, Version=1.0.4701.31841, Culture=neutral, processorArchitecture=MSIL" />
     <Reference Include="System" />
-    <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.Data" />
     <Reference Include="System.Data.Linq" />
-    <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Interactivity, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Caliburn.Micro.1.3.1\lib\net40\System.Windows.Interactivity.dll</HintPath>
+      <HintPath>..\packages\MahApps.Metro.0.10.0.0\lib\net40\System.Windows.Interactivity.dll</HintPath>
     </Reference>
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
@@ -61,8 +54,6 @@
     <Reference Include="System.Xaml">
       <RequiredTargetFramework>4.0</RequiredTargetFramework>
     </Reference>
-    <Reference Include="UIAutomationProvider" />
-    <Reference Include="UIAutomationTypes" />
     <Reference Include="WindowsBase" />
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
@@ -73,21 +64,21 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Helper\ExtensionHelper.cs" />
-    <Compile Include="ISwitchable.cs" />
-    <Compile Include="Main.xaml.cs">
-      <DependentUpon>Main.xaml</DependentUpon>
+    <Compile Include="Login.xaml.cs">
+      <DependentUpon>Login.xaml</DependentUpon>
     </Compile>
     <Compile Include="Pages\Manage.xaml.cs">
       <DependentUpon>Manage.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Pages\Query.xaml.cs">
-      <DependentUpon>Query.xaml</DependentUpon>
     </Compile>
     <Compile Include="Pages\Upload.xaml.cs">
       <DependentUpon>Upload.xaml</DependentUpon>
     </Compile>
     <Compile Include="Switcher.cs" />
     <Page Include="Login.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Main.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -95,14 +86,11 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Login.xaml.cs">
-      <DependentUpon>Login.xaml</DependentUpon>
+    <Compile Include="ISwitchable.cs" />
+    <Compile Include="Main.xaml.cs">
+      <DependentUpon>Main.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Page Include="Main.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="Pages\Manage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -121,6 +109,9 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Pages\Query.xaml.cs">
+      <DependentUpon>Query.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -145,6 +136,7 @@
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
     <AppDesigner Include="Properties\" />
+    <Resource Include="Resources\Entypo.ttf" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DataProvider\DataProvider.csproj">
@@ -153,33 +145,27 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Resources\Entypo.ttf" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Resources\Entypo-license.txt" />
+    <Resource Include="Icons\doc.ico" />
+    <Resource Include="Icons\file.ico" />
+    <Resource Include="Icons\folder.ico" />
+    <Resource Include="Icons\home.ico" />
+    <Resource Include="Icons\img.ico" />
+    <Resource Include="Icons\pdf.ico" />
+    <Resource Include="Icons\ppt.ico" />
+    <Resource Include="Icons\sound.ico" />
+    <Resource Include="Icons\txt.ico" />
+    <Resource Include="Icons\unknown.ico" />
+    <Resource Include="Icons\wintriss.ico" />
+    <Resource Include="Icons\xls.ico" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\logo.jpg" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Icons\home.ico" />
-    <Resource Include="Icons\sound.ico" />
+    <Resource Include="Resources\Entypo-license.txt" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Icons\file.ico" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Icons\wintriss.ico" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Icons\doc.ico" />
-    <Resource Include="Icons\folder.ico" />
-    <Resource Include="Icons\img.ico" />
-    <Resource Include="Icons\pdf.ico" />
-    <Resource Include="Icons\ppt.ico" />
-    <Resource Include="Icons\txt.ico" />
-    <Resource Include="Icons\unknown.ico" />
-    <Resource Include="Icons\xls.ico" />
+    <Content Include="Lib\Odyssey.dll" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
