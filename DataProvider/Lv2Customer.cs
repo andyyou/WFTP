@@ -6,7 +6,7 @@ using System.Data.Linq.Mapping;
 
 namespace DataProvider
 {
-   [Table(Name = "Lv2Customer")]
+   [Table(Name = "Lv2Customers")]
    public class CLv2Customer
    {
        [Column(IsDbGenerated = false, IsPrimaryKey = true)]

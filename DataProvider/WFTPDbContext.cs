@@ -17,6 +17,7 @@ namespace DataProvider
 
         //Tables
         public Table<CEmployee> Employees;
-        public Table<CLv1Classify> Lv1Classify;
+        public Table<CLv1Classify> Lv1Classifications;
+        public Table<CLv2Customer> Lv2Customers;
     }
 }
