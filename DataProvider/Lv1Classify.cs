@@ -7,11 +7,11 @@ using System.Data.Linq.Mapping;
 
 namespace DataProvider
 {
-    [Table(Name = "Lv1Classify")]
+    [Table(Name = "Lv1Classifications")]
     public class CLv1Classify
     {
         [Column(IsDbGenerated=false, IsPrimaryKey=true)]
-        public Int32 CId;
+        public Int32 ClassifyId;
 
         [Column]
         public String ClassName;

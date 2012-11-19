@@ -33,12 +33,20 @@ namespace WFTP.Pages
 
             WFTPDbContext db = new WFTPDbContext();
 
-            var lv1Classify = db.Lv1Classify;
+            var lv1Classify = from classify in db.Lv1Classifications
+                              let subCount = 
+                                  (from customer in db.Lv2Customers
+                                  where customer.ClassifyId == classify.ClassifyId
+                                  select customer).Count()
+                              select new
+                              {
+                                  NickName = classify.NickName,
+                                  Counts = subCount
+                              };
 
             foreach (var classifyItem in lv1Classify)
             {
                 ListViewItem lvi = new ListViewItem();
-                lvi.Content = classifyItem.NickName;
 
                 BitmapImage bitmap = new BitmapImage();
                 bitmap.BeginInit();
@@ -55,7 +63,7 @@ namespace WFTP.Pages
                 tile.FontFamily = new FontFamily("Microsoft JhengHei");
                 tile.Width = 120;
                 tile.Height = 120;
-                tile.Count = "?";
+                tile.Count = classifyItem.Counts.ToString();
                 tile.Margin = new Thickness(5, 5, 5, 5);
                 tile.Content = img;
 
