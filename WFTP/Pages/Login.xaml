@@ -1,19 +1,17 @@
-﻿<Controls:MetroWindow x:Class="WFTP.Login"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
-        Title="登入"
-        Height="350"
-        Width="300"
-        FontFamily="Microsoft JhengHei"
-        AllowDrop="False"
-        WindowStartupLocation="CenterScreen"
-        ResizeMode="NoResize"
-        Icon="/WFTP;component/Icons/wintriss.ico">
-    <Window.Resources>
+﻿<UserControl x:Class="WFTP.Pages.Login"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+             mc:Ignorable="d" 
+             d:DesignHeight="561"
+             d:DesignWidth="778"
+             FontFamily="Microsoft JhengHei">
+    <Control.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="Resources/Icons.xaml" />
+                <ResourceDictionary Source="../Resources/Icons.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Colours.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Fonts.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.xaml" />
@@ -21,80 +19,73 @@
                 <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/BaseLight.xaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
-    </Window.Resources>
+    </Control.Resources>
     <Grid>
         <Image Name="logo"
-               Height="60"   
-               Width="216"
-               Margin="35,20,0,0"
+               Width="280"
+               Height="78"
+               Margin="249,108,249,375"
                Stretch="Fill"
                StretchDirection="Both"
-               VerticalAlignment="Top"
-               HorizontalAlignment="Left"
                Source="/WFTP;component/Images/logo.jpg" />
         <Label Name="lblID"
-               Height="28" 
-               Margin="34,90,0,0" 
-               Content="帳號" 
-               HorizontalAlignment="Left" 
-               VerticalAlignment="Top" 
+               Width="42"
+               Height="28"
+               Margin="272,198,464,335" 
+               Content="帳號"
                FontSize="16" 
                FontFamily="Microsoft JhengHei" />
-        <Label Name="lblPassword" 
-               Height="28" 
-               Margin="34,125,0,0" 
-               Content="密碼" 
-               HorizontalAlignment="Left" 
-               VerticalAlignment="Top" 
+        <Label Name="lblPassword"
+               Width="42"
+               Height="28"
+               Margin="272,233,464,300" 
+               Content="密碼"
                FontSize="16" 
                FontFamily="Microsoft JhengHei" />
-        <TextBox Name="txtID" 
-                 Height="23" 
-                 Width="120" 
-                 Margin="75,93,0,0" 
-                 HorizontalAlignment="Left" 
-                 VerticalAlignment="Top" 
+        <TextBox Name="txtID"
+                 Width="120"
+                 Height="26"
+                 Margin="313,201,345,334"
                  FontFamily="Microsoft JhengHei" 
                  Controls:TextboxHelper.Watermark="請輸入帳號" 
                  Controls:TextboxHelper.ClearTextButton="True" />
-        <PasswordBox Name="txtPassword" 
-                     Height="23" 
-                     Width="120" 
-                     Margin="75,127,0,0" 
-                     HorizontalAlignment="Left" 
-                     VerticalAlignment="Top" 
+        <PasswordBox Name="txtPassword"
+                     Width="120"
+                     Height="26"
+                     Margin="313,235,345,300"
                      FontFamily="Microsoft JhengHei" 
                      Controls:TextboxHelper.Watermark="請輸入密碼" />
-        <Button Name="btnLogin" 
-                Height="50" 
+        <Button Name="btnLogin"
                 Width="50" 
-                Margin="201,98,27,0" 
-                VerticalAlignment="Top"
+                Height="50"
+                Margin="457,205,271,306"
                 Content="{StaticResource appbar_arrow_right}" 
                 Style="{DynamicResource MetroCircleButtonStyle}" 
                 FontFamily="Microsoft JhengHei"  
                 Click="btnLogin_Click" />
         <Controls:ToggleSwitch Name ="togRememberId" 
-                               Margin="29,221,161,23" 
+                               Width="100"
+                               Height="70"
+                               Margin="249,310,429,180"
                                Header="記憶帳號" 
                                OnLabel="是" 
                                OffLabel="否" 
                                FontFamily="Microsoft JhengHei" />
         <Controls:ToggleSwitch Name ="togRememberPwd" 
-                               Margin="146,221,44,23" 
+                               Width="100"
+                               Height="70"
+                               Margin="429,310,249,180" 
                                Header="記憶密碼" 
                                OnLabel="是" 
                                OffLabel="否" 
                                FontFamily="Microsoft JhengHei" />
-        <Label Name="lblMessage" 
-               Height="28" 
-               Width="160" 
-               Margin="55,174,0,0" 
-               HorizontalAlignment="Left" 
-               VerticalAlignment="Top" 
+        <Label Name="lblMessage"
+               Width="160"
+               Height="28"
+               Margin="309,276,309,257"
                HorizontalContentAlignment="Center" 
                Foreground="Red" 
                FontSize="14" 
                FontFamily="Microsoft JhengHei" />
     </Grid>
-</Controls:MetroWindow>
+</UserControl>

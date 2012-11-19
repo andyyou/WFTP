@@ -23,8 +23,13 @@ namespace WFTP
         public Main()
         {
             InitializeComponent();
+
+            btnQuery.Visibility = Visibility.Hidden;
+            btnManage.Visibility = Visibility.Hidden;
+            btnUpload.Visibility = Visibility.Hidden;
+
             Switcher.main = this;
-            Switcher.Switch(new WFTP.Pages.Query());
+            Switcher.Switch(new Pages.Login());
         }
 
         private void CloseButtonMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
@@ -74,7 +79,12 @@ namespace WFTP
 
         public void Navigate(UserControl nextPage)
         {
-            //this.Content = nextPage;
+            if (nextPage is Pages.Query)
+            {
+                btnQuery.Visibility = Visibility.Visible;
+                btnManage.Visibility = Visibility.Visible;
+                btnUpload.Visibility = Visibility.Visible;
+            }
             this.transitioning.Content = nextPage;
         }
 
