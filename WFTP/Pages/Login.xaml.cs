@@ -9,16 +9,16 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
 using System.Windows.Shapes;
 using DataProvider;
-using MahApps.Metro.Controls;
 
-namespace WFTP
+namespace WFTP.Pages
 {
     /// <summary>
     /// Login.xaml 的互動邏輯
     /// </summary>
-    public partial class Login : MetroWindow
+    public partial class Login : UserControl
     {
         public Login()
         {
@@ -63,28 +63,16 @@ namespace WFTP
 
                     Properties.Settings.Default.Save();
 
-                    Main window = new Main();
-                    window.Show();
-                    this.Close();
+                    //Main window = new Main();
+                    //window.Show();
+                    //this.Close();
+                    Switcher.Switch(new WFTP.Pages.Query());
                 }
                 else
                 {
                     lblMessage.Content = "帳號或密碼有誤";
                 }
             }
-        }
-
-        private void DragableGridMouseDown(object sender, MouseButtonEventArgs e)
-        {
-            if (e.LeftButton == MouseButtonState.Pressed)
-            {
-                DragMove();
-            }
-        }
-
-        private void CloseButtonMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
-        {
-            Close();
         }
     }
 }
