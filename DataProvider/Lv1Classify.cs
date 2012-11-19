@@ -11,7 +11,7 @@ namespace DataProvider
     public class CLv1Classify
     {
         [Column(IsDbGenerated=false, IsPrimaryKey=true)]
-        public Int32 CId;
+        public Int32 ClassifyId;
 
         [Column]
         public String ClassName;

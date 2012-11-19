@@ -36,7 +36,7 @@ namespace WFTP.Pages
             var lv1Classify = from classify in db.Lv1Classifications
                               let subCount = 
                                   (from customer in db.Lv2Customers
-                                  where customer.ClassifyId == classify.CId
+                                  where customer.ClassifyId == classify.ClassifyId
                                   select customer).Count()
                               select new
                               {
