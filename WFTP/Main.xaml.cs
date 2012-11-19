@@ -24,7 +24,7 @@ namespace WFTP
         {
             InitializeComponent();
             Switcher.main = this;
-            Switcher.Switch(new WFTP.Pages.Query());
+            Switcher.Switch(new Pages.Query());
         }
 
         private void CloseButtonMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
