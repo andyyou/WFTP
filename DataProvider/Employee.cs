@@ -7,7 +7,7 @@ using System.Data.Linq.Mapping;
 
 namespace DataProvider
 {
-    [Table(Name = "Employee")]
+    [Table(Name = "Employees")]
     public class CEmployee
     {
         [Column(IsDbGenerated=false, IsPrimaryKey=true)]
