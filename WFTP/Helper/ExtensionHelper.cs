@@ -32,11 +32,20 @@ namespace WFTP.Helper
             extList.Add("txt", "txt.ico");
             // folder
             extList.Add("folder", "folder.ico");
+            // unknown
+            extList.Add("unknown", "unknown.ico");
         }
 
-        //public string GetIconPath(string extension)
-        //{
-
-        //}
+        public string GetIconPath(string extension)
+        {
+            if (extList.ContainsKey(extension))
+            {
+                return String.Format("{0}{1}", icon_folder, extList[extension]);
+            }
+            else
+            {
+                return String.Format("{0}{1}", icon_folder, extList["unknown"]);
+            }
+        }
     }
 }

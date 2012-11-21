@@ -13,6 +13,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using DataProvider;
 using MahApps.Metro.Controls;
+using System.Xml;
 
 namespace WFTP.Pages
 {
@@ -21,10 +22,53 @@ namespace WFTP.Pages
     /// </summary>
     public partial class Query : UserControl, ISwitchable
     {
+        private List<string> _remoteFolders = new List<string>();
+
         public Query()
         {
             InitializeComponent();
             GetClassify();
+            GetBreadcrumbBarPath();
+        }
+
+        private void GetBreadcrumbBarPath()
+        {
+            // Combination Datasource of Folder secheme
+            // Initialize root
+            XmlDocument doc = new XmlDocument();
+            XmlNode root = doc.CreateElement("bc");
+            XmlAttribute xmlns = doc.CreateAttribute("xmlns");
+            xmlns.Value = "";
+            XmlAttribute t = doc.CreateAttribute("title");
+            t.Value = "分類";
+            root.Attributes.Append(xmlns);
+            root.Attributes.Append(t);
+            doc.AppendChild(root);
+
+            // Append child node
+            WFTPDbContext db = new WFTPDbContext();
+            var lv1 = from classify in db.Lv1Classifications
+                      select classify;
+            foreach (var cls in lv1)
+            {
+                XmlElement xelClassify = doc.CreateElement("bc");
+                xelClassify.SetAttribute("title", cls.NickName);
+                var lv2 = from company in db.Lv2Customers
+                          where company.ClassifyId == cls.ClassifyId
+                          select company;
+                foreach (var company in lv2)
+                {
+                    XmlElement xelCompany = doc.CreateElement("bc");
+                    xelCompany.SetAttribute("title", company.CompanyNickName);
+                    xelClassify.AppendChild(xelCompany);
+                }
+                root.AppendChild(xelClassify);
+
+            }
+
+            // edit static provider
+            XmlDataProvider dataFolders = this.FindResource("dataProvider") as XmlDataProvider;
+            dataFolders.Document = doc;
         }
 
         private void GetClassify()
@@ -66,7 +110,11 @@ namespace WFTP.Pages
                 tile.Count = classifyItem.Counts.ToString();
                 tile.Margin = new Thickness(5, 5, 5, 5);
                 tile.Content = img;
-
+                if (tile.Count == "0")
+                {
+                    tile.Background = new SolidColorBrush(Color.FromRgb(255, 93, 93));
+                }
+                
                 lvwClassify.Items.Add(tile);
             }
         }
