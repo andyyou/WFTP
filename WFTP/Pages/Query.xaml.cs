@@ -123,7 +123,7 @@ namespace WFTP.Pages
         /// </summary>
         /// <param name="level">目錄階層</param>
         /// <param name="id">關聯 ID</param>
-        private void GetCatalog(int level, int id = 0)
+        private void GetCatalog(int level)
         {
             lvwClassify.Items.Clear();
 
@@ -135,19 +135,19 @@ namespace WFTP.Pages
                     classify = GetLv1Catalog();
                     break;
                 case 2:
-                    classify = GetLv2Catalog(id);
+                    classify = GetLv2Catalog();
                     break;
                 case 3:
-                    classify = GetLv3Catalog(id);
+                    classify = GetLv3Catalog();
                     break;
                 case 4:
-                    classify = GetLv4Catalog(id);
+                    classify = GetLv4Catalog();
                     break;
                 case 5:
-                    classify = GetFileCatalog(id);
+                    classify = GetFileCatalog();
                     break;
                 case 6:
-                    classify = GetFileList(id);
+                    classify = GetFileList();
                     break;
             }
 
@@ -219,12 +219,12 @@ namespace WFTP.Pages
             return lv1Catalog;
         }
 
-        private dynamic GetLv2Catalog(int id)
+        private dynamic GetLv2Catalog()
         {
             WFTPDbContext db = new WFTPDbContext();
 
             var lv2Catalog = from customer in db.Lv2Customers
-                              where customer.ClassifyId == id
+                              where customer.ClassifyId == _catalogTree[1]
                               let subCount =
                                   (from branch in db.Lv3CustomerBranches
                                    where branch.CompanyId == customer.CompanyId
@@ -240,12 +240,12 @@ namespace WFTP.Pages
             return lv2Catalog;
         }
 
-        private dynamic GetLv3Catalog(int id)
+        private dynamic GetLv3Catalog()
         {
             WFTPDbContext db = new WFTPDbContext();
 
             var lv3Catalog = from branch in db.Lv3CustomerBranches
-                              where branch.CompanyId == id
+                             where branch.CompanyId == _catalogTree[2]
                               let subCount =
                                   (from line in db.Lv4Lines
                                    where line.BranchId == branch.BranchId
@@ -261,12 +261,12 @@ namespace WFTP.Pages
             return lv3Catalog;
         }
 
-        private dynamic GetLv4Catalog(int id)
+        private dynamic GetLv4Catalog()
         {
             WFTPDbContext db = new WFTPDbContext();
 
             var lv4Catalog = from line in db.Lv4Lines
-                             where line.BranchId == id
+                             where line.BranchId == _catalogTree[3]
                              let subCount =
                                  (from fileCatalog in db.Lv5FileCategorys
                                   select fileCatalog).Count()
@@ -281,14 +281,14 @@ namespace WFTP.Pages
             return lv4Catalog;
         }
 
-        private dynamic GetFileCatalog(int id)
+        private dynamic GetFileCatalog()
         {
             WFTPDbContext db = new WFTPDbContext();
 
             var fileCatalogList = from fileCatalog in db.Lv5FileCategorys
                              let subCount =
                                  (from file in db.Lv6Files
-                                  where file.LineId == id && file.FileCategoryId ==fileCatalog.FileCategoryId
+                                  where file.LineId == _catalogTree[4] && file.FileCategoryId == fileCatalog.FileCategoryId
                                   select file).Count()
                              select new
                              {
@@ -301,12 +301,12 @@ namespace WFTP.Pages
             return fileCatalogList;
         }
 
-        private dynamic GetFileList(int id)
+        private dynamic GetFileList()
         {
             WFTPDbContext db = new WFTPDbContext();
 
             var fileList = from file in db.Lv6Files
-                           where file.LineId == _catalogTree[4] && file.FileCategoryId == id && file.IsDeleted == false
+                           where file.LineId == _catalogTree[4] && file.FileCategoryId == _catalogTree[5] && file.IsDeleted == false
                            select new
                            {
                                Id = file.FileId,
@@ -324,7 +324,7 @@ namespace WFTP.Pages
             int tileTag = (int)tile.Tag;
             _catalogTree[Convert.ToInt32(lvwClassify.Tag)] = tileTag;
             int level = Convert.ToInt32(lvwClassify.Tag) + 1;
-            GetCatalog(level, tileTag);
+            GetCatalog(level);
             lvwClassify.Tag = level;
         }
 
@@ -332,8 +332,77 @@ namespace WFTP.Pages
         {
             //string dump = String.Format("NewValue: {0}\nOldValue: {1}\nOriginSource: {2}\nSource: {3}\nRoutedEvent: {4}", e.NewValue.ToString(), e.OldValue, e.OriginalSource, e.Source, e.RoutedEvent);
             //MessageBox.Show(dump);
-            string[] displayPath = navBar.GetDisplayPath().Split('\\');
-            MessageBox.Show(displayPath.Count().ToString());
+            string displayPath = navBar.GetDisplayPath();
+            string[] pathList = navBar.GetDisplayPath().Split('\\');
+            int level = pathList.Count();
+
+            if (displayPath.Equals("分類"))
+            {
+                GetCatalog(1);
+            }
+            else
+            {
+                GetCatalogId(level, pathList.Last());
+                level++;
+                GetCatalog(level);
+            }
+            lvwClassify.Tag = level;
+        }
+
+        private void GetCatalogId(int level, string condition)
+        {
+            WFTPDbContext db = new WFTPDbContext();
+            int id = 0;
+
+            switch (level)
+            {
+                case 1:
+                    var lv1 = from classify in db.Lv1Classifications
+                               where classify.NickName == condition
+                               select new
+                               {
+                                   classify.ClassifyId
+                               };
+                    id = lv1.First().ClassifyId;
+                    break;
+                case 2:
+                    var lv2 = from customer in db.Lv2Customers
+                               where customer.CompanyNickName == condition
+                               select new
+                               {
+                                   customer.CompanyId
+                               };
+                    id = lv2.First().CompanyId;
+                    break;
+                case 3:
+                    var lv3 = from branch in db.Lv3CustomerBranches
+                              where branch.BranchNickName == condition
+                              select new
+                              {
+                                  branch.BranchId
+                              };
+                    id = lv3.First().BranchId;
+                    break;
+                case 4:
+                    var lv4 = from line in db.Lv4Lines
+                               where line.LineNickName == condition
+                               select new
+                               {
+                                   line.LineId
+                               };
+                    id = lv4.First().LineId;
+                    break;
+                case 5:
+                    var lv5 = from catalog in db.Lv5FileCategorys
+                              where catalog.ClassNickName == condition
+                              select new
+                              {
+                                  catalog.FileCategoryId
+                              };
+                    id = lv5.First().FileCategoryId;
+                    break;
+            }
+            _catalogTree[level] = id;
         }
 
         #region ISwitchable Members
