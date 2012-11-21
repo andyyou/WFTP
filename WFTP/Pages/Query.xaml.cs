@@ -14,6 +14,7 @@ using System.Windows.Shapes;
 using DataProvider;
 using MahApps.Metro.Controls;
 using System.Xml;
+using Odyssey.Controls;
 
 namespace WFTP.Pages
 {
@@ -23,12 +24,25 @@ namespace WFTP.Pages
     public partial class Query : UserControl, ISwitchable
     {
         private List<string> _remoteFolders = new List<string>();
+        private Dictionary<int, int> _catalogTree = new Dictionary<int, int>();
 
         public Query()
         {
             InitializeComponent();
-            GetClassify();
+            GetCatalog(1);
             GetBreadcrumbBarPath();
+            lvwClassify.Tag = 1;
+
+            //_catalogTree.Add("Lv1Classifications", 0);
+            //_catalogTree.Add("Lv2Customers", 0);
+            //_catalogTree.Add("Lv3CustomerBranches", 0);
+            //_catalogTree.Add("Lv4Lines", 0);
+            //_catalogTree.Add("Lv5FileCategorys", 0);
+            _catalogTree.Add(1, 0);
+            _catalogTree.Add(2, 0);
+            _catalogTree.Add(3, 0);
+            _catalogTree.Add(4, 0);
+            _catalogTree.Add(5, 0);
         }
 
         private void GetBreadcrumbBarPath()
@@ -104,24 +118,40 @@ namespace WFTP.Pages
             dataFolders.Document = doc;
         }
 
-        private void GetClassify()
+        /// <summary>
+        /// 取得目錄內容
+        /// </summary>
+        /// <param name="level">目錄階層</param>
+        /// <param name="id">關聯 ID</param>
+        private void GetCatalog(int level)
         {
             lvwClassify.Items.Clear();
 
-            WFTPDbContext db = new WFTPDbContext();
+            dynamic classify = null;
 
-            var lv1Classify = from classify in db.Lv1Classifications
-                              let subCount = 
-                                  (from customer in db.Lv2Customers
-                                  where customer.ClassifyId == classify.ClassifyId
-                                  select customer).Count()
-                              select new
-                              {
-                                  NickName = classify.NickName,
-                                  Counts = subCount
-                              };
+            switch (level)
+            {
+                case 1:
+                    classify = GetLv1Catalog();
+                    break;
+                case 2:
+                    classify = GetLv2Catalog();
+                    break;
+                case 3:
+                    classify = GetLv3Catalog();
+                    break;
+                case 4:
+                    classify = GetLv4Catalog();
+                    break;
+                case 5:
+                    classify = GetFileCatalog();
+                    break;
+                case 6:
+                    classify = GetFileList();
+                    break;
+            }
 
-            foreach (var classifyItem in lv1Classify)
+            foreach (var classifyItem in classify)
             {
                 ListViewItem lvi = new ListViewItem();
 
@@ -136,20 +166,243 @@ namespace WFTP.Pages
                 img.Source = bitmap;
 
                 Tile tile = new Tile();
-                tile.Title = classifyItem.NickName;
+                string title = Convert.ToString(classifyItem.NickName);
+                tile.Title = title.Length > 12 ? String.Format("{0}…", title.Substring(0,11)) : title;
+
                 tile.FontFamily = new FontFamily("Microsoft JhengHei");
                 tile.Width = 120;
                 tile.Height = 120;
-                tile.Count = classifyItem.Counts.ToString();
+                if (level < 6)
+                {
+                    tile.Count = classifyItem.Counts.ToString();
+                }
+                else
+                {
+                    tile.Count = "";
+                }
                 tile.Margin = new Thickness(5, 5, 5, 5);
                 tile.Content = img;
+                tile.Tag = classifyItem.Id;
+                if (level < 6)
+                {
+                    tile.Click += new RoutedEventHandler(tile_Click);
+                }
                 if (tile.Count == "0")
                 {
                     tile.Background = new SolidColorBrush(Color.FromRgb(255, 93, 93));
+                    tile.Click -= new RoutedEventHandler(tile_Click);
                 }
-                
+
                 lvwClassify.Items.Add(tile);
             }
+        }
+
+        #region 取得分類名稱及其子項目數量
+
+        private dynamic GetLv1Catalog()
+        {
+            WFTPDbContext db = new WFTPDbContext();
+
+            var lv1Catalog = from classify in db.Lv1Classifications
+                              let subCount =
+                                  (from customer in db.Lv2Customers
+                                   where customer.ClassifyId == classify.ClassifyId
+                                   select customer).Count()
+                              select new
+                              {
+                                  Id = classify.ClassifyId,
+                                  Name = classify.ClassName,
+                                  NickName = classify.NickName,
+                                  Counts = subCount
+                              };
+
+            return lv1Catalog;
+        }
+
+        private dynamic GetLv2Catalog()
+        {
+            WFTPDbContext db = new WFTPDbContext();
+
+            var lv2Catalog = from customer in db.Lv2Customers
+                              where customer.ClassifyId == _catalogTree[1]
+                              let subCount =
+                                  (from branch in db.Lv3CustomerBranches
+                                   where branch.CompanyId == customer.CompanyId
+                                   select branch).Count()
+                              select new
+                              {
+                                  Id = customer.CompanyId,
+                                  Name = customer.CompanyName,
+                                  NickName = customer.CompanyNickName,
+                                  Counts = subCount
+                              };
+
+            return lv2Catalog;
+        }
+
+        private dynamic GetLv3Catalog()
+        {
+            WFTPDbContext db = new WFTPDbContext();
+
+            var lv3Catalog = from branch in db.Lv3CustomerBranches
+                             where branch.CompanyId == _catalogTree[2]
+                              let subCount =
+                                  (from line in db.Lv4Lines
+                                   where line.BranchId == branch.BranchId
+                                   select line).Count()
+                              select new
+                              {
+                                  Id = branch.BranchId,
+                                  Name = branch.BranchName,
+                                  NickName = branch.BranchNickName,
+                                  Counts = subCount
+                              };
+
+            return lv3Catalog;
+        }
+
+        private dynamic GetLv4Catalog()
+        {
+            WFTPDbContext db = new WFTPDbContext();
+
+            var lv4Catalog = from line in db.Lv4Lines
+                             where line.BranchId == _catalogTree[3]
+                             let subCount =
+                                 (from fileCatalog in db.Lv5FileCategorys
+                                  select fileCatalog).Count()
+                             select new
+                             {
+                                 Id = line.LineId,
+                                 Name = line.LineName,
+                                 NickName = line.LineNickName,
+                                 Counts = subCount
+                             };
+
+            return lv4Catalog;
+        }
+
+        private dynamic GetFileCatalog()
+        {
+            WFTPDbContext db = new WFTPDbContext();
+
+            var fileCatalogList = from fileCatalog in db.Lv5FileCategorys
+                             let subCount =
+                                 (from file in db.Lv6Files
+                                  where file.LineId == _catalogTree[4] && file.FileCategoryId == fileCatalog.FileCategoryId
+                                  select file).Count()
+                             select new
+                             {
+                                 Id = fileCatalog.FileCategoryId,
+                                 Name = fileCatalog.ClassName,
+                                 NickName = fileCatalog.ClassNickName,
+                                 Counts = subCount
+                             };
+
+            return fileCatalogList;
+        }
+
+        private dynamic GetFileList()
+        {
+            WFTPDbContext db = new WFTPDbContext();
+
+            var fileList = from file in db.Lv6Files
+                           where file.LineId == _catalogTree[4] && file.FileCategoryId == _catalogTree[5] && file.IsDeleted == false
+                           select new
+                           {
+                               Id = file.FileId,
+                               NickName = file.FileName
+                           };
+
+            return fileList;
+        }
+        
+        #endregion
+
+        private void tile_Click(object sender, RoutedEventArgs e)
+        {
+            Tile tile = (Tile)sender;
+            int tileTag = (int)tile.Tag;
+            _catalogTree[Convert.ToInt32(lvwClassify.Tag)] = tileTag;
+            int level = Convert.ToInt32(lvwClassify.Tag) + 1;
+            GetCatalog(level);
+            lvwClassify.Tag = level;
+        }
+
+        private void navBar_PathChanged(object sender, RoutedPropertyChangedEventArgs<string> e)
+        {
+            //string dump = String.Format("NewValue: {0}\nOldValue: {1}\nOriginSource: {2}\nSource: {3}\nRoutedEvent: {4}", e.NewValue.ToString(), e.OldValue, e.OriginalSource, e.Source, e.RoutedEvent);
+            //MessageBox.Show(dump);
+            string displayPath = navBar.GetDisplayPath();
+            string[] pathList = navBar.GetDisplayPath().Split('\\');
+            int level = pathList.Count();
+
+            if (displayPath.Equals("分類"))
+            {
+                GetCatalog(1);
+            }
+            else
+            {
+                GetCatalogId(level, pathList.Last());
+                level++;
+                GetCatalog(level);
+            }
+            lvwClassify.Tag = level;
+        }
+
+        private void GetCatalogId(int level, string condition)
+        {
+            WFTPDbContext db = new WFTPDbContext();
+            int id = 0;
+
+            switch (level)
+            {
+                case 1:
+                    var lv1 = from classify in db.Lv1Classifications
+                               where classify.NickName == condition
+                               select new
+                               {
+                                   classify.ClassifyId
+                               };
+                    id = lv1.First().ClassifyId;
+                    break;
+                case 2:
+                    var lv2 = from customer in db.Lv2Customers
+                               where customer.CompanyNickName == condition
+                               select new
+                               {
+                                   customer.CompanyId
+                               };
+                    id = lv2.First().CompanyId;
+                    break;
+                case 3:
+                    var lv3 = from branch in db.Lv3CustomerBranches
+                              where branch.BranchNickName == condition
+                              select new
+                              {
+                                  branch.BranchId
+                              };
+                    id = lv3.First().BranchId;
+                    break;
+                case 4:
+                    var lv4 = from line in db.Lv4Lines
+                               where line.LineNickName == condition
+                               select new
+                               {
+                                   line.LineId
+                               };
+                    id = lv4.First().LineId;
+                    break;
+                case 5:
+                    var lv5 = from catalog in db.Lv5FileCategorys
+                              where catalog.ClassNickName == condition
+                              select new
+                              {
+                                  catalog.FileCategoryId
+                              };
+                    id = lv5.First().FileCategoryId;
+                    break;
+            }
+            _catalogTree[level] = id;
         }
 
         #region ISwitchable Members
@@ -160,11 +413,5 @@ namespace WFTP.Pages
         }
 
         #endregion
-
-        private void navBar_PathChanged(object sender, RoutedPropertyChangedEventArgs<string> e)
-        {
-            string dump = String.Format("NewValue: {0}\nOldValue: {1}\nOriginSource: {2}\nSource: {3}\nRoutedEvent: {4}", e.NewValue.ToString(), e.OldValue, e.OriginalSource, e.Source,e.RoutedEvent);
-            MessageBox.Show(dump);
-        }
     }
 }

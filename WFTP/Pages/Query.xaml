@@ -23,7 +23,7 @@
                                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                                     <WrapPanel Orientation="Horizontal" 
                                                Width="520"
-                                               VerticalAlignment="Center"
+                                               VerticalAlignment="Top"
                                                HorizontalAlignment="Center"
                                                IsItemsHost="True" />
                                 </ScrollViewer>
@@ -64,7 +64,8 @@
                                            Root="{StaticResource dataProvider}"
                                            HorizontalAlignment="Stretch"
                                            VerticalAlignment="Stretch"
-                                           Width="735" PathChanged="navBar_PathChanged" />
+                                           Width="735"
+                                           PathChanged="navBar_PathChanged" />
                     </WrapPanel>
                     <ListView Name="lvwClassify" SelectionMode="Single" Margin="0,30,0,0" />
                 </DockPanel>
