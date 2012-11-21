@@ -16,6 +16,9 @@ namespace DataProvider
        public String CompanyName;
 
        [Column]
+       public String CompanyNickName;
+
+       [Column]
        public int ClassifyId;
 
        [Column]
