@@ -64,7 +64,7 @@
                                            Root="{StaticResource dataProvider}"
                                            HorizontalAlignment="Stretch"
                                            VerticalAlignment="Stretch"
-                                           Width="735" />
+                                           Width="735" PathChanged="navBar_PathChanged" />
                     </WrapPanel>
                     <ListView Name="lvwClassify" SelectionMode="Single" Margin="0,30,0,0" />
                 </DockPanel>

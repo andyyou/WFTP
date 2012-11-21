@@ -19,5 +19,11 @@ namespace DataProvider
         public Table<CEmployee> Employees;
         public Table<CLv1Classify> Lv1Classifications;
         public Table<CLv2Customer> Lv2Customers;
+        public Table<CLv3CustomerBranch> Lv3CustomerBranches;
+        public Table<CLv4Line> Lv4Lines;
+        public Table<CFileCategory> Lv5FileCategorys;
+        public Table<CFile> Lv6Files;
+
+        
     }
 }

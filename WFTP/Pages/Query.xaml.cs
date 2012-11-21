@@ -47,19 +47,52 @@ namespace WFTP.Pages
 
             // Append child node
             WFTPDbContext db = new WFTPDbContext();
+            // Lv1
             var lv1 = from classify in db.Lv1Classifications
                       select classify;
             foreach (var cls in lv1)
             {
                 XmlElement xelClassify = doc.CreateElement("bc");
                 xelClassify.SetAttribute("title", cls.NickName);
+                 // Lv2
                 var lv2 = from company in db.Lv2Customers
                           where company.ClassifyId == cls.ClassifyId
                           select company;
+               
                 foreach (var company in lv2)
                 {
                     XmlElement xelCompany = doc.CreateElement("bc");
                     xelCompany.SetAttribute("title", company.CompanyNickName);
+                    // Lv3
+                    var lv3 = from branch in db.Lv3CustomerBranches
+                              where branch.CompanyId == company.CompanyId
+                              select branch;
+                    foreach (var branch in lv3)
+                    {
+                        XmlElement xelBranch = doc.CreateElement("bc");
+                        xelBranch.SetAttribute("title", branch.BranchNickName);
+                        // Lv4
+                        var lv4 = from line in db.Lv4Lines
+                                  where line.BranchId == branch.BranchId
+                                  select line;
+                        foreach (var line in lv4)
+                        {
+                            XmlElement xelLine = doc.CreateElement("bc");
+                            xelLine.SetAttribute("title", line.LineNickName);
+                            // Lv5
+                            var lv5 = from category in db.Lv5FileCategorys
+                                      select category;
+                            foreach (var category in lv5)
+                            {
+                                XmlElement xelFileCategory = doc.CreateElement("bc");
+                                xelFileCategory.SetAttribute("title", category.ClassNickName);
+                                xelLine.AppendChild(xelFileCategory);
+                            }
+
+                            xelBranch.AppendChild(xelLine);
+                        }
+                        xelCompany.AppendChild(xelBranch);
+                    }
                     xelClassify.AppendChild(xelCompany);
                 }
                 root.AppendChild(xelClassify);
@@ -127,5 +160,11 @@ namespace WFTP.Pages
         }
 
         #endregion
+
+        private void navBar_PathChanged(object sender, RoutedPropertyChangedEventArgs<string> e)
+        {
+            string dump = String.Format("NewValue: {0}\nOldValue: {1}\nOriginSource: {2}\nSource: {3}\nRoutedEvent: {4}", e.NewValue.ToString(), e.OldValue, e.OriginalSource, e.Source,e.RoutedEvent);
+            MessageBox.Show(dump);
+        }
     }
 }
