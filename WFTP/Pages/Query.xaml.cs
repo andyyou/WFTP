@@ -326,6 +326,15 @@ namespace WFTP.Pages
             int level = Convert.ToInt32(lvwClassify.Tag) + 1;
             GetCatalog(level);
             lvwClassify.Tag = level;
+
+            if (level == 2)
+            {
+                navBar.Path = tile.Title;
+            }
+            else
+            {
+                navBar.Path += @"\" + tile.Title;
+            }
         }
 
         private void navBar_PathChanged(object sender, RoutedPropertyChangedEventArgs<string> e)
