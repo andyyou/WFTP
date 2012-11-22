@@ -6,6 +6,7 @@
         Title="工程資料庫系統"
         Height="600"
         Width="800"
+        WindowStartupLocation="CenterScreen"
         FontFamily="Microsoft JhengHei"
         Icon="/WFTP;component/Icons/wintriss.ico">
     <Window.Resources>
