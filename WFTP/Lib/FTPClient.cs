@@ -18,10 +18,10 @@ namespace WFTP.Lib
         /// </summary>
         public FTPClient()
         {
-            strRemoteHost = "";
-            strRemotePath = "";
-            strRemoteUser = "";
-            strRemotePass = "";
+            strRemoteHost = "192.168.100.177";
+            strRemotePath = "/";
+            strRemoteUser = "wftp";
+            strRemotePass = "engineer53007214";
             strRemotePort = 21;
             bConnected = false;
         }
@@ -265,14 +265,18 @@ namespace WFTP.Lib
             while (true)
             {
                 int iBytes = socketData.Receive(buffer, buffer.Length, 0);
-                strMsg += ASCII.GetString(buffer, 0, iBytes);
+                //strMsg += ASCII.GetString(buffer, 0, iBytes);
+                strMsg += UTF8.GetString(buffer, 0, iBytes);
+                
                 if (iBytes < buffer.Length)
                 {
                     break;
                 }
             }
-            char[] seperator = { '\n' };
-            string[] strsFileList = strMsg.Split(seperator);
+            //char[] seperator = { '\n' };
+            //string[] strsFileList = strMsg.Split(seperator);
+            char[] seperator = { '\r', '\n' };
+            string[] strsFileList = strMsg.Split(seperator, StringSplitOptions.RemoveEmptyEntries);
             socketData.Close();
             // 資料 Socket 關閉時也會有回應代碼
             if (iReplyCode != 226)
@@ -581,7 +585,8 @@ namespace WFTP.Lib
         /// <summary>
         /// 編碼方式
         /// </summary>
-        Encoding ASCII = Encoding.ASCII;
+        //Encoding ASCII = Encoding.ASCII;
+        Encoding UTF8 = Encoding.UTF8;
 
         #endregion
 
@@ -676,7 +681,7 @@ namespace WFTP.Lib
             while (true)
             {
                 int iBytes = socketControl.Receive(buffer, buffer.Length, 0);
-                strMsg += Encoding.GetEncoding("gb2312").GetString(buffer, 0, iBytes);
+                strMsg += Encoding.GetEncoding("utf-8").GetString(buffer, 0, iBytes);
                 if (iBytes < buffer.Length)
                 {
                     break;
