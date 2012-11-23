@@ -12,6 +12,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Collections.ObjectModel;
+using WFTP.Lib;
 
 namespace WFTP.Pages
 {
@@ -42,6 +43,18 @@ namespace WFTP.Pages
         }
 
         #endregion
+
+        private void btnSettingFolder_Click(object sender, RoutedEventArgs e)
+        {
+            lbPath.Width = 500;
+            var dialog = new System.Windows.Forms.FolderBrowserDialog();
+            System.Windows.Forms.DialogResult result = dialog.ShowDialog();
+            if (result.ToString() == "OK")
+            {
+                lbPath.Content = dialog.SelectedPath.ToString();
+                lbPath.ToolTip = dialog.SelectedPath.ToString();
+            }
+        }
     }
 
     #region Sapple Data For Test
