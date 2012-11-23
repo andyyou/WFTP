@@ -23,13 +23,14 @@ namespace WFTP
         public Main()
         {
             InitializeComponent();
-
+            // 登入前隱藏功能
             btnQuery.Visibility = Visibility.Hidden;
             btnManage.Visibility = Visibility.Hidden;
             btnUpload.Visibility = Visibility.Hidden;
-
+            btnDownload.Visibility = Visibility.Hidden;
+            // 初始化Switcher
             Switcher.main = this;
-            Switcher.Switch(new Pages.Login());
+            Switcher.Switch(new Pages.Login()); //載入 Login
         }
 
         private void CloseButtonMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
@@ -75,6 +76,11 @@ namespace WFTP
             Switcher.Switch(new WFTP.Pages.Upload());
         }
 
+        private void btnDownload_Click(object sender, RoutedEventArgs e)
+        {
+            Switcher.Switch(new WFTP.Pages.Download());
+        }
+
         #region Switcher
 
         public void Navigate(UserControl nextPage)
@@ -84,6 +90,7 @@ namespace WFTP
                 btnQuery.Visibility = Visibility.Visible;
                 btnManage.Visibility = Visibility.Visible;
                 btnUpload.Visibility = Visibility.Visible;
+                btnDownload.Visibility = Visibility.Visible;
             }
             this.transitioning.Content = nextPage;
         }
