@@ -3,56 +3,118 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
              mc:Ignorable="d" 
              d:DesignHeight="561"
              d:DesignWidth="778"
              FontFamily="Microsoft JhengHei">
+    <Control.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../Resources/Icons.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Colours.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Fonts.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/Blue.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/BaseLight.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Control.Resources>
+    
     <Grid>
-        <ListView Name="listView1" 
-                  Height="206" 
-                  Margin="36,0,37,263" 
-                  VerticalAlignment="Bottom" />
-        <Button Name="button1" 
-                Content="選擇暫存目錄" 
-                Height="27" 
-                Width="92" 
-                Margin="36,35,0,0"
-                HorizontalAlignment="Left" 
-                VerticalAlignment="Top" 
-                FontFamily="Microsoft JhengHei" 
-                FontSize="12" />
-        <Button Name="button2" 
-                Content="上傳" 
-                Height="27" 
-                Width="75" 
-                Margin="134,35,0,0" 
-                HorizontalAlignment="Left" 
-                VerticalAlignment="Top" 
-                FontFamily="Microsoft JhengHei" 
-                FontSize="12" />
-        <Label Name="label1" 
+        <Button Name="btnUpload"
+                Width="50" 
+                Height="50"
+                Margin="691,12,37,499"
+                Content="{StaticResource appbar_upload}" 
+                Style="{DynamicResource MetroCircleButtonStyle}" 
+                FontFamily="Microsoft JhengHei"  
+                />
+        <Button Name="btnSettingFolder"
+                Width="50" 
+                Height="50"
+                Margin="635,12,93,499"
+                Content="{StaticResource appbar_folder_open}" 
+                Style="{DynamicResource MetroCircleButtonStyle}" 
+                FontFamily="Microsoft JhengHei"  
+                />
+        <Button Name="btnUp"
+                Width="50" 
+                Height="50"
+                Margin="380,270,348,241"
+                Content="{StaticResource appbar_arrow_up}" 
+                Style="{DynamicResource MetroCircleButtonStyle}" 
+                FontFamily="Microsoft JhengHei"  
+                />
+        <Button Name="btnDown"
+                Width="50" 
+                Height="50"
+                Margin="324,270,404,241"
+                Content="{StaticResource appbar_arrow_down}" 
+                Style="{DynamicResource MetroCircleButtonStyle}" 
+                FontFamily="Microsoft JhengHei"  
+                />
+
+        <!--上傳列表-->
+        <ListView Name="lvwToUplpad" 
+                  Height="193" 
+                  Margin="36,0,37,300" 
+                  VerticalAlignment="Bottom"
+                   ItemsSource="{Binding}">
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn Header="File Name" DisplayMemberBinding="{Binding Name}" />
+                    <GridViewColumn Header="Target Path">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Path=TargetPath}" />
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+
+                </GridView>
+            </ListView.View>
+        </ListView>
+
+        <!--暫存目錄-->
+        <ListView Name="lvwTempList" 
+                  Height="196" 
+                  Width="727"
+                  Margin="36,326,0,0" 
+                  HorizontalAlignment="Left" 
+                  VerticalAlignment="Top" 
+                  ItemsSource="{Binding}">
+
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn Header="File Name" DisplayMemberBinding="{Binding Name}" />
+                    <GridViewColumn Header="Target Path">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Path=TargetPath}" />
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                  
+                </GridView>
+            </ListView.View>
+            
+        </ListView>
+        <Label Content="欲上傳檔案" 
+               Height="28" 
+               HorizontalAlignment="Left" 
+               Margin="36,24,0,0" 
+               Name="lbUpload" 
+               VerticalAlignment="Top" 
+               FontSize="16" 
+               FontFamily="Microsoft JhengHei" />
+        <Label Name="lbTempRepo" 
                Content="暫存檔案庫" 
                Height="28" 
-               Margin="36,357,0,0" 
+               Margin="36,282,0,0" 
                HorizontalAlignment="Left" 
-               VerticalAlignment="Top" />
-        <StatusBar Name="statusBar1" 
-                   Height="23" 
-                   Width="778"
-                   Margin="0,538,0,0" 
-                   HorizontalAlignment="Left" 
-                   VerticalAlignment="Top"  />
-        <ListView Name="listView2" 
-                  Height="150" 
-                  Width="727"
-                  Margin="36,382,0,0" 
-                  HorizontalAlignment="Left" 
-                  VerticalAlignment="Top"  />
-        <ProgressBar Name="progressBar1" 
-                     Height="10" 
-                     Width="100"
-                     Margin="538,11,0,0" 
-                     HorizontalAlignment="Left" 
-                     VerticalAlignment="Top"  />
+               VerticalAlignment="Top" 
+               FontSize="16" 
+               FontFamily="Microsoft JhengHei"/>
     </Grid>
 </UserControl>

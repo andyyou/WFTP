@@ -23,13 +23,13 @@ namespace WFTP
         public Main()
         {
             InitializeComponent();
-
+            // 登入前隱藏功能
             btnQuery.Visibility = Visibility.Hidden;
             btnManage.Visibility = Visibility.Hidden;
             btnUpload.Visibility = Visibility.Hidden;
-
+            // 初始化Switcher
             Switcher.main = this;
-            Switcher.Switch(new Pages.Login());
+            Switcher.Switch(new Pages.Login()); //載入 Login
         }
 
         private void CloseButtonMouseLeftButtonUp(object sender, MouseButtonEventArgs e)

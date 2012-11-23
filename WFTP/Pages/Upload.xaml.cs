@@ -11,6 +11,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Collections.ObjectModel;
 
 namespace WFTP.Pages
 {
@@ -22,7 +23,16 @@ namespace WFTP.Pages
         public Upload()
         {
             InitializeComponent();
+            // For test
+            var data = new ObservableCollection<FileItem>();
+            data.Add(new FileItem() { Name = "File-1",  TargetPath = "/PP/TUC/XX"});
+            data.Add(new FileItem() { Name = "File-2",  TargetPath = "/PP/TUC/XX" });
+            data.Add(new FileItem() { Name = "File-3",  TargetPath = "/PP/TUC/XX" });
+            data.Add(new FileItem() { Name = "File-4",  TargetPath = "/PP/TUC/XX" });
+            lvwToUplpad.DataContext = data;
+            lvwTempList.DataContext = data;
         }
+
 
         #region ISwitchable Members
 
@@ -33,4 +43,13 @@ namespace WFTP.Pages
 
         #endregion
     }
+
+    #region Sapple Data For Test
+    public class FileItem
+    {
+        public string Name { set; get; }
+        public string TargetPath { set; get; }
+
+    }
+    #endregion
 }
