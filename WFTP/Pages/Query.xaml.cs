@@ -167,7 +167,7 @@ namespace WFTP.Pages
 
             foreach (var classifyItem in classify)
             {
-                if(remoteFileList.ContainsKey(classifyItem.Name))
+                if (remoteFileList.ContainsKey(classifyItem.Name))
                 {
                     Dictionary<string, string> dicInfo = new Dictionary<string, string>();
                     dicInfo.Add("Id", classifyItem.Id.ToString());
@@ -222,10 +222,7 @@ namespace WFTP.Pages
                     {
                         tile.Tag = dicInfo;
                     }
-                    //if (level < 6)
-                    //{
-                        tile.Click += new RoutedEventHandler(tile_Click);
-                    //}
+                    tile.Click += new RoutedEventHandler(tile_Click);
                     if (tile.Count == "0")
                     {
                         tile.Background = new SolidColorBrush(Color.FromRgb(255, 93, 93));
@@ -379,9 +376,14 @@ namespace WFTP.Pages
             {
                 navBar.Path = tile.Title;
             }
+            else if (level <= 6)
+            {
+                navBar.Path = String.Format(@"{0}\{1}", navBar.Path, tile.Title);
+            }
             else
             {
-                navBar.Path = String.Format(@"{0}\{1}", navBar.Path,tile.Title);
+                // download chosen file here
+                MessageBox.Show("Download Start!!");
             }
         }
 
