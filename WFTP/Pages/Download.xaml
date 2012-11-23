@@ -8,6 +8,32 @@
              d:DesignWidth="778"
              FontFamily="Microsoft JhengHei">
     <Grid>
-        <Label Content="Down" Height="28" HorizontalAlignment="Left" Margin="64,56,0,0" Name="label1" VerticalAlignment="Top" />
+        <!--暫存目錄-->
+        <ListView Name="lvwDownloadList" 
+                  Height="458" 
+                  Width="702"
+                  Margin="40,59,0,0" 
+                  HorizontalAlignment="Left" 
+                  VerticalAlignment="Top" 
+                  ItemsSource="{Binding}">
+
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn Header="File Name" DisplayMemberBinding="{Binding Name}" />
+                    <GridViewColumn Header="Process">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Path=DownloadProcess, StringFormat='{}{0}% '}" />
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+
+                </GridView>
+            </ListView.View>
+        </ListView>
+        <Label Name="lblID" Margin="31,23,649,493" 
+               Content="下載進度"
+               FontSize="20" 
+               FontFamily="Microsoft JhengHei" Foreground="DarkGray" />
     </Grid>
 </UserControl>

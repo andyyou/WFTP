@@ -36,8 +36,7 @@
                 Margin="635,12,93,499"
                 Content="{StaticResource appbar_folder_open}" 
                 Style="{DynamicResource MetroCircleButtonStyle}" 
-                FontFamily="Microsoft JhengHei"  
-                />
+                FontFamily="Microsoft JhengHei" Click="btnSettingFolder_Click" />
         <Button Name="btnUp"
                 Width="50" 
                 Height="50"
@@ -58,7 +57,7 @@
         <!--上傳列表-->
         <ListView Name="lvwToUplpad" 
                   Height="193" 
-                  Margin="36,0,37,300" 
+                  Margin="36,0,37,310" 
                   VerticalAlignment="Bottom"
                    ItemsSource="{Binding}">
             <ListView.View>
@@ -107,14 +106,15 @@
                Name="lbUpload" 
                VerticalAlignment="Top" 
                FontSize="16" 
-               FontFamily="Microsoft JhengHei" />
+               FontFamily="Microsoft JhengHei" FontWeight="Bold" Foreground="DarkGray" />
         <Label Name="lbTempRepo" 
                Content="暫存檔案庫" 
                Height="28" 
-               Margin="36,282,0,0" 
+               Margin="37,278,0,0" 
                HorizontalAlignment="Left" 
                VerticalAlignment="Top" 
                FontSize="16" 
-               FontFamily="Microsoft JhengHei"/>
+               FontFamily="Microsoft JhengHei" Foreground="DarkGray" />
+        <Label Content="" Height="28" Margin="44,302,443,0" Name="lbPath" VerticalAlignment="Top" Foreground="DarkGray" FontSize="10" />
     </Grid>
 </UserControl>

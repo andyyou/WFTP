@@ -11,6 +11,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Collections.ObjectModel;
 
 namespace WFTP.Pages
 {
@@ -22,6 +23,21 @@ namespace WFTP.Pages
         public Download()
         {
             InitializeComponent();
+            // For test
+            var data = new ObservableCollection<DownItem>();
+            data.Add(new DownItem() { Name = "File-1", DownloadProcess = 60 });
+            data.Add(new DownItem() { Name = "File-2", DownloadProcess = 100 });
+            data.Add(new DownItem() { Name = "File-3", DownloadProcess = 10 });
+            data.Add(new DownItem() { Name = "File-4", DownloadProcess = 5 });
+            lvwDownloadList.DataContext = data;
         }
     }
+    #region Sapple Data For Test
+    public class DownItem
+    {
+        public string Name { set; get; }
+        public int DownloadProcess { set; get; }
+
+    }
+    #endregion
 }
