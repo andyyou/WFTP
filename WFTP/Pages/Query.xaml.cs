@@ -28,6 +28,7 @@ namespace WFTP.Pages
         private List<string> _remoteFolders = new List<string>();
         private Dictionary<int, int> _catalogLevelId = new Dictionary<int, int>();
         private Dictionary<int, string> _catalogLevelName = new Dictionary<int, string>();
+        private bool _isTileView = true;
         private string _ftpPath = "/";
 
         public Query()
@@ -132,6 +133,7 @@ namespace WFTP.Pages
         /// <param name="id">關聯 ID</param>
         private void GetCatalog(int level)
         {
+            lvwClassify.ItemsSource = null;
             lvwClassify.Items.Clear();
 
             dynamic classify = null;
@@ -175,60 +177,87 @@ namespace WFTP.Pages
 
                     ListViewItem lvi = new ListViewItem();
 
-                    BitmapImage bitmap = new BitmapImage();
-                    bitmap.BeginInit();
-                    if (level < 6)
+                    if (_isTileView || level < 6)
                     {
-                        bitmap.UriSource = new Uri(@"pack://application:,,,/WFTP;component/Icons/folder.ico");
+                        lvwClassify.View = lvwClassify.FindResource("TileView") as ViewBase;
+
+                        BitmapImage bitmap = new BitmapImage();
+                        bitmap.BeginInit();
+                        if (level < 6)
+                        {
+                            bitmap.UriSource = new Uri(@"pack://application:,,,/WFTP;component/Icons/folder.ico");
+                        }
+                        else
+                        {
+                            ExtensionHelper helper = new ExtensionHelper();
+
+                            string[] filename = classifyItem.NickName.Split('.');
+                            string ext = filename.Last();
+
+                            bitmap.UriSource = new Uri(helper.GetIconPath(ext));
+                        }
+                        bitmap.EndInit();
+
+                        Image img = new Image();
+                        img.Width = 60;
+                        img.Height = 60;
+                        img.Source = bitmap;
+
+                        Tile tile = new Tile();
+                        string title = Convert.ToString(classifyItem.NickName);
+                        tile.Title = title.Length > 12 ? String.Format("{0}…", title.Substring(0, 11)) : title;
+
+                        tile.FontFamily = new FontFamily("Microsoft JhengHei");
+                        tile.Width = 120;
+                        tile.Height = 120;
+                        if (level < 6)
+                        {
+                            tile.Count = classifyItem.Counts.ToString();
+                        }
+                        else
+                        {
+                            tile.Count = "";
+                        }
+                        tile.Margin = new Thickness(5, 5, 5, 5);
+                        tile.Content = img;
+                        if (level == 6)
+                        {
+                            tile.Tag = remoteFileList[classifyItem.Name];
+                        }
+                        else
+                        {
+                            tile.Tag = dicInfo;
+                        }
+                        tile.Click += new RoutedEventHandler(tile_Click);
+                        if (tile.Count == "0")
+                        {
+                            tile.Background = new SolidColorBrush(Color.FromRgb(255, 93, 93));
+                        }
+
+                        lvwClassify.Items.Add(tile);
                     }
                     else
                     {
-                        ExtensionHelper helper = new ExtensionHelper();
+                        lvwClassify.View = lvwClassify.FindResource("ListView") as ViewBase;
 
-                        string[] filename = classifyItem.NickName.Split('.');
-                        string ext = filename.Last();
+                        System.Collections.ObjectModel.ObservableCollection<FileInfo> fileCollection = 
+                            new System.Collections.ObjectModel.ObservableCollection<FileInfo>();
 
-                        bitmap.UriSource = new Uri(helper.GetIconPath(ext));
-                    }
-                    bitmap.EndInit();
+                        fileCollection.Add(new FileInfo{
+                            FileName = "1.png",
+                            FilePath="/test/1.png"
+                        });
+                        fileCollection.Add(new FileInfo{
+                            FileName = "2.png",
+                            FilePath="/test/2.png"
+                        });
+                        fileCollection.Add(new FileInfo{
+                            FileName = "3.png",
+                            FilePath="/test/3.png"
+                        });
 
-                    Image img = new Image();
-                    img.Width = 60;
-                    img.Height = 60;
-                    img.Source = bitmap;
-
-                    Tile tile = new Tile();
-                    string title = Convert.ToString(classifyItem.NickName);
-                    tile.Title = title.Length > 12 ? String.Format("{0}…", title.Substring(0, 11)) : title;
-
-                    tile.FontFamily = new FontFamily("Microsoft JhengHei");
-                    tile.Width = 120;
-                    tile.Height = 120;
-                    if (level < 6)
-                    {
-                        tile.Count = classifyItem.Counts.ToString();
+                        lvwClassify.ItemsSource = fileCollection;
                     }
-                    else
-                    {
-                        tile.Count = "";
-                    }
-                    tile.Margin = new Thickness(5, 5, 5, 5);
-                    tile.Content = img;
-                    if (level == 6)
-                    {
-                        tile.Tag = remoteFileList[classifyItem.Name];
-                    }
-                    else
-                    {
-                        tile.Tag = dicInfo;
-                    }
-                    tile.Click += new RoutedEventHandler(tile_Click);
-                    if (tile.Count == "0")
-                    {
-                        tile.Background = new SolidColorBrush(Color.FromRgb(255, 93, 93));
-                    }
-
-                    lvwClassify.Items.Add(tile);
                 }
             }
         }
@@ -387,6 +416,24 @@ namespace WFTP.Pages
             }
         }
 
+        #region Test
+
+        private void btnTileView_Click(object sender, RoutedEventArgs e)
+        {
+            //lvwClassify.View = lvwClassify.FindResource("TileView") as ViewBase;
+            _isTileView = true;
+            GetCatalog(Convert.ToInt32(lvwClassify.Tag));
+        }
+
+        private void btnListView_Click(object sender, RoutedEventArgs e)
+        {
+            //lvwClassify.View = lvwClassify.FindResource("ListView") as ViewBase;
+            _isTileView = false;
+            GetCatalog(Convert.ToInt32(lvwClassify.Tag));
+        }
+        
+        #endregion
+
         private void navBar_PathChanged(object sender, RoutedPropertyChangedEventArgs<string> e)
         {
             string displayPath = navBar.GetDisplayPath();
@@ -474,6 +521,12 @@ namespace WFTP.Pages
             }
             _catalogLevelId[level] = id;
             _catalogLevelName[level+1] = name;
+        }
+
+        public class FileInfo
+        {
+            public string FileName { get; set; }
+            public string FilePath { get; set; }
         }
 
         #region ISwitchable Members
