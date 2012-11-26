@@ -33,6 +33,21 @@
                 </Setter>
             </Style>
 
+            <GridView x:Key="ListView">
+                <GridViewColumn Header="FileName" />
+                <GridViewColumn Header="FilePath" />
+            </GridView>
+
+            <ListView x:Key="TileView">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <WrapPanel Orientation="Horizontal"
+                               Width="520"
+                               VerticalAlignment="Top"
+                               HorizontalAlignment="Center"
+                               IsItemsHost="True" />
+                </ScrollViewer>
+            </ListView>
+
             <XmlDataProvider x:Key="dataProvider" XPath="bc">
                 <x:XData>
                     <bc xmlns="" title="分類" />
@@ -64,10 +79,14 @@
                                            Root="{StaticResource dataProvider}"
                                            HorizontalAlignment="Stretch"
                                            VerticalAlignment="Stretch"
-                                           Width="735"
+                                           Width="755"
                                            PathChanged="navBar_PathChanged" />
                     </WrapPanel>
-                    <ListView Name="lvwClassify" SelectionMode="Single" Margin="0,30,0,0" />
+                    <WrapPanel DockPanel.Dock="Bottom">
+                        <Button  Name="btnTileView" Height="20" Width="50" Content="Tile" Click="btnTileView_Click" />
+                        <Button Name="btnListView" Height="20" Width="50" Content="List" Click="btnListView_Click" />
+                        <ListView Name="lvwClassify" Width="760" Height="447" SelectionMode="Single" Margin="0,10,0,0" />
+                    </WrapPanel>
                 </DockPanel>
             </TabItem>
             <TabItem Header="進階查詢">
