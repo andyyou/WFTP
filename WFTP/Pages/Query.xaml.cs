@@ -252,8 +252,8 @@ namespace WFTP.Pages
 
             foreach (var classifyItem in classify)
             {
-                //if (remoteFileList.ContainsKey(classifyItem.Name))
-                if(true)
+                if (remoteFileList.ContainsKey(classifyItem.Name))
+                //if (true)
                 {
                     Dictionary<string, string> dicInfo = new Dictionary<string, string>();
                     dicInfo.Add("Id", classifyItem.Id.ToString());

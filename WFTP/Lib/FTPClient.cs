@@ -579,7 +579,7 @@ namespace WFTP.Lib
         /// <summary>
         /// 接收和傳送資料的緩衝區
         /// </summary>
-        private static int BLOCK_SIZE = 1024;
+        private static int BLOCK_SIZE = 10240;
         Byte[] buffer = new Byte[BLOCK_SIZE];
 
         /// <summary>
