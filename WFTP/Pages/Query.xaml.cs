@@ -17,6 +17,7 @@ using System.Xml;
 using Odyssey.Controls;
 using WFTP.Helper;
 using WFTP.Lib;
+using System.Xml.XPath;
 
 namespace WFTP.Pages
 {
@@ -25,17 +26,23 @@ namespace WFTP.Pages
     /// </summary>
     public partial class Query : UserControl, ISwitchable
     {
+        #region DataMembers
+
         private List<string> _remoteFolders = new List<string>();
         private Dictionary<int, int> _catalogLevelId = new Dictionary<int, int>();
         private Dictionary<int, string> _catalogLevelName = new Dictionary<int, string>();
         private bool _isTileView = true;
         private string _ftpPath = "/";
+        private XmlDocument _xdoc;
+
+        #endregion
 
         public Query()
         {
             InitializeComponent();
             GetCatalog(1);
             GetBreadcrumbBarPath();
+           
             lvwClassify.Tag = 1;
 
             // Initialize catalog level id
@@ -55,75 +62,138 @@ namespace WFTP.Pages
 
         private void GetBreadcrumbBarPath()
         {
+           
+
             // Combination Datasource of Folder secheme
             // Initialize root
-            XmlDocument doc = new XmlDocument();
-            XmlNode root = doc.CreateElement("bc");
-            XmlAttribute xmlns = doc.CreateAttribute("xmlns");
+            _xdoc = new XmlDocument();
+            XmlNode root = _xdoc.CreateElement("bc");
+            XmlAttribute xmlns = _xdoc.CreateAttribute("xmlns");
             xmlns.Value = "";
-            XmlAttribute t = doc.CreateAttribute("title");
+            XmlAttribute t = _xdoc.CreateAttribute("title");
             t.Value = "分類";
             root.Attributes.Append(xmlns);
             root.Attributes.Append(t);
-            doc.AppendChild(root);
+            _xdoc.AppendChild(root);
 
             // Append child node
             WFTPDbContext db = new WFTPDbContext();
-            // Lv1
+            // Lv1 must load
             var lv1 = from classify in db.Lv1Classifications
                       select classify;
+
             foreach (var cls in lv1)
             {
-                XmlElement xelClassify = doc.CreateElement("bc");
+                XmlElement xelClassify = _xdoc.CreateElement("bc");
                 xelClassify.SetAttribute("title", cls.NickName);
-                 // Lv2
-                var lv2 = from company in db.Lv2Customers
-                          where company.ClassifyId == cls.ClassifyId
-                          select company;
-               
-                foreach (var company in lv2)
-                {
-                    XmlElement xelCompany = doc.CreateElement("bc");
-                    xelCompany.SetAttribute("title", company.CompanyNickName);
-                    // Lv3
-                    var lv3 = from branch in db.Lv3CustomerBranches
-                              where branch.CompanyId == company.CompanyId
-                              select branch;
-                    foreach (var branch in lv3)
-                    {
-                        XmlElement xelBranch = doc.CreateElement("bc");
-                        xelBranch.SetAttribute("title", branch.BranchNickName);
-                        // Lv4
-                        var lv4 = from line in db.Lv4Lines
-                                  where line.BranchId == branch.BranchId
-                                  select line;
-                        foreach (var line in lv4)
-                        {
-                            XmlElement xelLine = doc.CreateElement("bc");
-                            xelLine.SetAttribute("title", line.LineNickName);
-                            // Lv5
-                            var lv5 = from category in db.Lv5FileCategorys
-                                      select category;
-                            foreach (var category in lv5)
-                            {
-                                XmlElement xelFileCategory = doc.CreateElement("bc");
-                                xelFileCategory.SetAttribute("title", category.ClassNickName);
-                                xelLine.AppendChild(xelFileCategory);
-                            }
-
-                            xelBranch.AppendChild(xelLine);
-                        }
-                        xelCompany.AppendChild(xelBranch);
-                    }
-                    xelClassify.AppendChild(xelCompany);
-                }
+                xelClassify.SetAttribute("id", cls.ClassifyId.ToString());
                 root.AppendChild(xelClassify);
-
             }
-
+            
             // edit static provider
             XmlDataProvider dataFolders = this.FindResource("dataProvider") as XmlDataProvider;
-            dataFolders.Document = doc;
+            dataFolders.Document = _xdoc;
+        }
+        
+        
+        /// <summary>
+        /// 效能改善: 延遲載入
+        /// </summary>
+        /// <param name="level">選擇到的層級才載入</param>
+        public void GetBreadcrumbBarPath(int level)
+        {
+            WFTPDbContext db = new WFTPDbContext();
+            switch (level)
+            { 
+                case 2:
+                    var lv2 = from company in db.Lv2Customers
+                              where company.ClassifyId == _catalogLevelId[1] 
+                              select company;
+                    string expr = String.Format("/bc/bc[@id={0}]", _catalogLevelId[1]);
+                    XmlNode xndClassify = _xdoc.SelectSingleNode(expr);
+                    if (xndClassify.ChildNodes.Count > 0)
+                    {
+                        XPathNavigator navigator = _xdoc.CreateNavigator();
+                        XPathNavigator first = navigator.SelectSingleNode(expr + "/bc[1]");
+                        XPathNavigator last = navigator.SelectSingleNode(expr + "/bc[last()]");
+                        navigator.MoveTo(first);
+                        navigator.DeleteRange(last);
+                    }
+                    foreach (var company in lv2)
+                    {
+                        XmlElement xelCompany = _xdoc.CreateElement("bc");
+                        xelCompany.SetAttribute("title", company.CompanyNickName);
+                        xelCompany.SetAttribute("id", company.CompanyId.ToString());
+                        xndClassify.AppendChild(xelCompany);
+                    }
+                    break;
+                case 3:
+                    var lv3 = from branch in db.Lv3CustomerBranches
+                              where branch.CompanyId == _catalogLevelId[2] 
+                              select branch;
+                    expr = String.Format("/bc/bc[@id={0}]/bc[@id={1}]", _catalogLevelId[1], _catalogLevelId[2]);
+                    XmlNode xndCompany = _xdoc.SelectSingleNode(expr);
+                    if (xndCompany.ChildNodes.Count > 0)
+                    {
+                        XPathNavigator navigator = _xdoc.CreateNavigator();
+                        XPathNavigator first = navigator.SelectSingleNode(expr + "/bc[1]");
+                        XPathNavigator last = navigator.SelectSingleNode(expr + "/bc[last()]");
+                        navigator.MoveTo(first);
+                        navigator.DeleteRange(last);
+                    }
+                    foreach (var branch in lv3)
+                    {
+                        XmlElement xelBranch = _xdoc.CreateElement("bc");
+                        xelBranch.SetAttribute("title", branch.BranchNickName);
+                        xelBranch.SetAttribute("id", branch.BranchId.ToString());
+                        xndCompany.AppendChild(xelBranch);
+                    }
+                    break;
+                case 4:
+                    var lv4 = from line in db.Lv4Lines
+                              where line.BranchId == _catalogLevelId[3]
+                              select line;
+                    expr = String.Format("/bc/bc[@id={0}]/bc[@id={1}]/bc[@id={2}]", _catalogLevelId[1], _catalogLevelId[2], _catalogLevelId[3]);
+                    XmlNode xndBranch = _xdoc.SelectSingleNode(expr);
+                    if (xndBranch.ChildNodes.Count > 0)
+                    {
+                        XPathNavigator navigator = _xdoc.CreateNavigator();
+                        XPathNavigator first = navigator.SelectSingleNode(expr + "/bc[1]");
+                        XPathNavigator last = navigator.SelectSingleNode(expr + "/bc[last()]");
+                        navigator.MoveTo(first);
+                        navigator.DeleteRange(last);
+                    }
+                    foreach (var line in lv4)
+                    {
+                        XmlElement xelLine = _xdoc.CreateElement("bc");
+                        xelLine.SetAttribute("title", line.LineNickName);
+                        xelLine.SetAttribute("id", line.LineId.ToString());
+                        xndBranch.AppendChild(xelLine);
+                    }
+                    break;
+                case 5:
+                    var lv5 = from category in db.Lv5FileCategorys
+                              select category;
+                    expr = String.Format("/bc/bc[@id={0}]/bc[@id={1}]/bc[@id={2}]/bc[@id={3}]", _catalogLevelId[1], _catalogLevelId[2], _catalogLevelId[3], _catalogLevelId[4]);
+                    XmlNode xndLine = _xdoc.SelectSingleNode(expr);
+                    if (xndLine.ChildNodes.Count > 0)
+                    {
+                        // nothing.
+                    }
+                    else
+                    {
+                        foreach (var category in lv5)
+                        {
+                            XmlElement xelCategory = _xdoc.CreateElement("bc");
+                            xelCategory.SetAttribute("title", category.ClassNickName);
+                            xelCategory.SetAttribute("id", category.FileCategoryId.ToString());
+                            xndLine.AppendChild(xelCategory);
+                        }
+                    }
+                    break;
+               
+
+            }
         }
 
         /// <summary>
@@ -182,7 +252,8 @@ namespace WFTP.Pages
 
             foreach (var classifyItem in classify)
             {
-                if (remoteFileList.ContainsKey(classifyItem.Name))
+                //if (remoteFileList.ContainsKey(classifyItem.Name))
+                if(true)
                 {
                     Dictionary<string, string> dicInfo = new Dictionary<string, string>();
                     dicInfo.Add("Id", classifyItem.Id.ToString());
@@ -411,6 +482,7 @@ namespace WFTP.Pages
         #endregion
 
         #region Actions Events
+        // For Tile Mode
         private void tile_Click(object sender, RoutedEventArgs e)
         {
             int level = Convert.ToInt32(lvwClassify.Tag) + 1;
@@ -431,7 +503,7 @@ namespace WFTP.Pages
                 MessageBox.Show("Download Start!!");
             }
         }
-        // For list mode
+        // For List Mode
         private void lstDown_Click(object sender, RoutedEventArgs e)
         {
             int level = Convert.ToInt32(lvwClassify.Tag) + 1;
@@ -451,7 +523,6 @@ namespace WFTP.Pages
                 MessageBox.Show("Download Start!!");
             }
         }
-        
 
         private void navBar_PathChanged(object sender, RoutedPropertyChangedEventArgs<string> e)
         {
@@ -470,8 +541,14 @@ namespace WFTP.Pages
                     _ftpPath = String.Format("{0}{1}/", _ftpPath, _catalogLevelName[i]);
                 }
             }
+           
             GetCatalog(level);
             lvwClassify.Tag = level;
+
+            // Lazy loading for BreadcrumbBar
+            if(level > 1)
+                GetBreadcrumbBarPath(level);
+            
         }
 
         private void btnTileView_Click(object sender, RoutedEventArgs e)
@@ -485,17 +562,9 @@ namespace WFTP.Pages
             _isTileView = false;
             GetCatalog(Convert.ToInt32(lvwClassify.Tag));
         }
+
         #endregion
-
-
-        #region Test
-
-        
-        
-        #endregion
-
-       
-
+    
         private void GetCatalogInfo(int level, string condition)
         {
             WFTPDbContext db = new WFTPDbContext();
@@ -517,7 +586,7 @@ namespace WFTP.Pages
                     break;
                 case 2:
                     var lv2 = from customer in db.Lv2Customers
-                               where customer.CompanyNickName == condition
+                              where customer.CompanyNickName == condition && customer.ClassifyId == _catalogLevelId[level - 1]
                                select new
                                {
                                    customer.CompanyId,
@@ -528,7 +597,7 @@ namespace WFTP.Pages
                     break;
                 case 3:
                     var lv3 = from branch in db.Lv3CustomerBranches
-                              where branch.BranchNickName == condition
+                              where branch.BranchNickName == condition && branch.CompanyId == _catalogLevelId[level - 1]
                               select new
                               {
                                   branch.BranchId,
@@ -539,7 +608,8 @@ namespace WFTP.Pages
                     break;
                 case 4:
                     var lv4 = from line in db.Lv4Lines
-                               where line.LineNickName == condition
+                              where line.LineNickName == condition && line.BranchId == _catalogLevelId[level - 1]
+
                                select new
                                {
                                    line.LineId,
