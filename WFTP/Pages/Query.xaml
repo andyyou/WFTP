@@ -13,6 +13,11 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="../Resources/Icons.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.AnimatedSingleRowTabControl.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Colours.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Fonts.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/Blue.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/BaseLight.xaml" />
             </ResourceDictionary.MergedDictionaries>
 
             <Style TargetType="ListView">
@@ -34,8 +39,17 @@
             </Style>
 
             <GridView x:Key="ListView">
-                <GridViewColumn Header="FileName" />
-                <GridViewColumn Header="FilePath" />
+                <GridViewColumn Header="FileName" DisplayMemberBinding="{Binding FileName}" Width="455"/>
+                <GridViewColumn Header="FilePath" Width="60" >
+                    <GridViewColumn.CellTemplate>
+                        <DataTemplate>
+                            <Button  Content="下載" Tag="{Binding FilePath}" Click="lstDown_Click"
+                                   />
+                        </DataTemplate>
+                        
+                    </GridViewColumn.CellTemplate>
+
+                </GridViewColumn>
             </GridView>
 
             <ListView x:Key="TileView">
@@ -82,9 +96,23 @@
                                            Width="755"
                                            PathChanged="navBar_PathChanged" />
                     </WrapPanel>
+                    <Grid DockPanel.Dock="Top" Width="Auto" Height="40">
+                        <Button  Name="btnTileView" 
+                                 Height="50" 
+                                 Width="50" 
+                                 Margin="634,0,74,-10"
+                                 Content="{StaticResource appbar_eye}" 
+                                 Style="{DynamicResource MetroCircleButtonStyle}" 
+                                 Click="btnTileView_Click" Visibility="Hidden" />
+                        <Button Name="btnListView" 
+                                Height="50" 
+                                Width="50" 
+                                Margin="682,0,26,-10"
+                                Content="{StaticResource appbar_list_two}" 
+                                Style="{DynamicResource MetroCircleButtonStyle}" 
+                                Click="btnListView_Click" Visibility="Hidden" />
+                    </Grid>
                     <WrapPanel DockPanel.Dock="Bottom">
-                        <Button  Name="btnTileView" Height="20" Width="50" Content="Tile" Click="btnTileView_Click" />
-                        <Button Name="btnListView" Height="20" Width="50" Content="List" Click="btnListView_Click" />
                         <ListView Name="lvwClassify" Width="760" Height="447" SelectionMode="Single" Margin="0,10,0,0" />
                     </WrapPanel>
                 </DockPanel>
