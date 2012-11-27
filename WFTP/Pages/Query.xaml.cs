@@ -136,6 +136,19 @@ namespace WFTP.Pages
             lvwClassify.ItemsSource = null;
             lvwClassify.Items.Clear();
 
+            // display mode switch btn 
+            if (level == 6)
+            {
+                // display mode switch btn 
+                btnListView.Visibility = Visibility.Visible;
+                btnTileView.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                btnListView.Visibility = Visibility.Hidden;
+                btnTileView.Visibility = Visibility.Hidden;
+            }
+
             dynamic classify = null;
 
             switch (level)
@@ -223,10 +236,12 @@ namespace WFTP.Pages
                         if (level == 6)
                         {
                             tile.Tag = remoteFileList[classifyItem.Name];
+                            
                         }
                         else
                         {
                             tile.Tag = dicInfo;
+                          
                         }
                         tile.Click += new RoutedEventHandler(tile_Click);
                         if (tile.Count == "0")
@@ -395,6 +410,7 @@ namespace WFTP.Pages
 
         #endregion
 
+        #region Actions Events
         private void tile_Click(object sender, RoutedEventArgs e)
         {
             int level = Convert.ToInt32(lvwClassify.Tag) + 1;
@@ -415,24 +431,27 @@ namespace WFTP.Pages
                 MessageBox.Show("Download Start!!");
             }
         }
-
-        #region Test
-
-        private void btnTileView_Click(object sender, RoutedEventArgs e)
+        // For list mode
+        private void lstDown_Click(object sender, RoutedEventArgs e)
         {
-            //lvwClassify.View = lvwClassify.FindResource("TileView") as ViewBase;
-            _isTileView = true;
-            GetCatalog(Convert.ToInt32(lvwClassify.Tag));
-        }
+            int level = Convert.ToInt32(lvwClassify.Tag) + 1;
+            Button btn = (Button)sender;
 
-        private void btnListView_Click(object sender, RoutedEventArgs e)
-        {
-            //lvwClassify.View = lvwClassify.FindResource("ListView") as ViewBase;
-            _isTileView = false;
-            GetCatalog(Convert.ToInt32(lvwClassify.Tag));
+            if (level == 2)
+            {
+                navBar.Path = btn.Tag.ToString();
+            }
+            else if (level <= 6)
+            {
+                navBar.Path = String.Format(@"{0}\{1}", navBar.Path, btn.Tag.ToString());
+            }
+            else
+            {
+                // download chosen file here
+                MessageBox.Show("Download Start!!");
+            }
         }
         
-        #endregion
 
         private void navBar_PathChanged(object sender, RoutedPropertyChangedEventArgs<string> e)
         {
@@ -454,6 +473,28 @@ namespace WFTP.Pages
             GetCatalog(level);
             lvwClassify.Tag = level;
         }
+
+        private void btnTileView_Click(object sender, RoutedEventArgs e)
+        {
+            _isTileView = true;
+            GetCatalog(Convert.ToInt32(lvwClassify.Tag));
+        }
+
+        private void btnListView_Click(object sender, RoutedEventArgs e)
+        {
+            _isTileView = false;
+            GetCatalog(Convert.ToInt32(lvwClassify.Tag));
+        }
+        #endregion
+
+
+        #region Test
+
+        
+        
+        #endregion
+
+       
 
         private void GetCatalogInfo(int level, string condition)
         {
