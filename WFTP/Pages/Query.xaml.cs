@@ -563,8 +563,10 @@ namespace WFTP.Pages
             GetCatalog(Convert.ToInt32(lvwClassify.Tag));
         }
 
+
         #endregion
     
+
         private void GetCatalogInfo(int level, string condition)
         {
             WFTPDbContext db = new WFTPDbContext();
@@ -586,7 +588,8 @@ namespace WFTP.Pages
                     break;
                 case 2:
                     var lv2 = from customer in db.Lv2Customers
-                              where customer.CompanyNickName == condition && customer.ClassifyId == _catalogLevelId[level - 1]
+                              where customer.CompanyNickName == condition
+                                    && customer.ClassifyId == _catalogLevelId[level - 1]
                                select new
                                {
                                    customer.CompanyId,
@@ -597,7 +600,8 @@ namespace WFTP.Pages
                     break;
                 case 3:
                     var lv3 = from branch in db.Lv3CustomerBranches
-                              where branch.BranchNickName == condition && branch.CompanyId == _catalogLevelId[level - 1]
+                              where branch.BranchNickName == condition
+                                    && branch.CompanyId == _catalogLevelId[level - 1]
                               select new
                               {
                                   branch.BranchId,
@@ -608,8 +612,8 @@ namespace WFTP.Pages
                     break;
                 case 4:
                     var lv4 = from line in db.Lv4Lines
-                              where line.LineNickName == condition && line.BranchId == _catalogLevelId[level - 1]
-
+                              where line.LineNickName == condition
+                                    && line.BranchId == _catalogLevelId[level - 1]
                                select new
                                {
                                    line.LineId,
