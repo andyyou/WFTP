@@ -182,7 +182,8 @@ namespace WFTP.Pages
 
             foreach (var classifyItem in classify)
             {
-                if (remoteFileList.ContainsKey(classifyItem.Name))
+                if(true)
+                //if (remoteFileList.ContainsKey(classifyItem.Name))
                 {
                     Dictionary<string, string> dicInfo = new Dictionary<string, string>();
                     dicInfo.Add("Id", classifyItem.Id.ToString());
@@ -487,15 +488,6 @@ namespace WFTP.Pages
         }
         #endregion
 
-
-        #region Test
-
-        
-        
-        #endregion
-
-       
-
         private void GetCatalogInfo(int level, string condition)
         {
             WFTPDbContext db = new WFTPDbContext();
@@ -517,7 +509,8 @@ namespace WFTP.Pages
                     break;
                 case 2:
                     var lv2 = from customer in db.Lv2Customers
-                               where customer.CompanyNickName == condition
+                              where customer.CompanyNickName == condition
+                                    && customer.ClassifyId == _catalogLevelId[level - 1]
                                select new
                                {
                                    customer.CompanyId,
@@ -529,6 +522,7 @@ namespace WFTP.Pages
                 case 3:
                     var lv3 = from branch in db.Lv3CustomerBranches
                               where branch.BranchNickName == condition
+                                    && branch.CompanyId == _catalogLevelId[level - 1]
                               select new
                               {
                                   branch.BranchId,
@@ -539,7 +533,8 @@ namespace WFTP.Pages
                     break;
                 case 4:
                     var lv4 = from line in db.Lv4Lines
-                               where line.LineNickName == condition
+                              where line.LineNickName == condition
+                                    && line.BranchId == _catalogLevelId[level - 1]
                                select new
                                {
                                    line.LineId,
