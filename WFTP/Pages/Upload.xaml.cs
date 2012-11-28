@@ -13,6 +13,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Collections.ObjectModel;
 using WFTP.Lib;
+using System.IO;
 
 namespace WFTP.Pages
 {
@@ -21,20 +22,13 @@ namespace WFTP.Pages
     /// </summary>
     public partial class Upload : UserControl, ISwitchable
     {
+        private dynamic _dataTmp = new ObservableCollection<FileInfo>();
+        private dynamic _dataTo = new ObservableCollection<FileItem>();
         public Upload()
         {
             InitializeComponent();
-            // For test
-            var data = new ObservableCollection<FileItem>();
-            data.Add(new FileItem() { Name = "File-1",  TargetPath = "/PP/TUC/XX"});
-            data.Add(new FileItem() { Name = "File-2",  TargetPath = "/PP/TUC/XX" });
-            data.Add(new FileItem() { Name = "File-3",  TargetPath = "/PP/TUC/XX" });
-            data.Add(new FileItem() { Name = "File-4",  TargetPath = "/PP/TUC/XX" });
-            lvwToUplpad.DataContext = data;
-            lvwTempList.DataContext = data;
         }
-
-
+       
         #region ISwitchable Members
 
         public void UtilizeState(object state)
@@ -43,6 +37,12 @@ namespace WFTP.Pages
         }
 
         #endregion
+
+        private void Grid_Loaded(object sender, RoutedEventArgs e)
+        {
+            lvwToUplpad.DataContext = _dataTo;
+            lvwTempList.DataContext = _dataTmp;
+        }
 
         private void btnSettingFolder_Click(object sender, RoutedEventArgs e)
         {
@@ -54,13 +54,55 @@ namespace WFTP.Pages
                 lbPath.Content = dialog.SelectedPath.ToString();
                 lbPath.ToolTip = dialog.SelectedPath.ToString();
             }
+
+            DirectoryInfo dirInfo = new DirectoryInfo(lbPath.Content.ToString());
+            FileInfo[] files = dirInfo.GetFiles("*");
+            
+            foreach (FileInfo file in files)
+            {
+                _dataTmp.Add(file);
+            }
+            
+
         }
+
+        private void btnUp_Click(object sender, RoutedEventArgs e)
+        {
+            List<FileInfo> removeItems = new List<FileInfo>();
+            foreach (FileInfo i in lvwTempList.SelectedItems)
+            {
+                _dataTo.Add(new FileItem() { File = i, TargetPath = "/PP/TUC/XX" });
+                removeItems.Add(i);
+            }
+
+            foreach (FileInfo f in removeItems)
+            {
+                _dataTmp.Remove(f);
+            }
+        }
+
+        private void btnDown_Click(object sender, RoutedEventArgs e)
+        {
+            List<FileItem> removeItems = new List<FileItem>();
+            foreach (FileItem i in lvwToUplpad.SelectedItems)
+            {
+                _dataTmp.Add(i.File);
+                removeItems.Add(i);
+            }
+
+            foreach (FileItem f in removeItems)
+            {
+                _dataTo.Remove(f);
+            }
+        }
+
+        
     }
 
     #region Sapple Data For Test
     public class FileItem
     {
-        public string Name { set; get; }
+        public FileInfo File { set; get; }
         public string TargetPath { set; get; }
 
     }
