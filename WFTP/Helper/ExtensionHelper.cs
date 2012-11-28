@@ -40,7 +40,14 @@ namespace WFTP.Helper
         {
             if (extList.ContainsKey(extension))
             {
-                return String.Format("{0}{1}", icon_folder, extList[extension]);
+                if (extList[extension] == "img.ico")
+                {
+                    return extList[extension];
+                }
+                else
+                {
+                    return String.Format("{0}{1}", icon_folder, extList[extension]);
+                }
             }
             else
             {

@@ -250,6 +250,21 @@ namespace WFTP.Pages
                 remoteFileList.Add(item.Substring(item.LastIndexOf('/') + 1), item);
             }
 
+            System.Collections.ObjectModel.ObservableCollection<FileInfo> fileCollection =
+                new System.Collections.ObjectModel.ObservableCollection<FileInfo>();
+
+            // 刪除舊有暫存檔
+            if (level == 6)
+            {
+                string[] oldFiles = null;
+                oldFiles = System.IO.Directory.GetFiles(System.IO.Path.GetTempPath(),"WFTP*");
+
+                foreach (string file in oldFiles)
+                {
+                    System.IO.File.Delete(file);
+                }
+            }
+
             foreach (var classifyItem in classify)
             {
                 if (remoteFileList.ContainsKey(classifyItem.Name))
@@ -263,10 +278,14 @@ namespace WFTP.Pages
 
                     if (_isTileView || level < 6)
                     {
+                        bool isImageFile = false;
+                        string iconPath = "";
+
                         lvwClassify.View = lvwClassify.FindResource("TileView") as ViewBase;
 
                         BitmapImage bitmap = new BitmapImage();
                         bitmap.BeginInit();
+                        bitmap.CacheOption = BitmapCacheOption.OnLoad;
                         if (level < 6)
                         {
                             bitmap.UriSource = new Uri(@"pack://application:,,,/WFTP;component/Icons/folder.ico");
@@ -277,14 +296,36 @@ namespace WFTP.Pages
 
                             string[] filename = classifyItem.NickName.Split('.');
                             string ext = filename.Last();
+                            iconPath = helper.GetIconPath(ext);
 
-                            bitmap.UriSource = new Uri(helper.GetIconPath(ext));
+                            if (iconPath != "img.ico")
+                            {
+                                bitmap.UriSource = new Uri(iconPath);
+                            }
+                            else
+                            {
+                                isImageFile = true;
+                                string tmpFolder = System.IO.Path.GetTempPath();
+                                string localFileName = string.Format("WFTP-{0}", classifyItem.Name);
+
+                                FTPClient client = new FTPClient();
+                                client.Get(remoteFileList[classifyItem.Name], tmpFolder, localFileName);
+                                bitmap.UriSource = new Uri(String.Format(@"{0}\{1}", tmpFolder, localFileName));
+                            }
                         }
                         bitmap.EndInit();
 
                         Image img = new Image();
-                        img.Width = 60;
-                        img.Height = 60;
+                        if (!isImageFile)
+                        {
+                            img.Width = 60;
+                            img.Height = 60;
+                        }
+                        else
+                        {
+                            img.Width = 120;
+                            img.Height = 120;
+                        }
                         img.Source = bitmap;
 
                         Tile tile = new Tile();
@@ -307,17 +348,21 @@ namespace WFTP.Pages
                         if (level == 6)
                         {
                             tile.Tag = remoteFileList[classifyItem.Name];
-                            
                         }
                         else
                         {
                             tile.Tag = dicInfo;
-                          
                         }
                         tile.Click += new RoutedEventHandler(tile_Click);
                         if (tile.Count == "0")
                         {
                             tile.Background = new SolidColorBrush(Color.FromRgb(255, 93, 93));
+                        }
+                        if (isImageFile)
+                        {                            
+                            tile.Background = new SolidColorBrush(Color.FromArgb(0, 0, 0, 0));
+                            tile.BorderThickness = new Thickness(100.0);
+                            tile.BorderBrush = new SolidColorBrush(Color.FromRgb(196, 196, 196));
                         }
 
                         lvwClassify.Items.Add(tile);
@@ -326,25 +371,29 @@ namespace WFTP.Pages
                     {
                         lvwClassify.View = lvwClassify.FindResource("ListView") as ViewBase;
 
-                        System.Collections.ObjectModel.ObservableCollection<FileInfo> fileCollection = 
-                            new System.Collections.ObjectModel.ObservableCollection<FileInfo>();
+                        //System.Collections.ObjectModel.ObservableCollection<FileInfo> fileCollection = 
+                        //    new System.Collections.ObjectModel.ObservableCollection<FileInfo>();
 
                         fileCollection.Add(new FileInfo{
-                            FileName = "1.png",
-                            FilePath="/test/1.png"
+                            FileName = classifyItem.Name,
+                            FilePath = remoteFileList[classifyItem.Name]
                         });
-                        fileCollection.Add(new FileInfo{
-                            FileName = "2.png",
-                            FilePath="/test/2.png"
-                        });
-                        fileCollection.Add(new FileInfo{
-                            FileName = "3.png",
-                            FilePath="/test/3.png"
-                        });
+                        //fileCollection.Add(new FileInfo{
+                        //    FileName = "2.png",
+                        //    FilePath="/test/2.png"
+                        //});
+                        //fileCollection.Add(new FileInfo{
+                        //    FileName = "3.png",
+                        //    FilePath="/test/3.png"
+                        //});
 
-                        lvwClassify.ItemsSource = fileCollection;
+                        //lvwClassify.ItemsSource = fileCollection;
                     }
                 }
+            }
+            if (!_isTileView && level == 6)
+            {
+                lvwClassify.ItemsSource = fileCollection;
             }
         }
 

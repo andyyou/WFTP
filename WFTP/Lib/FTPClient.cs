@@ -753,7 +753,7 @@ namespace WFTP.Lib
         /// <param name="strCommand">指令</param>
         private void SendCommand(String strCommand)
         {
-            Byte[] cmdBytes = Encoding.ASCII.GetBytes((strCommand + "\r\n").ToCharArray());
+            Byte[] cmdBytes = Encoding.UTF8.GetBytes((strCommand + "\r\n").ToCharArray());
             socketControl.Send(cmdBytes, cmdBytes.Length, 0);
             ReadReply();
         }
