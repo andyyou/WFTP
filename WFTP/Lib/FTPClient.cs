@@ -154,6 +154,7 @@ namespace WFTP.Lib
             }
             // 取得回應碼
             ReadReply();
+            // 220: Command okay.
             if (iReplyCode != 220)
             {
                 DisConnect();
@@ -161,14 +162,25 @@ namespace WFTP.Lib
             }
             // 登入
             SendCommand("USER " + strRemoteUser);
+            // 331: User name okay, need password.
+            // 230: User logged in, proceed. 
+            //      This status code appears after the client sends the correct password.
+            //      It indicates that the user has successfully logged on.
             if (!(iReplyCode == 331 || iReplyCode == 230))
             {
                 CloseSocketConnect(); // 關閉連線
                 throw new IOException(strReply.Substring(4));
             }
+            // 230: User logged in, proceed. 
+            //      This status code appears after the client sends the correct password.
+            //      It indicates that the user has successfully logged on.
             if (iReplyCode != 230)
             {
                 SendCommand("PASS " + strRemotePass);
+                // 230: User logged in, proceed. 
+                //      This status code appears after the client sends the correct password.
+                //      It indicates that the user has successfully logged on.
+                // 202: Command not implemented, superfluous at this site.
                 if (!(iReplyCode == 230 || iReplyCode == 202))
                 {
                     CloseSocketConnect(); // 關閉連線
@@ -256,6 +268,9 @@ namespace WFTP.Lib
             // 傳送指令
             SendCommand("NLST " + strMask);
             // 解析回應代碼
+            // 150: File status okay; about to open data connection.
+            // 125: Data Connection already open; transfer starting.
+            // 226: Closing data connection.
             if (!(iReplyCode == 150 || iReplyCode == 125 || iReplyCode == 226))
             {
                 throw new IOException(strReply.Substring(4));
@@ -279,9 +294,11 @@ namespace WFTP.Lib
             string[] strsFileList = strMsg.Split(seperator, StringSplitOptions.RemoveEmptyEntries);
             socketData.Close();
             // 資料 Socket 關閉時也會有回應代碼
+            // 226: Closing data connection.
             if (iReplyCode != 226)
             {
                 ReadReply();
+                // 226: Closing data connection.
                 if (iReplyCode != 226)
                 {
                     throw new IOException(strReply.Substring(4));
@@ -303,6 +320,7 @@ namespace WFTP.Lib
             }
             SendCommand("SIZE " + Path.GetFileName(strFileName));
             long lSize = 0;
+            // 213: File status.
             if (iReplyCode == 213)
             {
                 lSize = Int64.Parse(strReply.Substring(4));
@@ -325,6 +343,7 @@ namespace WFTP.Lib
                 Connect();
             }
             SendCommand("DELE " + strFileName);
+            // 250: Requested file action okay, completed.
             if (iReplyCode != 250)
             {
                 throw new IOException(strReply.Substring(4));
@@ -343,12 +362,14 @@ namespace WFTP.Lib
                 Connect();
             }
             SendCommand("RNFR " + strOldFileName);
+            // 350: Requested file action pending further information.
             if (iReplyCode != 350)
             {
                 throw new IOException(strReply.Substring(4));
             }
             // 如果新檔案名稱與原有檔案名稱重複，將覆蓋原有檔案
             SendCommand("RNTO " + strNewFileName);
+            // 250: Requested file action okay, completed.
             if (iReplyCode != 250)
             {
                 throw new IOException(strReply.Substring(4));
@@ -406,6 +427,10 @@ namespace WFTP.Lib
             FileStream(strFolder + "\\" + strLocalFileName, FileMode.Create);
             Socket socketData = CreateDataSocket();
             SendCommand("RETR " + strRemoteFileName);
+            // 150: File status okay; about to open data connection.
+            // 125: Data Connection already open; transfer starting.
+            // 226: Closing data connection.
+            // 250: Requested file action okay, completed.
             if (!(iReplyCode == 150 || iReplyCode == 125 || iReplyCode == 226 || iReplyCode == 250))
             {
                 throw new IOException(strReply.Substring(4));
@@ -424,9 +449,13 @@ namespace WFTP.Lib
             {
                 socketData.Close();
             }
+            // 226: Closing data connection.
+            // 250: Requested file action okay, completed.
             if (!(iReplyCode == 226 || iReplyCode == 250))
             {
                 ReadReply();
+                // 226: Closing data connection.
+                // 250: Requested file action okay, completed.
                 if (!(iReplyCode == 226 || iReplyCode == 250))
                 {
                     throw new IOException(strReply.Substring(4));
@@ -461,6 +490,8 @@ namespace WFTP.Lib
             }
             Socket socketData = CreateDataSocket();
             SendCommand("STOR " + Path.GetFileName(strFileName));
+            // 125: Data Connection already open; transfer starting.
+            // 150: File status okay; about to open data connection.
             if (!(iReplyCode == 125 || iReplyCode == 150))
             {
                 throw new IOException(strReply.Substring(4));
@@ -477,9 +508,13 @@ namespace WFTP.Lib
             {
                 socketData.Close();
             }
+            // 226: Closing data connection.
+            // 250: Requested file action okay, completed.
             if (!(iReplyCode == 226 || iReplyCode == 250))
             {
                 ReadReply();
+                // 226: Closing data connection.
+                // 250: Requested file action okay, completed.
                 if (!(iReplyCode == 226 || iReplyCode == 250))
                 {
                     throw new IOException(strReply.Substring(4));
@@ -502,6 +537,7 @@ namespace WFTP.Lib
                 Connect();
             }
             SendCommand("MKD " + strDirName);
+            // 257: "PATHNAME" created.
             if (iReplyCode != 257)
             {
                 throw new IOException(strReply.Substring(4));
@@ -519,6 +555,7 @@ namespace WFTP.Lib
                 Connect();
             }
             SendCommand("RMD " + strDirName);
+            // 250: Requested file action okay, completed.
             if (iReplyCode != 250)
             {
                 throw new IOException(strReply.Substring(4));
@@ -540,6 +577,7 @@ namespace WFTP.Lib
                 Connect();
             }
             SendCommand("CWD " + strDirName);
+            // 250: Requested file action okay, completed.
             if (iReplyCode != 250)
             {
                 throw new IOException(strReply.Substring(4));
@@ -609,6 +647,7 @@ namespace WFTP.Lib
         private Socket CreateDataSocket()
         {
             SendCommand("PASV");
+            // 227: Entering Passive Mode.
             if (iReplyCode != 227)
             {
                 throw new IOException(strReply.Substring(4));
