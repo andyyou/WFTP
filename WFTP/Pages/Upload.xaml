@@ -21,11 +21,11 @@
         </ResourceDictionary>
     </Control.Resources>
     
-    <Grid>
+    <Grid Loaded="Grid_Loaded">
         <Button Name="btnUpload"
                 Width="50" 
                 Height="50"
-                Margin="691,12,37,499"
+                Margin="649,11,79,500"
                 Content="{StaticResource appbar_upload}" 
                 Style="{DynamicResource MetroCircleButtonStyle}" 
                 FontFamily="Microsoft JhengHei"  
@@ -33,36 +33,34 @@
         <Button Name="btnSettingFolder"
                 Width="50" 
                 Height="50"
-                Margin="635,12,93,499"
+                Margin="593,11,135,500"
                 Content="{StaticResource appbar_folder_open}" 
                 Style="{DynamicResource MetroCircleButtonStyle}" 
                 FontFamily="Microsoft JhengHei" Click="btnSettingFolder_Click" />
         <Button Name="btnUp"
                 Width="50" 
                 Height="50"
-                Margin="380,270,348,241"
+                Margin="649,270,79,241"
                 Content="{StaticResource appbar_arrow_up}" 
                 Style="{DynamicResource MetroCircleButtonStyle}" 
-                FontFamily="Microsoft JhengHei"  
-                />
+                FontFamily="Microsoft JhengHei" Click="btnUp_Click" />
         <Button Name="btnDown"
                 Width="50" 
                 Height="50"
-                Margin="324,270,404,241"
+                Margin="593,270,135,241"
                 Content="{StaticResource appbar_arrow_down}" 
                 Style="{DynamicResource MetroCircleButtonStyle}" 
-                FontFamily="Microsoft JhengHei"  
-                />
+                FontFamily="Microsoft JhengHei" Click="btnDown_Click" />
 
         <!--上傳列表-->
         <ListView Name="lvwToUplpad" 
                   Height="193" 
-                  Margin="36,0,37,310" 
+                  Margin="36,0,37,306" 
                   VerticalAlignment="Bottom"
                    ItemsSource="{Binding}">
             <ListView.View>
                 <GridView>
-                    <GridViewColumn Header="File Name" DisplayMemberBinding="{Binding Name}" />
+                    <GridViewColumn Header="File Name" DisplayMemberBinding="{Binding File.Name}" />
                     <GridViewColumn Header="Target Path">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
@@ -78,23 +76,15 @@
         <!--暫存目錄-->
         <ListView Name="lvwTempList" 
                   Height="196" 
-                  Width="727"
-                  Margin="36,326,0,0" 
+                  Width="705"
+                  Margin="36,333,0,0" 
                   HorizontalAlignment="Left" 
                   VerticalAlignment="Top" 
-                  ItemsSource="{Binding}">
+                  ItemsSource="{Binding}" SelectionMode="Multiple">
 
             <ListView.View>
-                <GridView>
-                    <GridViewColumn Header="File Name" DisplayMemberBinding="{Binding Name}" />
-                    <GridViewColumn Header="Target Path">
-                        <GridViewColumn.CellTemplate>
-                            <DataTemplate>
-                                <TextBlock Text="{Binding Path=TargetPath}" />
-                            </DataTemplate>
-                        </GridViewColumn.CellTemplate>
-                    </GridViewColumn>
-                  
+                <GridView AllowsColumnReorder="True">
+                    <GridViewColumn Header="File Name" DisplayMemberBinding="{Binding Name}" Width="700" />
                 </GridView>
             </ListView.View>
             
@@ -115,6 +105,6 @@
                VerticalAlignment="Top" 
                FontSize="16" 
                FontFamily="Microsoft JhengHei" Foreground="DarkGray" />
-        <Label Content="" Height="28" Margin="44,302,443,0" Name="lbPath" VerticalAlignment="Top" Foreground="DarkGray" FontSize="10" />
+        <Label Content="" Height="28" Margin="37,304,450,0" Name="lbPath" VerticalAlignment="Top" Foreground="DarkGray" FontSize="10" FontFamily="Microsoft JhengHei" />
     </Grid>
 </UserControl>
