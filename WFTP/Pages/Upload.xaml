@@ -57,14 +57,14 @@
                   Height="193" 
                   Margin="36,0,37,306" 
                   VerticalAlignment="Bottom"
-                   ItemsSource="{Binding}">
+                  ItemsSource="{Binding}" SelectionMode="Multiple" DataContext="{Binding}" PreviewMouseRightButtonDown="lvwToUplpad_PreviewMouseRightButtonDown" MouseRightButtonUp="lvwToUplpad_MouseRightButtonUp">
             <ListView.View>
                 <GridView>
-                    <GridViewColumn Header="File Name" DisplayMemberBinding="{Binding File.Name}" />
-                    <GridViewColumn Header="Target Path">
+                    <GridViewColumn Header="File Name" DisplayMemberBinding="{Binding File.Name}"  Width="200"/>
+                    <GridViewColumn Header="Target Path" Width="495">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
-                                <TextBlock Text="{Binding Path=TargetPath}" />
+                                <TextBlock Text="{Binding Path=TargetPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
@@ -84,7 +84,7 @@
 
             <ListView.View>
                 <GridView AllowsColumnReorder="True">
-                    <GridViewColumn Header="File Name" DisplayMemberBinding="{Binding Name}" Width="700" />
+                    <GridViewColumn Header="File Name" DisplayMemberBinding="{Binding Name}" Width="695" />
                 </GridView>
             </ListView.View>
             

@@ -62,8 +62,6 @@ namespace WFTP.Pages
 
         private void GetBreadcrumbBarPath()
         {
-           
-
             // Combination Datasource of Folder secheme
             // Initialize root
             _xdoc = new XmlDocument();
