@@ -39,20 +39,19 @@
             </Style>
 
             <GridView x:Key="ListView">
-                <GridViewColumn Header="FileName" DisplayMemberBinding="{Binding FileName}" Width="455"/>
-                <GridViewColumn Header="FilePath" Width="60" >
+                <GridViewColumn Header="FileName"
+                                DisplayMemberBinding="{Binding FileName}"
+                                Width="455" />
+                <GridViewColumn Header="FilePath" Width="60">
                     <GridViewColumn.CellTemplate>
                         <DataTemplate>
-                            <Button  Content="下載"
-                                     Tag="{Binding FilePath}"
-                                     FontSize="12"
-                                     FontFamily="Microsoft JhengHei"
-                                     Click="lstDown_Click"
-                                   />
+                            <Button Content="下載"
+                                    Tag="{Binding FilePath}"
+                                    FontSize="12"
+                                    FontFamily="Microsoft JhengHei"
+                                    Click="lstDown_Click" />
                         </DataTemplate>
-                        
                     </GridViewColumn.CellTemplate>
-
                 </GridViewColumn>
             </GridView>
 
@@ -72,7 +71,7 @@
                 </x:XData>
             </XmlDataProvider>
             <HierarchicalDataTemplate DataType="bc" ItemsSource="{Binding XPath=*}">
-                <TextBlock Text="{Binding XPath=@title}" Foreground="#FF41BEE1"/>
+                <TextBlock Text="{Binding XPath=@title}" Foreground="#FF41BEE1" />
             </HierarchicalDataTemplate>
         </ResourceDictionary>
     </UserControl.Resources>
@@ -105,17 +104,23 @@
                                  Margin="634,0,74,-10"
                                  Content="{StaticResource appbar_eye}" 
                                  Style="{DynamicResource MetroCircleButtonStyle}" 
-                                 Click="btnTileView_Click" Visibility="Hidden" />
+                                 Visibility="Hidden"
+                                 Click="btnTileView_Click" />
                         <Button Name="btnListView" 
                                 Height="50" 
                                 Width="50" 
                                 Margin="682,0,26,-10"
                                 Content="{StaticResource appbar_list_two}" 
                                 Style="{DynamicResource MetroCircleButtonStyle}" 
-                                Click="btnListView_Click" Visibility="Hidden" />
+                                Visibility="Hidden"
+                                Click="btnListView_Click" />
                     </Grid>
                     <WrapPanel DockPanel.Dock="Bottom">
-                        <ListView Name="lvwClassify" Width="760" Height="390" SelectionMode="Single" Margin="0,10,0,0" />
+                        <ListView Name="lvwClassify"
+                                  Width="760"
+                                  Height="390"
+                                  Margin="0,10,0,0"
+                                  SelectionMode="Single" />
                     </WrapPanel>
                 </DockPanel>
             </TabItem>

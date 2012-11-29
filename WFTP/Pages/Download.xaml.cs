@@ -24,20 +24,29 @@ namespace WFTP.Pages
         {
             InitializeComponent();
             // For test
-            var data = new ObservableCollection<DownItem>();
-            data.Add(new DownItem() { Name = "File-1", DownloadProcess = 60 });
-            data.Add(new DownItem() { Name = "File-2", DownloadProcess = 100 });
-            data.Add(new DownItem() { Name = "File-3", DownloadProcess = 10 });
-            data.Add(new DownItem() { Name = "File-4", DownloadProcess = 5 });
-            lvwDownloadList.DataContext = data;
+            var downloadFile = new ObservableCollection<FileProcessInfo>();
+            downloadFile.Add(new FileProcessInfo() { Name = "Download-File-1", Process = 60 });
+            downloadFile.Add(new FileProcessInfo() { Name = "Download-File-2", Process = 100 });
+            downloadFile.Add(new FileProcessInfo() { Name = "Download-File-3", Process = 10 });
+            downloadFile.Add(new FileProcessInfo() { Name = "Download-File-4", Process = 5 });
+            lvwDownloadList.DataContext = downloadFile;
+
+            var uploadFile = new ObservableCollection<FileProcessInfo>();
+            uploadFile.Add(new FileProcessInfo() { Name = "Upload-File-1", Process = 10 });
+            uploadFile.Add(new FileProcessInfo() { Name = "Upload-File-2", Process = 74 });
+            uploadFile.Add(new FileProcessInfo() { Name = "Upload-File-3", Process = 57 });
+            uploadFile.Add(new FileProcessInfo() { Name = "Upload-File-4", Process = 100 });
+            lvwUploadList.DataContext = uploadFile;
         }
     }
-    #region Sapple Data For Test
-    public class DownItem
+    #region Sample Data For Test
+
+    public class FileProcessInfo
     {
         public string Name { set; get; }
-        public int DownloadProcess { set; get; }
+        public int Process { set; get; }
 
     }
+
     #endregion
 }

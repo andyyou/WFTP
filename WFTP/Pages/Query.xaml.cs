@@ -60,10 +60,97 @@ namespace WFTP.Pages
             _catalogLevelName.Add(6, "");
         }
 
+        #region Actions Events
+
+        // For Tile Mode
+        private void tile_Click(object sender, RoutedEventArgs e)
+        {
+            int level = Convert.ToInt32(lvwClassify.Tag) + 1;
+
+            Tile tile = (Tile)sender;
+
+            if (level == 2)
+            {
+                navBar.Path = tile.Title;
+            }
+            else if (level <= 6)
+            {
+                navBar.Path = String.Format(@"{0}\{1}", navBar.Path, tile.Title);
+            }
+            else
+            {
+                // download chosen file here
+                DownloadFile(tile.Tag.ToString());
+            }
+        }
+
+        // For List Mode
+        private void lstDown_Click(object sender, RoutedEventArgs e)
+        {
+            int level = Convert.ToInt32(lvwClassify.Tag) + 1;
+            Button btn = (Button)sender;
+
+            if (level == 2)
+            {
+                navBar.Path = btn.Tag.ToString();
+            }
+            else if (level <= 6)
+            {
+                navBar.Path = String.Format(@"{0}\{1}", navBar.Path, btn.Tag.ToString());
+            }
+            else
+            {
+                // download chosen file here
+                DownloadFile(btn.Tag.ToString());
+            }
+        }
+
+        private void navBar_PathChanged(object sender, RoutedPropertyChangedEventArgs<string> e)
+        {
+            string displayPath = navBar.GetDisplayPath();
+            string[] pathList = navBar.GetDisplayPath().Split('\\');
+            int level = pathList.Count();
+
+            _ftpPath = "/";
+            if (!displayPath.Equals("分類"))
+            {
+                GetCatalogInfo(level, pathList.Last());
+                level++;
+
+                for (int i = 2; i <= level; i++)
+                {
+                    _ftpPath = String.Format("{0}{1}/", _ftpPath, _catalogLevelName[i]);
+                }
+            }
+
+            GetCatalog(level);
+            lvwClassify.Tag = level;
+
+            // Lazy loading for BreadcrumbBar
+            if (level > 1)
+            {
+                GetBreadcrumbBarPath(level);
+            }
+        }
+
+        private void btnTileView_Click(object sender, RoutedEventArgs e)
+        {
+            _isTileView = true;
+            GetCatalog(Convert.ToInt32(lvwClassify.Tag));
+        }
+
+        private void btnListView_Click(object sender, RoutedEventArgs e)
+        {
+            _isTileView = false;
+            GetCatalog(Convert.ToInt32(lvwClassify.Tag));
+        }
+
+        #endregion
+
+        #region R Method
+
         private void GetBreadcrumbBarPath()
         {
-           
-
             // Combination Datasource of Folder secheme
             // Initialize root
             _xdoc = new XmlDocument();
@@ -94,7 +181,6 @@ namespace WFTP.Pages
             XmlDataProvider dataFolders = this.FindResource("dataProvider") as XmlDataProvider;
             dataFolders.Document = _xdoc;
         }
-        
         
         /// <summary>
         /// 效能改善: 延遲載入
@@ -191,8 +277,6 @@ namespace WFTP.Pages
                         }
                     }
                     break;
-               
-
             }
         }
 
@@ -200,7 +284,6 @@ namespace WFTP.Pages
         /// 取得目錄內容
         /// </summary>
         /// <param name="level">目錄階層</param>
-        /// <param name="id">關聯 ID</param>
         private void GetCatalog(int level)
         {
             lvwClassify.ItemsSource = null;
@@ -335,6 +418,9 @@ namespace WFTP.Pages
                         tile.FontFamily = new FontFamily("Microsoft JhengHei");
                         tile.Width = 120;
                         tile.Height = 120;
+                        tile.Margin = new Thickness(5);
+                        tile.Content = img;
+
                         if (level < 6)
                         {
                             tile.Count = classifyItem.Counts.ToString();
@@ -343,8 +429,7 @@ namespace WFTP.Pages
                         {
                             tile.Count = "";
                         }
-                        tile.Margin = new Thickness(5, 5, 5, 5);
-                        tile.Content = img;
+
                         if (level == 6)
                         {
                             tile.Tag = remoteFileList[classifyItem.Name];
@@ -354,40 +439,27 @@ namespace WFTP.Pages
                             tile.Tag = dicInfo;
                         }
                         tile.Click += new RoutedEventHandler(tile_Click);
+
                         if (tile.Count == "0")
                         {
                             tile.Background = new SolidColorBrush(Color.FromRgb(255, 93, 93));
                         }
                         if (isImageFile)
-                        {                            
+                        {
                             tile.Background = new SolidColorBrush(Color.FromArgb(0, 0, 0, 0));
-                            tile.BorderThickness = new Thickness(100.0);
-                            tile.BorderBrush = new SolidColorBrush(Color.FromRgb(196, 196, 196));
+                            tile.Foreground = new SolidColorBrush(Color.FromRgb(0, 0, 0));
                         }
-
+                        
                         lvwClassify.Items.Add(tile);
                     }
                     else
                     {
                         lvwClassify.View = lvwClassify.FindResource("ListView") as ViewBase;
 
-                        //System.Collections.ObjectModel.ObservableCollection<FileInfo> fileCollection = 
-                        //    new System.Collections.ObjectModel.ObservableCollection<FileInfo>();
-
                         fileCollection.Add(new FileInfo{
                             FileName = classifyItem.Name,
                             FilePath = remoteFileList[classifyItem.Name]
                         });
-                        //fileCollection.Add(new FileInfo{
-                        //    FileName = "2.png",
-                        //    FilePath="/test/2.png"
-                        //});
-                        //fileCollection.Add(new FileInfo{
-                        //    FileName = "3.png",
-                        //    FilePath="/test/3.png"
-                        //});
-
-                        //lvwClassify.ItemsSource = fileCollection;
                     }
                 }
             }
@@ -397,8 +469,7 @@ namespace WFTP.Pages
             }
         }
 
-        #region 從資料庫取得分類名稱及其子項目數量
-
+        // 從資料庫取得分類名稱及其子項目數量(階層 1)
         private dynamic GetLv1Catalog()
         {
             WFTPDbContext db = new WFTPDbContext();
@@ -419,6 +490,7 @@ namespace WFTP.Pages
             return lv1Catalog;
         }
 
+        // 從資料庫取得分類名稱及其子項目數量(階層 2)
         private dynamic GetLv2Catalog()
         {
             WFTPDbContext db = new WFTPDbContext();
@@ -440,6 +512,7 @@ namespace WFTP.Pages
             return lv2Catalog;
         }
 
+        // 從資料庫取得分類名稱及其子項目數量(階層 3)
         private dynamic GetLv3Catalog()
         {
             WFTPDbContext db = new WFTPDbContext();
@@ -461,6 +534,7 @@ namespace WFTP.Pages
             return lv3Catalog;
         }
 
+        // 從資料庫取得分類名稱及其子項目數量(階層 4)
         private dynamic GetLv4Catalog()
         {
             WFTPDbContext db = new WFTPDbContext();
@@ -481,6 +555,7 @@ namespace WFTP.Pages
             return lv4Catalog;
         }
 
+        // 從資料庫取得分類名稱及其子項目數量(階層 5)
         private dynamic GetFileCatalog()
         {
             WFTPDbContext db = new WFTPDbContext();
@@ -501,6 +576,7 @@ namespace WFTP.Pages
             return fileCatalogList;
         }
 
+        // 從資料庫取得分類名稱及其子項目數量(階層 6)
         private dynamic GetFileList()
         {
             WFTPDbContext db = new WFTPDbContext();
@@ -516,106 +592,16 @@ namespace WFTP.Pages
 
             return fileList;
         }
-        
-        #endregion
 
-        #region 取得 FTP 資料夾清單
-
+        // 取得 FTP 資料夾清單
         private string[] GetFtpCatalog()
         {
             FTPClient client = new FTPClient();
 
             return client.Dir(_ftpPath);
         }
-
-        #endregion
-
-        #region Actions Events
-        // For Tile Mode
-        private void tile_Click(object sender, RoutedEventArgs e)
-        {
-            int level = Convert.ToInt32(lvwClassify.Tag) + 1;
-
-            Tile tile = (Tile)sender;
-
-            if (level == 2)
-            {
-                navBar.Path = tile.Title;
-            }
-            else if (level <= 6)
-            {
-                navBar.Path = String.Format(@"{0}\{1}", navBar.Path, tile.Title);
-            }
-            else
-            {
-                // download chosen file here
-                MessageBox.Show("Download Start!!");
-            }
-        }
-        // For List Mode
-        private void lstDown_Click(object sender, RoutedEventArgs e)
-        {
-            int level = Convert.ToInt32(lvwClassify.Tag) + 1;
-            Button btn = (Button)sender;
-
-            if (level == 2)
-            {
-                navBar.Path = btn.Tag.ToString();
-            }
-            else if (level <= 6)
-            {
-                navBar.Path = String.Format(@"{0}\{1}", navBar.Path, btn.Tag.ToString());
-            }
-            else
-            {
-                // download chosen file here
-                MessageBox.Show("Download Start!!");
-            }
-        }
-
-        private void navBar_PathChanged(object sender, RoutedPropertyChangedEventArgs<string> e)
-        {
-            string displayPath = navBar.GetDisplayPath();
-            string[] pathList = navBar.GetDisplayPath().Split('\\');
-            int level = pathList.Count();
-
-            _ftpPath = "/";
-            if (!displayPath.Equals("分類"))
-            {
-                GetCatalogInfo(level, pathList.Last());
-                level++;
-
-                for (int i = 2; i <= level; i++)
-                {
-                    _ftpPath = String.Format("{0}{1}/", _ftpPath, _catalogLevelName[i]);
-                }
-            }
-           
-            GetCatalog(level);
-            lvwClassify.Tag = level;
-
-            // Lazy loading for BreadcrumbBar
-            if(level > 1)
-                GetBreadcrumbBarPath(level);
-            
-        }
-
-        private void btnTileView_Click(object sender, RoutedEventArgs e)
-        {
-            _isTileView = true;
-            GetCatalog(Convert.ToInt32(lvwClassify.Tag));
-        }
-
-        private void btnListView_Click(object sender, RoutedEventArgs e)
-        {
-            _isTileView = false;
-            GetCatalog(Convert.ToInt32(lvwClassify.Tag));
-        }
-
-
-        #endregion
     
-
+        // 取得階層名稱及 Id
         private void GetCatalogInfo(int level, string condition)
         {
             WFTPDbContext db = new WFTPDbContext();
@@ -687,11 +673,41 @@ namespace WFTP.Pages
             _catalogLevelName[level+1] = name;
         }
 
+        private void DownloadFile(string filePath)
+        {
+            string fileName = filePath.Split('/').Last().Split('.').First();
+            string fileExt = filePath.Split('/').Last().Split('.').Last();
+
+            // Configure save file dialog box
+            System.Windows.Forms.SaveFileDialog dlg = new System.Windows.Forms.SaveFileDialog();
+            dlg.FileName = fileName; // Default file name
+            dlg.DefaultExt = "." + fileExt; // Default file extension
+            dlg.Filter = String.Format("WFTP documents (*.{0})|", fileExt); // Filter files by extension 
+            dlg.OverwritePrompt = true;
+            
+            // Show save file dialog box
+            System.Windows.Forms.DialogResult result = dlg.ShowDialog();
+
+            // Process save file dialog box results
+            if (result == System.Windows.Forms.DialogResult.OK)
+            {
+                // Save document 
+                fileName = dlg.FileName;
+                MessageBox.Show(filePath + "\n" + fileName + "\n" + fileExt);
+            }
+        }
+
+        #endregion
+
+        #region FileModel
+
         public class FileInfo
         {
             public string FileName { get; set; }
             public string FilePath { get; set; }
         }
+
+        #endregion
 
         #region ISwitchable Members
 
