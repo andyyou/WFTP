@@ -13,6 +13,9 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Collections.ObjectModel;
 using WFTP.Lib;
+using System.IO;
+using System.ComponentModel;
+using System.Runtime.InteropServices;
 
 namespace WFTP.Pages
 {
@@ -21,20 +24,14 @@ namespace WFTP.Pages
     /// </summary>
     public partial class Upload : UserControl, ISwitchable
     {
+        private dynamic _dataTmp = new BindingList<FileInfo>();
+        private dynamic _dataTo = new BindingList<FileItem>();
+
         public Upload()
         {
             InitializeComponent();
-            // For test
-            var data = new ObservableCollection<FileItem>();
-            data.Add(new FileItem() { Name = "File-1",  TargetPath = "/PP/TUC/XX"});
-            data.Add(new FileItem() { Name = "File-2",  TargetPath = "/PP/TUC/XX" });
-            data.Add(new FileItem() { Name = "File-3",  TargetPath = "/PP/TUC/XX" });
-            data.Add(new FileItem() { Name = "File-4",  TargetPath = "/PP/TUC/XX" });
-            lvwToUplpad.DataContext = data;
-            lvwTempList.DataContext = data;
         }
-
-
+       
         #region ISwitchable Members
 
         public void UtilizeState(object state)
@@ -43,6 +40,12 @@ namespace WFTP.Pages
         }
 
         #endregion
+
+        private void Grid_Loaded(object sender, RoutedEventArgs e)
+        {
+            lvwToUplpad.ItemsSource = _dataTo;
+            lvwTempList.ItemsSource = _dataTmp;
+        }
 
         private void btnSettingFolder_Click(object sender, RoutedEventArgs e)
         {
@@ -54,14 +57,112 @@ namespace WFTP.Pages
                 lbPath.Content = dialog.SelectedPath.ToString();
                 lbPath.ToolTip = dialog.SelectedPath.ToString();
             }
+
+            DirectoryInfo dirInfo = new DirectoryInfo(lbPath.Content.ToString());
+            FileInfo[] files = dirInfo.GetFiles("*");
+            
+            foreach (FileInfo file in files)
+            {
+                _dataTmp.Add(file);
+            }
         }
+
+        private void btnUp_Click(object sender, RoutedEventArgs e)
+        {
+            SetPath sp = new SetPath(400,500);
+            string target_path = "";
+            sp.ShowDialog();
+            target_path = sp.Path;
+
+            if (!String.IsNullOrEmpty(target_path))
+            {
+                int pathLevel = target_path.Split(new char[] { '\\' }, StringSplitOptions.RemoveEmptyEntries).Count();
+                if (pathLevel == 5)
+                {
+                    List<FileInfo> removeItems = new List<FileInfo>();
+                    foreach (FileInfo i in lvwTempList.SelectedItems)
+                    {
+                        _dataTo.Add(new FileItem() { File = i, TargetPath = target_path });
+                        removeItems.Add(i);
+                    }
+
+                    foreach (FileInfo f in removeItems)
+                    {
+                        _dataTmp.Remove(f);
+                    }
+                }
+                else
+                {
+                    return;
+                }
+            }
+        }
+
+        private void btnDown_Click(object sender, RoutedEventArgs e)
+        {
+            List<FileItem> removeItems = new List<FileItem>();
+            foreach (FileItem i in lvwToUplpad.SelectedItems)
+            {
+                _dataTmp.Add(i.File);
+                removeItems.Add(i);
+            }
+
+            foreach (FileItem f in removeItems)
+            {
+                _dataTo.Remove(f);
+            }
+        }
+
+        private void lvwToUplpad_PreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            e.Handled = true;
+        }
+
+        private void lvwToUplpad_MouseRightButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            
+            SetPath sp = new SetPath(400,500);
+            string target_path = "";
+            if (lvwToUplpad.SelectedItems.Count > 0)
+            {
+                sp.ShowDialog();
+                target_path = sp.Path;
+
+                if (!String.IsNullOrEmpty(target_path))
+                {
+                    foreach (FileItem i in lvwToUplpad.SelectedItems)
+                    {
+                        i.TargetPath = target_path;
+                    }
+                }
+            }
+        }
+        
     }
 
-    #region Sapple Data For Test
-    public class FileItem
+    #region Model
+    public class FileItem : INotifyPropertyChanged
     {
-        public string Name { set; get; }
-        public string TargetPath { set; get; }
+        private string _target_path;
+        public FileInfo File { set; get; }
+        public string TargetPath {
+            get {
+                return _target_path;
+            }
+            set {
+                _target_path = value;
+                RaisePropertyChanged("TargetPath"); 
+            }
+        }
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        protected virtual void RaisePropertyChanged(String propertyName)
+        {
+            if ((PropertyChanged != null))
+            {
+                PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+            }
+        }
 
     }
     #endregion
