@@ -1,0 +1,59 @@
+﻿<Window x:Class="WFTP.SetPath"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+        xmlns:odc="clr-namespace:Odyssey.Controls;assembly=Odyssey"
+        Title="設定分類" Height="150" Width="600" WindowStartupLocation="CenterScreen" ResizeMode="NoResize"
+        >
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Resources/Icons.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.AnimatedSingleRowTabControl.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Colours.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Fonts.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/Blue.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/BaseLight.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+            <XmlDataProvider x:Key="dataProvider" XPath="bc">
+                <x:XData>
+                    <bc xmlns="" title="分類" />
+                </x:XData>
+            </XmlDataProvider>
+            <HierarchicalDataTemplate DataType="bc" ItemsSource="{Binding XPath=*}">
+                <TextBlock Text="{Binding XPath=@title}" Foreground="#FF41BEE1"/>
+            </HierarchicalDataTemplate>
+        </ResourceDictionary>
+    </Window.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="40" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <WrapPanel Grid.Row="0">
+            <odc:BreadcrumbBar x:Name="navBar" 
+                           TraceBinding="{Binding XPath=@title}"
+                           Root="{StaticResource dataProvider}"
+                           HorizontalAlignment="Stretch"
+                           Width="582"
+                           PathChanged="navBar_PathChanged"
+                           />
+        </WrapPanel>
+        <Button Name="btnCancel" 
+                Height="50" 
+                Width="50" 
+                Grid.Row="1" 
+                Margin="436,8,92,12" 
+                Content="{StaticResource appbar_close}" 
+                Style="{DynamicResource MetroCircleButtonStyle}" Click="btnCancel_Click" />
+
+        <Button  Name="btnGetPath" 
+                 Height="50" 
+                 Width="50" 
+                 VerticalAlignment="Stretch"
+                 Content="{StaticResource appbar_arrow_right}" 
+                 Style="{DynamicResource MetroCircleButtonStyle}" 
+                 Margin="492,9,36,12" Grid.Row="1" Click="btnGetPath_Click" />
+    </Grid>
+</Window>

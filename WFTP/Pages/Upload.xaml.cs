@@ -14,6 +14,8 @@ using System.Windows.Shapes;
 using System.Collections.ObjectModel;
 using WFTP.Lib;
 using System.IO;
+using System.ComponentModel;
+using System.Runtime.InteropServices;
 
 namespace WFTP.Pages
 {
@@ -22,8 +24,9 @@ namespace WFTP.Pages
     /// </summary>
     public partial class Upload : UserControl, ISwitchable
     {
-        private dynamic _dataTmp = new ObservableCollection<FileInfo>();
-        private dynamic _dataTo = new ObservableCollection<FileItem>();
+        private dynamic _dataTmp = new BindingList<FileInfo>();
+        private dynamic _dataTo = new BindingList<FileItem>();
+
         public Upload()
         {
             InitializeComponent();
@@ -40,8 +43,8 @@ namespace WFTP.Pages
 
         private void Grid_Loaded(object sender, RoutedEventArgs e)
         {
-            lvwToUplpad.DataContext = _dataTo;
-            lvwTempList.DataContext = _dataTmp;
+            lvwToUplpad.ItemsSource = _dataTo;
+            lvwTempList.ItemsSource = _dataTmp;
         }
 
         private void btnSettingFolder_Click(object sender, RoutedEventArgs e)
@@ -62,22 +65,36 @@ namespace WFTP.Pages
             {
                 _dataTmp.Add(file);
             }
-            
-
         }
 
         private void btnUp_Click(object sender, RoutedEventArgs e)
         {
-            List<FileInfo> removeItems = new List<FileInfo>();
-            foreach (FileInfo i in lvwTempList.SelectedItems)
-            {
-                _dataTo.Add(new FileItem() { File = i, TargetPath = "/PP/TUC/XX" });
-                removeItems.Add(i);
-            }
+            SetPath sp = new SetPath(400,500);
+            string target_path = "";
+            sp.ShowDialog();
+            target_path = sp.Path;
 
-            foreach (FileInfo f in removeItems)
+            if (!String.IsNullOrEmpty(target_path))
             {
-                _dataTmp.Remove(f);
+                int pathLevel = target_path.Split(new char[] { '\\' }, StringSplitOptions.RemoveEmptyEntries).Count();
+                if (pathLevel == 5)
+                {
+                    List<FileInfo> removeItems = new List<FileInfo>();
+                    foreach (FileInfo i in lvwTempList.SelectedItems)
+                    {
+                        _dataTo.Add(new FileItem() { File = i, TargetPath = target_path });
+                        removeItems.Add(i);
+                    }
+
+                    foreach (FileInfo f in removeItems)
+                    {
+                        _dataTmp.Remove(f);
+                    }
+                }
+                else
+                {
+                    return;
+                }
             }
         }
 
@@ -96,14 +113,56 @@ namespace WFTP.Pages
             }
         }
 
+        private void lvwToUplpad_PreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            e.Handled = true;
+        }
+
+        private void lvwToUplpad_MouseRightButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            
+            SetPath sp = new SetPath(400,500);
+            string target_path = "";
+            if (lvwToUplpad.SelectedItems.Count > 0)
+            {
+                sp.ShowDialog();
+                target_path = sp.Path;
+
+                if (!String.IsNullOrEmpty(target_path))
+                {
+                    foreach (FileItem i in lvwToUplpad.SelectedItems)
+                    {
+                        i.TargetPath = target_path;
+                    }
+                }
+            }
+        }
         
     }
 
-    #region Sapple Data For Test
-    public class FileItem
+    #region Model
+    public class FileItem : INotifyPropertyChanged
     {
+        private string _target_path;
         public FileInfo File { set; get; }
-        public string TargetPath { set; get; }
+        public string TargetPath {
+            get {
+                return _target_path;
+            }
+            set {
+                _target_path = value;
+                RaisePropertyChanged("TargetPath"); 
+            }
+        }
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        protected virtual void RaisePropertyChanged(String propertyName)
+        {
+            if ((PropertyChanged != null))
+            {
+                PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+            }
+        }
 
     }
     #endregion
