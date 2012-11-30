@@ -362,7 +362,6 @@ namespace WFTP.Pages
                     if (_isTileView || level < 6)
                     {
                         bool isImageFile = false;
-                        string iconPath = "";
 
                         lvwClassify.View = lvwClassify.FindResource("TileView") as ViewBase;
 
@@ -377,9 +376,8 @@ namespace WFTP.Pages
                         {
                             ExtensionHelper helper = new ExtensionHelper();
 
-                            string[] filename = classifyItem.NickName.Split('.');
-                            string ext = filename.Last();
-                            iconPath = helper.GetIconPath(ext);
+                            string iconPath = helper.GetIconPath(
+                                System.IO.Path.GetExtension(classifyItem.NickName));
 
                             if (iconPath != "img.ico")
                             {
@@ -392,12 +390,12 @@ namespace WFTP.Pages
                                 string localFileName = string.Format("WFTP-{0}", classifyItem.Name);
 
                                 FTPClient client = new FTPClient();
-                                client.Get(remoteFileList[classifyItem.Name], tmpFolder, localFileName);
+                                client.Get(remoteFileList[classifyItem.Name], tmpFolder, localFileName, false);
                                 bitmap.UriSource = new Uri(String.Format(@"{0}\{1}", tmpFolder, localFileName));
                             }
                         }
                         bitmap.EndInit();
-
+                        
                         Image img = new Image();
                         if (!isImageFile)
                         {
@@ -411,10 +409,8 @@ namespace WFTP.Pages
                         }
                         img.Source = bitmap;
 
-                        Tile tile = new Tile();
                         string title = Convert.ToString(classifyItem.NickName);
-                        tile.Title = title.Length > 12 ? String.Format("{0}…", title.Substring(0, 11)) : title;
-
+                        Tile tile = new Tile();
                         tile.FontFamily = new FontFamily("Microsoft JhengHei");
                         tile.Width = 120;
                         tile.Height = 120;
@@ -433,6 +429,10 @@ namespace WFTP.Pages
                         if (level == 6)
                         {
                             tile.Tag = remoteFileList[classifyItem.Name];
+
+                            ToolTip tip = new ToolTip();
+                            tip.Content = title;
+                            tile.ToolTip = tip;
                         }
                         else
                         {
@@ -447,7 +447,10 @@ namespace WFTP.Pages
                         if (isImageFile)
                         {
                             tile.Background = new SolidColorBrush(Color.FromArgb(0, 0, 0, 0));
-                            tile.Foreground = new SolidColorBrush(Color.FromRgb(0, 0, 0));
+                        }
+                        else
+                        {
+                            tile.Title = title.Length > 12 ? String.Format("{0}…", title.Substring(0, 11)) : title;
                         }
                         
                         lvwClassify.Items.Add(tile);
@@ -563,7 +566,7 @@ namespace WFTP.Pages
             var fileCatalogList = from fileCatalog in db.Lv5FileCategorys
                              let subCount =
                                  (from file in db.Lv6Files
-                                  where file.LineId == _catalogLevelId[4] && file.FileCategoryId == fileCatalog.FileCategoryId
+                                  where file.LineId == _catalogLevelId[4] && file.FileCategoryId == fileCatalog.FileCategoryId && file.IsDeleted == false
                                   select file).Count()
                              select new
                              {
@@ -675,14 +678,14 @@ namespace WFTP.Pages
 
         private void DownloadFile(string filePath)
         {
-            string fileName = filePath.Split('/').Last().Split('.').First();
-            string fileExt = filePath.Split('/').Last().Split('.').Last();
+            string fileName = System.IO.Path.GetFileNameWithoutExtension(filePath);
+            string fileExt = System.IO.Path.GetExtension(filePath);
 
             // Configure save file dialog box
             System.Windows.Forms.SaveFileDialog dlg = new System.Windows.Forms.SaveFileDialog();
             dlg.FileName = fileName; // Default file name
-            dlg.DefaultExt = "." + fileExt; // Default file extension
-            dlg.Filter = String.Format("WFTP documents (*.{0})|", fileExt); // Filter files by extension 
+            dlg.DefaultExt = fileExt; // Default file extension
+            dlg.Filter = String.Format("WFTP documents (*{0})|", fileExt); // Filter files by extension 
             dlg.OverwritePrompt = true;
             
             // Show save file dialog box

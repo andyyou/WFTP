@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Data;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -12,6 +13,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using MahApps.Metro.Controls;
+using WFTP.Pages;
 
 namespace WFTP
 {
@@ -23,14 +25,22 @@ namespace WFTP
         public Main()
         {
             InitializeComponent();
+
+            // 初始化各頁面
+            Switcher.query = new Query();
+            Switcher.download = new Download();
+            Switcher.upload = new Upload();
+            Switcher.manage = new Manage();
+
             // 登入前隱藏功能
             btnQuery.Visibility = Visibility.Hidden;
             btnManage.Visibility = Visibility.Hidden;
             btnUpload.Visibility = Visibility.Hidden;
             btnDownload.Visibility = Visibility.Hidden;
+
             // 初始化Switcher
             Switcher.main = this;
-            Switcher.Switch(new Pages.Login()); //載入 Login
+            Switcher.Switch(new Login()); //載入 Login
         }
 
         private void CloseButtonMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
@@ -63,22 +73,26 @@ namespace WFTP
 
         private void btnQuery_Click(object sender, RoutedEventArgs e)
         {
-            Switcher.Switch(new WFTP.Pages.Query()); 
+            //Switcher.Switch(new Query());
+            Switcher.Switch(Switcher.query); 
         }
 
         private void btnManage_Click(object sender, RoutedEventArgs e)
         {
-            Switcher.Switch(new WFTP.Pages.Manage());
+            //Switcher.Switch(new Manage());
+            Switcher.Switch(Switcher.manage);
         }
 
         private void btnUpload_Click(object sender, RoutedEventArgs e)
         {
-            Switcher.Switch(new WFTP.Pages.Upload());
+            //Switcher.Switch(new Upload());
+            Switcher.Switch(Switcher.upload);
         }
 
         private void btnDownload_Click(object sender, RoutedEventArgs e)
         {
-            Switcher.Switch(new WFTP.Pages.Download());
+            //Switcher.Switch(new Download());
+            Switcher.Switch(Switcher.download);
         }
 
         #region Switcher

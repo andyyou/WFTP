@@ -3,6 +3,7 @@ using System.Net;
 using System.IO;
 using System.Text;
 using System.Net.Sockets;
+using System.Linq;
 
 namespace WFTP.Lib
 {
@@ -396,7 +397,7 @@ namespace WFTP.Lib
             {
                 if (!strFile.Equals("")) // 一般來說 strFiles 的最後一個元素可能是空字串
                 {
-                    Get(strFile, strFolder, strFile);
+                    Get(strFile, strFolder, strFile, false);
                 }
             }
         }
@@ -407,7 +408,8 @@ namespace WFTP.Lib
         /// <param name="strRemoteFileName">要下載的檔案名稱</param>
         /// <param name="strFolder">本地端目錄(不得以 \ 结束)</param>
         /// <param name="strLocalFileName">儲存在本地端時的檔案名稱</param>
-        public void Get(string strRemoteFileName, string strFolder, string strLocalFileName)
+        /// <param name="resume">檔案是否要續傳</param>
+        public void Get(string strRemoteFileName, string strFolder, string strLocalFileName, bool resume)
         {
             if (!bConnected)
             {
@@ -416,16 +418,50 @@ namespace WFTP.Lib
             SetTransferType(TransferType.Binary);
             if (strLocalFileName.Equals(""))
             {
-                strLocalFileName = strRemoteFileName;
+                //strLocalFileName = strRemoteFileName;
+                strLocalFileName = strRemoteFileName.Split('/').Last();
             }
-            if (!File.Exists(strLocalFileName))
+            //if (!File.Exists(strLocalFileName))
+            //{
+            //    Stream st = File.Create(strLocalFileName);
+            //    st.Close();
+            //}
+            //FileStream output = new
+            //FileStream(strFolder + "\\" + strLocalFileName, FileMode.Create);
+
+            string strLocalFileFullPath = string.Format("{0}\\{1}", strFolder, strLocalFileName);
+
+            FileStream output = null;
+            if (!File.Exists(strLocalFileFullPath))
             {
-                Stream st = File.Create(strLocalFileName);
-                st.Close();
+                output = File.Create(strLocalFileFullPath);
             }
-            FileStream output = new
-            FileStream(strFolder + "\\" + strLocalFileName, FileMode.Create);
+            else
+            {
+                output = new FileStream(strLocalFileFullPath, FileMode.Open);
+            }
+
             Socket socketData = CreateDataSocket();
+
+            if (resume)
+            {
+                long offset = output.Length;
+
+                if (offset > 0)
+                {
+                    SendCommand("REST " + offset);
+                    if (iReplyCode != 350)
+                    {
+                        //Server dosnt support resuming
+                        offset = 0;
+                    }
+                    else
+                    {
+                        output.Seek(offset, SeekOrigin.Begin);
+                    }
+                }
+            }
+
             SendCommand("RETR " + strRemoteFileName);
             // 150: File status okay; about to open data connection.
             // 125: Data Connection already open; transfer starting.

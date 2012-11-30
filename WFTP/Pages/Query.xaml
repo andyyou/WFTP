@@ -102,7 +102,7 @@
                                  Height="50" 
                                  Width="50" 
                                  Margin="634,0,74,-10"
-                                 Content="{StaticResource appbar_eye}" 
+                                 Content="{StaticResource appbar_tiles_nine}" 
                                  Style="{DynamicResource MetroCircleButtonStyle}" 
                                  Visibility="Hidden"
                                  Click="btnTileView_Click" />
