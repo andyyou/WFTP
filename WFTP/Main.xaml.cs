@@ -14,6 +14,10 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using MahApps.Metro.Controls;
 using WFTP.Pages;
+using WFTP.Lib;
+using System.IO;
+using Newtonsoft.Json.Linq;
+using Newtonsoft.Json;
 
 namespace WFTP
 {
@@ -22,6 +26,8 @@ namespace WFTP
     /// </summary>
     public partial class Main : MetroWindow
     {
+        public DataTable _progressList;
+
         public Main()
         {
             InitializeComponent();
@@ -37,6 +43,14 @@ namespace WFTP
             btnManage.Visibility = Visibility.Hidden;
             btnUpload.Visibility = Visibility.Hidden;
             btnDownload.Visibility = Visibility.Hidden;
+
+            // 初始化檔案處裡進度清單
+            _progressList = new DataTable("Progress");
+            _progressList.Columns.Add("Type", typeof(string));
+            _progressList.Columns.Add("RemoteFilePath", typeof(string));
+            _progressList.Columns.Add("LocalFilePath", typeof(string));
+            _progressList.Columns.Add("FileSize", typeof(long));
+            _progressList.Columns.Add("Percent", typeof(double));
 
             // 初始化Switcher
             Switcher.main = this;
@@ -94,6 +108,49 @@ namespace WFTP
             //Switcher.Switch(new Download());
             Switcher.Switch(Switcher.download);
         }
+
+        #region Method
+
+        public void UpdateProgressList(string type, string remoteFilePath, string localFilePath)
+        {
+            FTPClient client = new FTPClient();
+            long fileSize = client.GetFileSize(remoteFilePath);
+
+
+
+            //JObject o = JObject.Parse(File.ReadAllText(@"c:\test.json"));
+
+            //string fileList = "";
+            //foreach (var item in o["Progress"]["Items"])
+            //{
+            //    fileList += string.Format("{0}\t{1}\t{2}\t{3}\t{4}\n", item["Type"], item["RemotePath"], item["LocalPath"], item["FileSize"], item["Percent"]);
+            //}
+
+
+            //MessageBox.Show(fileList);
+
+
+
+
+
+
+
+        }
+
+        #endregion
+
+        #region Data Model
+
+        public class PogressInfo
+        {
+            public string Type;
+            public string RemotePath;
+            public string LocalPath;
+            public long FileSize;
+            public int Percent;
+        }
+
+        #endregion
 
         #region Switcher
 

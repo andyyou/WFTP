@@ -357,8 +357,6 @@ namespace WFTP.Pages
                     dicInfo.Add("Id", classifyItem.Id.ToString());
                     dicInfo.Add("Name", classifyItem.Name);
 
-                    ListViewItem lvi = new ListViewItem();
-
                     if (_isTileView || level < 6)
                     {
                         bool isImageFile = false;
@@ -696,7 +694,10 @@ namespace WFTP.Pages
             {
                 // Save document 
                 fileName = dlg.FileName;
-                MessageBox.Show(filePath + "\n" + fileName + "\n" + fileExt);
+
+                Switcher.main.UpdateProgressList("Download", filePath, dlg.FileName);
+                
+                //MessageBox.Show(filePath + "\n" + fileName + "\n" + fileExt);
             }
         }
 

@@ -313,13 +313,14 @@ namespace WFTP.Lib
         /// </summary>
         /// <param name="strFileName">檔案名稱</param>
         /// <returns>檔案大小</returns>
-        private long GetFileSize(string strFileName)
+        public long GetFileSize(string strFileName)
         {
             if (!bConnected)
             {
                 Connect();
             }
-            SendCommand("SIZE " + Path.GetFileName(strFileName));
+            //SendCommand("SIZE " + Path.GetFileName(strFileName));
+            SendCommand("SIZE " + strFileName);
             long lSize = 0;
             // 213: File status.
             if (iReplyCode == 213)
