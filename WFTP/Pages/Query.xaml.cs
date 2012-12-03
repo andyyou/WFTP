@@ -18,6 +18,7 @@ using Odyssey.Controls;
 using WFTP.Helper;
 using WFTP.Lib;
 using System.Xml.XPath;
+using System.ComponentModel;
 
 namespace WFTP.Pages
 {
@@ -34,7 +35,8 @@ namespace WFTP.Pages
         private bool _isTileView = true;
         private string _ftpPath = "/";
         private XmlDocument _xdoc;
-
+        // For Advance Query
+        private BindingList<CompanyItem> _dataCompanys = new BindingList<CompanyItem>();
         #endregion
 
         public Query()
@@ -42,8 +44,10 @@ namespace WFTP.Pages
             InitializeComponent();
             GetCatalog(1);
             GetBreadcrumbBarPath();
-           
+            GetAdvanceCatalog();
+
             lvwClassify.Tag = 1;
+            lvwAdvanceClassify.Tag = 1;
 
             // Initialize catalog level id
             _catalogLevelId.Add(1, 0);
@@ -58,6 +62,10 @@ namespace WFTP.Pages
             _catalogLevelName.Add(4, "");
             _catalogLevelName.Add(5, "");
             _catalogLevelName.Add(6, "");
+
+            // Initialize cmb databinding for Advance Query
+            cmbSearchCompany.ItemsSource = _dataCompanys;
+
         }
 
         #region Actions Events
@@ -82,6 +90,17 @@ namespace WFTP.Pages
                 // download chosen file here
                 DownloadFile(tile.Tag.ToString());
             }
+        }
+
+        private void tileAdvance_Click(object sender, RoutedEventArgs e)
+        {
+
+            grdSearch.Visibility = System.Windows.Visibility.Visible;
+            Tile tile = (Tile)sender;
+
+            // download chosen file here
+            // DownloadFile(tile.Tag.ToString());
+            
         }
 
         // For List Mode
@@ -145,6 +164,48 @@ namespace WFTP.Pages
             GetCatalog(Convert.ToInt32(lvwClassify.Tag));
         }
 
+        private void cmbSearchClass_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            ComboBox cmb = sender as ComboBox;
+            ComboBoxItem item = cmb.SelectedItem as ComboBoxItem;
+            // Hidden All Controls
+            if (grdSearch.Children.Contains(btnSearch)) 
+            {
+                txtSearch.Visibility = System.Windows.Visibility.Hidden;
+                wpDate.Visibility = System.Windows.Visibility.Hidden;
+                cmbSearchCompany.Visibility = System.Windows.Visibility.Hidden;
+            }
+            switch (item.Content.ToString().Trim())
+            { 
+                case "公司":
+                    var companys = GetCompanyList();
+                    _dataCompanys.Clear();
+                    foreach (var c in companys)
+                    {
+                        _dataCompanys.Add(new CompanyItem { Name = c.CompanyNickName, ClassifyId = c.ClassifyId, CompanyId = c.CompanyId});
+                    }
+                    cmbSearchCompany.Visibility = System.Windows.Visibility.Visible;
+                    break;
+
+                case "日期":
+                    wpDate.Visibility = System.Windows.Visibility.Visible;
+                    break;
+
+                case "檔名":
+                    txtSearch.Visibility = System.Windows.Visibility.Visible;
+                    break;
+
+                default:
+                    break;
+            }
+            
+
+        }
+        // Advance Tab back to index
+        private void btnPrevPage_Click(object sender, RoutedEventArgs e)
+        {
+            grdSearch.Visibility = System.Windows.Visibility.Hidden;
+        }
         #endregion
 
         #region R Method
@@ -357,8 +418,6 @@ namespace WFTP.Pages
                     dicInfo.Add("Id", classifyItem.Id.ToString());
                     dicInfo.Add("Name", classifyItem.Name);
 
-                    ListViewItem lvi = new ListViewItem();
-
                     if (_isTileView || level < 6)
                     {
                         bool isImageFile = false;
@@ -471,6 +530,47 @@ namespace WFTP.Pages
                 lvwClassify.ItemsSource = fileCollection;
             }
         }
+
+        /// <summary>
+        /// 取得進階搜尋內容
+        /// </summary>
+        /// <param name="level">階層 進階搜尋只有兩層</param>
+        private void GetAdvanceCatalog()
+        {
+            // UNDONE: 1
+            lvwAdvanceClassify.ItemsSource = null;
+            lvwAdvanceClassify.Items.Clear();
+
+            dynamic fileCatalogs = GetAdvanceFileCatalog();
+            foreach (var catalog in fileCatalogs)
+            {
+                if (true)
+                {
+                    lvwAdvanceClassify.View = lvwAdvanceClassify.FindResource("TileView") as ViewBase;
+                    BitmapImage bitmap = new BitmapImage();
+                    bitmap.BeginInit();
+                    bitmap.CacheOption = BitmapCacheOption.OnLoad;
+                    bitmap.UriSource = new Uri(@"pack://application:,,,/WFTP;component/Icons/folder.ico");
+                    bitmap.EndInit();
+                    Image img = new Image();
+                    img.Width = 60;
+                    img.Height = 60;
+                    img.Source = bitmap;
+                    string title = Convert.ToString(catalog.NickName);
+                    Tile tile = new Tile();
+                    tile.FontFamily = new FontFamily("Microsoft JhengHei");
+                    tile.Width = 120;
+                    tile.Height = 120;
+                    tile.Margin = new Thickness(5);
+                    tile.Content = img;
+                    tile.Title = title.Length > 12 ? String.Format("{0}…", title.Substring(0, 11)) : title;
+                    tile.Click +=new RoutedEventHandler(tileAdvance_Click);
+                    lvwAdvanceClassify.Items.Add(tile);
+                }
+            }
+            
+        }
+
 
         // 從資料庫取得分類名稱及其子項目數量(階層 1)
         private dynamic GetLv1Catalog()
@@ -594,6 +694,54 @@ namespace WFTP.Pages
                            };
 
             return fileList;
+        }
+
+        // 從資料庫取得分類名稱及其子項目數量(階層 5) Advance
+        private dynamic GetAdvanceFileCatalog()
+        {
+            WFTPDbContext db = new WFTPDbContext();
+
+            var fileCatalogList = from fileCatalog in db.Lv5FileCategorys
+                                  select new
+                                  {
+                                      Id = fileCatalog.FileCategoryId,
+                                      Name = fileCatalog.ClassName,
+                                      NickName = fileCatalog.ClassNickName
+                                  };
+
+            return fileCatalogList;
+        }
+
+        // 從資料庫取得分類名稱及其子項目數量(階層 6) Advance
+        private dynamic GetAdvanceFileList()
+        {
+            WFTPDbContext db = new WFTPDbContext();
+
+            var fileList = from file in db.Lv6Files
+                           where file.FileCategoryId == 2 && file.IsDeleted == false
+                           select new
+                           {
+                               Id = file.FileId,
+                               Name = file.FileName,
+                               NickName = file.FileName
+                           };
+
+            return fileList;
+        }
+
+        // 從資料庫取得所有公司分類
+        private dynamic GetCompanyList()
+        {
+            WFTPDbContext db = new WFTPDbContext();
+            var companyList = from customer in db.Lv2Customers
+                              select new
+                              {
+                                  CompanyId = customer.CompanyId,
+                                  CompanyNickName = customer.CompanyNickName,
+                                  ClassifyId = customer.ClassifyId
+                              };
+
+            return companyList;
         }
 
         // 取得 FTP 資料夾清單
@@ -720,5 +868,114 @@ namespace WFTP.Pages
         }
 
         #endregion
+
+        #region Models
+        public class CompanyItem : INotifyPropertyChanged
+        {
+            private string _name;
+            private int _classifyId;
+            private int _companyId;
+
+            public string Name
+            {
+                get
+                {
+                    return _name;
+                }
+                set
+                {
+                    _name = value;
+                    RaisePropertyChanged("Name");
+                }
+            }
+            public int ClassifyId
+            {
+                get {
+                    return _classifyId;
+                }
+                set {
+                    _classifyId = value;
+                    RaisePropertyChanged("ClassifyId");
+                }
+            }
+            public int CompanyId {
+                get { return _companyId; }
+                set
+                {
+                    _companyId = value;
+                    RaisePropertyChanged("CompanyId");
+                }
+            }
+            public event PropertyChangedEventHandler PropertyChanged;
+
+            protected virtual void RaisePropertyChanged(String propertyName)
+            {
+                if ((PropertyChanged != null))
+                {
+                    PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+                }
+            }
+
+        }
+
+        public class ClassifyItem : INotifyPropertyChanged
+        {
+            private string _name;
+            private int _classifyId;
+            private string _nickName;
+           
+
+            public string Name
+            {
+                get
+                {
+                    return _name;
+                }
+                set
+                {
+                    _name = value;
+                    RaisePropertyChanged("Name");
+                }
+            }
+            public int ClassifyId
+            {
+                get
+                {
+                    return _classifyId;
+                }
+                set
+                {
+                    _classifyId = value;
+                    RaisePropertyChanged("ClassifyId");
+                }
+            }
+            public string NickName
+            {
+                get
+                {
+                    return _nickName;
+                }
+                set
+                {
+                    _nickName = value;
+                    RaisePropertyChanged("NickName");
+                }
+            } 
+            public event PropertyChangedEventHandler PropertyChanged;
+
+            protected virtual void RaisePropertyChanged(String propertyName)
+            {
+                if ((PropertyChanged != null))
+                {
+                    PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+                }
+            }
+
+        }
+        #endregion
+
+       
+
+        
     }
 }
