@@ -844,7 +844,10 @@ namespace WFTP.Pages
             {
                 // Save document 
                 fileName = dlg.FileName;
-                MessageBox.Show(filePath + "\n" + fileName + "\n" + fileExt);
+
+                Switcher.main.UpdateProgressList("Download", filePath, dlg.FileName);
+                
+                //MessageBox.Show(filePath + "\n" + fileName + "\n" + fileExt);
             }
         }
 
