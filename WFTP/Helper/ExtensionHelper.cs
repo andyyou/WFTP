@@ -15,21 +15,21 @@ namespace WFTP.Helper
             extList = new Dictionary<string,string>();
 
             // Image
-            extList.Add("bmp", "img.ico");
-            extList.Add("jpg", "img.ico");
-            extList.Add("jpeg", "img.ico");
-            extList.Add("png", "img.ico");
-            extList.Add("gif", "img.ico");
-            extList.Add("tiff", "img.ico");
+            extList.Add(".bmp", "img.ico");
+            extList.Add(".jpg", "img.ico");
+            extList.Add(".jpeg", "img.ico");
+            extList.Add(".png", "img.ico");
+            extList.Add(".gif", "img.ico");
+            extList.Add(".tiff", "img.ico");
             // document
-            extList.Add("doc", "doc.ico");
-            extList.Add("docx", "doc.ico");
-            extList.Add("xls", "xls.ico");
-            extList.Add("xlsx", "xls.ico");
-            extList.Add("ppt", "ppt.ico");
-            extList.Add("pptx", "ppt.ico");
-            extList.Add("pdf", "pdf.ico");
-            extList.Add("txt", "txt.ico");
+            extList.Add(".doc", "doc.ico");
+            extList.Add(".docx", "doc.ico");
+            extList.Add(".xls", "xls.ico");
+            extList.Add(".xlsx", "xls.ico");
+            extList.Add(".ppt", "ppt.ico");
+            extList.Add(".pptx", "ppt.ico");
+            extList.Add(".pdf", "pdf.ico");
+            extList.Add(".txt", "txt.ico");
             // folder
             extList.Add("folder", "folder.ico");
             // unknown

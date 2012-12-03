@@ -76,7 +76,7 @@
                             <VisualBrush Stretch="Fill" Visual="{StaticResource appbar_download}" />
                         </Rectangle.Fill>
                     </Rectangle>
-                    <TextBlock Text="下載進度" Foreground="White" Margin="5,0,0,0" FontWeight="Normal" FontSize="12" FontFamily="Microsoft JhengHei" />
+                    <TextBlock Text="處理進度" Foreground="White" Margin="5,0,0,0" FontWeight="Normal" FontSize="12" FontFamily="Microsoft JhengHei" />
                 </StackPanel>
             </Button>
         </Controls:WindowCommands>

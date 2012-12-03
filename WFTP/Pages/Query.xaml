@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:odc="clr-namespace:Odyssey.Controls;assembly=Odyssey"
+             xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
              mc:Ignorable="d" 
              d:DesignHeight="561"
              d:DesignWidth="778"
@@ -36,23 +37,23 @@
                         </ControlTemplate>
                     </Setter.Value>
                 </Setter>
+                
             </Style>
-
+           
             <GridView x:Key="ListView">
-                <GridViewColumn Header="FileName" DisplayMemberBinding="{Binding FileName}" Width="455"/>
-                <GridViewColumn Header="FilePath" Width="60" >
+                <GridViewColumn Header="FileName"
+                                DisplayMemberBinding="{Binding FileName}"
+                                Width="455" />
+                <GridViewColumn Header="FilePath" Width="60">
                     <GridViewColumn.CellTemplate>
                         <DataTemplate>
-                            <Button  Content="下載"
-                                     Tag="{Binding FilePath}"
-                                     FontSize="12"
-                                     FontFamily="Microsoft JhengHei"
-                                     Click="lstDown_Click"
-                                   />
+                            <Button Content="下載"
+                                    Tag="{Binding FilePath}"
+                                    FontSize="12"
+                                    FontFamily="Microsoft JhengHei"
+                                    Click="lstDown_Click" />
                         </DataTemplate>
-                        
                     </GridViewColumn.CellTemplate>
-
                 </GridViewColumn>
             </GridView>
 
@@ -72,7 +73,7 @@
                 </x:XData>
             </XmlDataProvider>
             <HierarchicalDataTemplate DataType="bc" ItemsSource="{Binding XPath=*}">
-                <TextBlock Text="{Binding XPath=@title}" Foreground="#FF41BEE1"/>
+                <TextBlock Text="{Binding XPath=@title}" Foreground="#FF41BEE1" />
             </HierarchicalDataTemplate>
         </ResourceDictionary>
     </UserControl.Resources>
@@ -103,24 +104,80 @@
                                  Height="50" 
                                  Width="50" 
                                  Margin="634,0,74,-10"
-                                 Content="{StaticResource appbar_eye}" 
+                                 Content="{StaticResource appbar_tiles_nine}" 
                                  Style="{DynamicResource MetroCircleButtonStyle}" 
-                                 Click="btnTileView_Click" Visibility="Hidden" />
+                                 Visibility="Hidden"
+                                 Click="btnTileView_Click" />
                         <Button Name="btnListView" 
                                 Height="50" 
                                 Width="50" 
                                 Margin="682,0,26,-10"
                                 Content="{StaticResource appbar_list_two}" 
                                 Style="{DynamicResource MetroCircleButtonStyle}" 
-                                Click="btnListView_Click" Visibility="Hidden" />
+                                Visibility="Hidden"
+                                Click="btnListView_Click" />
                     </Grid>
                     <WrapPanel DockPanel.Dock="Bottom">
-                        <ListView Name="lvwClassify" Width="760" Height="390" SelectionMode="Single" Margin="0,10,0,0" />
+                        <ListView Name="lvwClassify"
+                                  Width="760"
+                                  Height="390"
+                                  Margin="0,10,0,0"
+                                  SelectionMode="Single" />
                     </WrapPanel>
                 </DockPanel>
             </TabItem>
             <TabItem Header="進階查詢">
-
+                <DockPanel Margin="5" >
+                    <WrapPanel DockPanel.Dock="Top" Height="50">
+                        <Grid Width="700" Name="grdSearch" Visibility="Hidden">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="200"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="180"/>
+                            </Grid.ColumnDefinitions>
+                            <Button Name="btnPrevPage"
+                                Width="50" 
+                                Height="50"
+                                Content="{StaticResource appbar_arrow_left}" 
+                                Style="{DynamicResource MetroCircleButtonStyle}" 
+                                FontFamily="Microsoft JhengHei" Margin="0,0,150,0" Click="btnPrevPage_Click" />
+                            <TextBox Controls:TextboxHelper.Watermark="請輸入搜尋字串"  Grid.Column="1" Margin="20,0,0,0" Name="txtSearch" Height="30"/>
+                            <ComboBox Name="cmbSearchCompany" Height="30" Grid.Column="1" Visibility="Hidden" ItemsSource="{Binding}" SelectedValuePath="{Binding Path=CompanyItem.CompanyId}" DisplayMemberPath="Name" SelectedItem="{Binding Path=CompanyItem}" SelectedIndex="0"></ComboBox>
+                            <WrapPanel Name="wpDate" Grid.Column="1" Width="Auto" Height="30" Visibility="Hidden">
+                                <Label Content="起"></Label>
+                                <DatePicker  Width="110" HorizontalAlignment="Left" Name="dtpSearchStart"  />
+                                <Label Content="迄"></Label>
+                                <DatePicker  Width="110" HorizontalAlignment="Left" Name="dtpSearchEnd"  />
+                            </WrapPanel>
+                            <ComboBox Name="cmbSearchClass"
+                                      Height="30" Width="100"
+                                      VerticalAlignment="Top" 
+                                      HorizontalAlignment="Left" SelectedIndex="0"
+                                      Margin="100,10,0,0" SelectionChanged="cmbSearchClass_SelectionChanged">
+                                <ComboBoxItem Content="檔名"></ComboBoxItem>
+                                <ComboBoxItem Content="日期"></ComboBoxItem>
+                                <ComboBoxItem Content="公司"></ComboBoxItem>
+                            </ComboBox>
+                            <Button Name="btnSearch" 
+                                    Grid.Column="2" 
+                                    Margin="6,0,124,0" 
+                                    Width="50" 
+                                    Height="50"
+                                    Content="{StaticResource appbar_magnify}" 
+                                    Style="{DynamicResource MetroCircleButtonStyle}" 
+                                    FontFamily="Microsoft JhengHei">
+                                
+                            </Button>
+                        </Grid>
+                    </WrapPanel>
+                    <WrapPanel DockPanel.Dock="Bottom">
+                        <ListView Name="lvwAdvanceClassify"
+                                  Width="760"
+                                  Height="390"
+                                  Margin="0,10,0,0"
+                                  SelectionMode="Single" />
+                    </WrapPanel>
+                </DockPanel>
             </TabItem>
         </TabControl>
     </Grid>

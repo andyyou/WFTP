@@ -57,16 +57,11 @@ namespace WFTP.Pages
                     // 登入成功時儲存登入頁面相關欄位資料
                     Properties.Settings.Default.Id = account;
                     Properties.Settings.Default.RememberId = Convert.ToBoolean(togRememberId.IsChecked);
-
                     Properties.Settings.Default.Pwd = pwd;
                     Properties.Settings.Default.RememberPwd = Convert.ToBoolean(togRememberPwd.IsChecked);
-
                     Properties.Settings.Default.Save();
 
-                    //Main window = new Main();
-                    //window.Show();
-                    //this.Close();
-                    Switcher.Switch(new WFTP.Pages.Query());
+                    Switcher.Switch(Switcher.query);
                 }
                 else
                 {
