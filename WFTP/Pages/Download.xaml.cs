@@ -24,12 +24,12 @@ namespace WFTP.Pages
         {
             InitializeComponent();
             // For test
-            var downloadFile = new ObservableCollection<FileProcessInfo>();
-            downloadFile.Add(new FileProcessInfo() { Name = "Download-File-1", Process = 60 });
-            downloadFile.Add(new FileProcessInfo() { Name = "Download-File-2", Process = 100 });
-            downloadFile.Add(new FileProcessInfo() { Name = "Download-File-3", Process = 10 });
-            downloadFile.Add(new FileProcessInfo() { Name = "Download-File-4", Process = 5 });
-            lvwDownloadList.DataContext = downloadFile;
+            //var downloadFile = new ObservableCollection<FileProcessInfo>();
+            //downloadFile.Add(new FileProcessInfo() { Name = "Download-File-1", Process = 60 });
+            //downloadFile.Add(new FileProcessInfo() { Name = "Download-File-2", Process = 100 });
+            //downloadFile.Add(new FileProcessInfo() { Name = "Download-File-3", Process = 10 });
+            //downloadFile.Add(new FileProcessInfo() { Name = "Download-File-4", Process = 5 });
+            //lvwDownloadList.DataContext = downloadFile;
 
             var uploadFile = new ObservableCollection<FileProcessInfo>();
             uploadFile.Add(new FileProcessInfo() { Name = "Upload-File-1", Process = 10 });
