@@ -87,6 +87,7 @@
     </ApplicationDefinition>
     <Compile Include="Helper\ExtensionHelper.cs" />
     <Compile Include="Lib\FTPClient.cs" />
+    <Compile Include="Lib\PredicateBuilder.cs" />
     <Compile Include="Pages\Download.xaml.cs">
       <DependentUpon>Download.xaml</DependentUpon>
     </Compile>

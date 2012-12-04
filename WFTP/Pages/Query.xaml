@@ -129,11 +129,11 @@
             <TabItem Header="進階查詢">
                 <DockPanel Margin="5" >
                     <WrapPanel DockPanel.Dock="Top" Height="50">
-                        <Grid Width="700" Name="grdSearch" Visibility="Hidden">
+                        <Grid Width="770" Name="grdSearch" Visibility="Hidden">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="200"/>
                                 <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="180"/>
+                                <ColumnDefinition Width="200"/>
                             </Grid.ColumnDefinitions>
                             <Button Name="btnPrevPage"
                                 Width="50" 
@@ -142,7 +142,7 @@
                                 Style="{DynamicResource MetroCircleButtonStyle}" 
                                 FontFamily="Microsoft JhengHei" Margin="0,0,150,0" Click="btnPrevPage_Click" />
                             <TextBox Controls:TextboxHelper.Watermark="請輸入搜尋字串"  Grid.Column="1" Margin="20,0,0,0" Name="txtSearch" Height="30"/>
-                            <ComboBox Name="cmbSearchCompany" Height="30" Grid.Column="1" Visibility="Hidden" ItemsSource="{Binding}" SelectedValuePath="{Binding Path=CompanyItem.CompanyId}" DisplayMemberPath="Name" SelectedItem="{Binding Path=CompanyItem}" SelectedIndex="0"></ComboBox>
+                            <ComboBox Name="cmbSearchCompany" Height="30" Grid.Column="1" Visibility="Hidden" ItemsSource="{Binding}" SelectedValuePath="{Binding Path=CompanyItem.CompanyId}" DisplayMemberPath="Name" SelectedValue="CompanyId" SelectedItem="{Binding Path=CompanyItem}" SelectedIndex="0"></ComboBox>
                             <WrapPanel Name="wpDate" Grid.Column="1" Width="Auto" Height="30" Visibility="Hidden">
                                 <Label Content="起"></Label>
                                 <DatePicker  Width="110" HorizontalAlignment="Left" Name="dtpSearchStart"  />
@@ -160,14 +160,26 @@
                             </ComboBox>
                             <Button Name="btnSearch" 
                                     Grid.Column="2" 
-                                    Margin="6,0,124,0" 
+                                    Margin="24,0,126,0" 
                                     Width="50" 
                                     Height="50"
                                     Content="{StaticResource appbar_magnify}" 
                                     Style="{DynamicResource MetroCircleButtonStyle}" 
-                                    FontFamily="Microsoft JhengHei">
+                                    FontFamily="Microsoft JhengHei" Click="btnSearch_Click">
                                 
                             </Button>
+                            <Button  Name="btnAdvanceTileView" 
+                                 Height="50" 
+                                 Width="50" 
+                                 Margin="80,0,70,0"
+                                 Content="{StaticResource appbar_tiles_nine}" 
+                                 Style="{DynamicResource MetroCircleButtonStyle}" Grid.Column="2" />
+                            <Button Name="btnAdvanceListView" 
+                                Height="50" 
+                                Width="50" 
+                                Margin="136,0,14,0"
+                                Content="{StaticResource appbar_list_two}" 
+                                Style="{DynamicResource MetroCircleButtonStyle}" Grid.Column="2" />
                         </Grid>
                     </WrapPanel>
                     <WrapPanel DockPanel.Dock="Bottom">
