@@ -55,7 +55,6 @@
       <HintPath>..\packages\MahApps.Metro.0.10.0.0\lib\net40\MahApps.Metro.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=4.5.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL" />
-    <Reference Include="Odyssey, Version=1.0.4701.31841, Culture=neutral, processorArchitecture=MSIL" />
     <Reference Include="Odyssey, Version=1.0.4717.20938, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\WPFBreadcrumb\BreadcrumbBar\bin\Debug\Odyssey.dll</HintPath>
