@@ -19,6 +19,7 @@ using WFTP.Helper;
 using WFTP.Lib;
 using System.Xml.XPath;
 using System.ComponentModel;
+using System.Data.Linq.SqlClient;
 
 namespace WFTP.Pages
 {
@@ -32,7 +33,10 @@ namespace WFTP.Pages
         private List<string> _remoteFolders = new List<string>();
         private Dictionary<int, int> _catalogLevelId = new Dictionary<int, int>();
         private Dictionary<int, string> _catalogLevelName = new Dictionary<int, string>();
+       
+        private Dictionary<string, string> _searchConditions = new Dictionary<string,string>();
         private bool _isTileView = true;
+        private bool _isAdvanceTileView = true;
         private string _ftpPath = "/";
         private XmlDocument _xdoc;
         // For Advance Query
@@ -44,10 +48,9 @@ namespace WFTP.Pages
             InitializeComponent();
             GetCatalog(1);
             GetBreadcrumbBarPath();
-            GetAdvanceCatalog();
+            InitAdvanceCatalog();
 
             lvwClassify.Tag = 1;
-            lvwAdvanceClassify.Tag = 1;
 
             // Initialize catalog level id
             _catalogLevelId.Add(1, 0);
@@ -65,6 +68,14 @@ namespace WFTP.Pages
 
             // Initialize cmb databinding for Advance Query
             cmbSearchCompany.ItemsSource = _dataCompanys;
+
+            // Initialize search dictionary
+             _searchConditions.Add("FileCategoryId","");
+             _searchConditions.Add("LastUploadDateStart","");
+             _searchConditions.Add("LastUploadDateEnd", "");
+             _searchConditions.Add("FileName","");
+             _searchConditions.Add("LineId","");
+             _searchConditions.Add("CompanyId", "");
 
         }
 
@@ -94,13 +105,10 @@ namespace WFTP.Pages
 
         private void tileAdvance_Click(object sender, RoutedEventArgs e)
         {
-
             grdSearch.Visibility = System.Windows.Visibility.Visible;
-            Tile tile = (Tile)sender;
-
-            // download chosen file here
-            // DownloadFile(tile.Tag.ToString());
-            
+            Tile originTile = (Tile)sender;
+            _searchConditions["FileCategoryId"] = originTile.Tag.ToString();
+            lvwAdvanceClassify.Items.Clear();
         }
 
         // For List Mode
@@ -205,6 +213,92 @@ namespace WFTP.Pages
         private void btnPrevPage_Click(object sender, RoutedEventArgs e)
         {
             grdSearch.Visibility = System.Windows.Visibility.Hidden;
+            InitAdvanceCatalog();
+        }
+
+        private void btnSearch_Click(object sender, RoutedEventArgs e)
+        {
+            _searchConditions["LastUploadDateStart"] = "";
+            _searchConditions["LastUploadDateEnd"] = "";
+            _searchConditions["FileName"] = "";
+            _searchConditions["LineId"] = "";
+            _searchConditions["CompanyId"] = "";
+            
+
+            ComboBoxItem item = cmbSearchClass.SelectedItem as ComboBoxItem;
+            switch (item.Content.ToString().Trim())
+            {
+                case "公司":
+                    if(cmbSearchCompany.Visibility == System.Windows.Visibility.Visible)
+                    {
+                        CompanyItem i = cmbSearchCompany.SelectedItem as CompanyItem;
+                        _searchConditions["CompanyId"] = i.CompanyId.ToString();
+                    }
+                    break;
+
+                case "日期":
+                    if (wpDate.Visibility == System.Windows.Visibility.Visible)
+                    {
+                        if (dtpSearchStart.SelectedDate > dtpSearchEnd.SelectedDate)
+                        {
+                            DateTime? tmp = dtpSearchStart.SelectedDate;
+                            dtpSearchStart.SelectedDate = dtpSearchEnd.SelectedDate;
+                            dtpSearchEnd.SelectedDate = tmp;
+                        }
+                        if (dtpSearchStart.SelectedDate != null)
+                            _searchConditions["LastUploadDateStart"] = dtpSearchStart.SelectedDate.Value.ToShortDateString();
+                        if (dtpSearchEnd.SelectedDate != null)
+                        _searchConditions["LastUploadDateEnd"] = dtpSearchEnd.SelectedDate.Value.ToShortDateString();
+                    }
+                    
+                    break;
+
+                case "檔名":
+                    if (txtSearch.Visibility == System.Windows.Visibility.Visible)
+                    {
+                        _searchConditions["FileName"] = txtSearch.Text.Trim();
+                    }
+                    break;
+
+                default:
+                    break;
+            }
+
+            dynamic files = GetAdvanceFileList();
+            lvwAdvanceClassify.View = lvwAdvanceClassify.FindResource("TileView") as ViewBase;
+            lvwAdvanceClassify.Items.Clear();
+            foreach (var file in files)
+            {
+                if (_isAdvanceTileView)
+                {
+
+                    BitmapImage bitmap = new BitmapImage();
+                    bitmap.BeginInit();
+                    bitmap.CacheOption = BitmapCacheOption.OnLoad;
+                    bitmap.UriSource = new Uri(@"pack://application:,,,/WFTP;component/Icons/folder.ico");
+                    bitmap.EndInit();
+                    Image img = new Image();
+                    img.Width = 60;
+                    img.Height = 60;
+                    img.Source = bitmap;
+                    string title = Convert.ToString(file.NickName);
+                    Tile tile = new Tile();
+                    tile.FontFamily = new FontFamily("Microsoft JhengHei");
+                    tile.Width = 120;
+                    tile.Height = 120;
+                    tile.Margin = new Thickness(5);
+                    tile.Content = img;
+                    tile.Title = title.Length > 12 ? String.Format("{0}…", title.Substring(0, 11)) : title;
+                    // tile.Click += new RoutedEventHandler(tileAdvance_Click);
+                    lvwAdvanceClassify.Items.Add(tile);
+                }
+                else
+                { 
+                    
+                }
+            }
+            // download chosen file here
+            // DownloadFile(tile.Tag.ToString());
         }
         #endregion
 
@@ -534,41 +628,36 @@ namespace WFTP.Pages
         /// <summary>
         /// 取得進階搜尋內容
         /// </summary>
-        /// <param name="level">階層 進階搜尋只有兩層</param>
-        private void GetAdvanceCatalog()
+        private void InitAdvanceCatalog()
         {
-            // UNDONE: 1
             lvwAdvanceClassify.ItemsSource = null;
             lvwAdvanceClassify.Items.Clear();
 
-            dynamic fileCatalogs = GetAdvanceFileCatalog();
+            dynamic fileCatalogs = GetOnlyFileCatalog();
+            lvwAdvanceClassify.View = lvwAdvanceClassify.FindResource("TileView") as ViewBase;
             foreach (var catalog in fileCatalogs)
             {
-                if (true)
-                {
-                    lvwAdvanceClassify.View = lvwAdvanceClassify.FindResource("TileView") as ViewBase;
-                    BitmapImage bitmap = new BitmapImage();
-                    bitmap.BeginInit();
-                    bitmap.CacheOption = BitmapCacheOption.OnLoad;
-                    bitmap.UriSource = new Uri(@"pack://application:,,,/WFTP;component/Icons/folder.ico");
-                    bitmap.EndInit();
-                    Image img = new Image();
-                    img.Width = 60;
-                    img.Height = 60;
-                    img.Source = bitmap;
-                    string title = Convert.ToString(catalog.NickName);
-                    Tile tile = new Tile();
-                    tile.FontFamily = new FontFamily("Microsoft JhengHei");
-                    tile.Width = 120;
-                    tile.Height = 120;
-                    tile.Margin = new Thickness(5);
-                    tile.Content = img;
-                    tile.Title = title.Length > 12 ? String.Format("{0}…", title.Substring(0, 11)) : title;
-                    tile.Click +=new RoutedEventHandler(tileAdvance_Click);
-                    lvwAdvanceClassify.Items.Add(tile);
-                }
+                BitmapImage bitmap = new BitmapImage();
+                bitmap.BeginInit();
+                bitmap.CacheOption = BitmapCacheOption.OnLoad;
+                bitmap.UriSource = new Uri(@"pack://application:,,,/WFTP;component/Icons/folder.ico");
+                bitmap.EndInit();
+                Image img = new Image();
+                img.Width = 60;
+                img.Height = 60;
+                img.Source = bitmap;
+                string title = Convert.ToString(catalog.NickName);
+                Tile tile = new Tile();
+                tile.FontFamily = new FontFamily("Microsoft JhengHei");
+                tile.Width = 120;
+                tile.Height = 120;
+                tile.Margin = new Thickness(5);
+                tile.Content = img;
+                tile.Tag = catalog.Id;
+                tile.Title = title.Length > 12 ? String.Format("{0}…", title.Substring(0, 11)) : title;
+                tile.Click += new RoutedEventHandler(tileAdvance_Click);
+                lvwAdvanceClassify.Items.Add(tile);
             }
-            
         }
 
 
@@ -696,8 +785,8 @@ namespace WFTP.Pages
             return fileList;
         }
 
-        // 從資料庫取得分類名稱及其子項目數量(階層 5) Advance
-        private dynamic GetAdvanceFileCatalog()
+        // 從資料庫取得分類名稱(階層 5) Advance
+        private dynamic GetOnlyFileCatalog()
         {
             WFTPDbContext db = new WFTPDbContext();
 
@@ -712,21 +801,49 @@ namespace WFTP.Pages
             return fileCatalogList;
         }
 
+        // UNDONE: GetAdvanceFiles
         // 從資料庫取得分類名稱及其子項目數量(階層 6) Advance
         private dynamic GetAdvanceFileList()
         {
             WFTPDbContext db = new WFTPDbContext();
+            var tmp = db.Lv6Files.Select(x => x);
+            foreach(KeyValuePair<string,string> condiction in _searchConditions)
+            {
+                if (!String.IsNullOrEmpty(condiction.Value))
+                {
+                    switch (condiction.Key)
+                    {
+                        case "FileCategoryId":
+                            int value = Int32.TryParse(condiction.Value, out value)?value:0;
+                            tmp = tmp.Where(x => x.FileCategoryId == value);
+                            break;
+                        case "LastUploadDateStart":
+                            DateTime dateStart = DateTime.TryParse(condiction.Value.ToString(), out dateStart)?dateStart:DateTime.Now.AddDays(-1);
+                            tmp = tmp.Where(x => x.LastUploadDate >= dateStart);
+                            break;
+                        case "LastUploadDateEnd":
+                            DateTime dateEnd = DateTime.TryParse(condiction.Value.ToString(), out dateEnd)?dateEnd:DateTime.Now;
+                            tmp = tmp.Where(x => x.LastUploadDate < dateEnd);
+                            break;
+                        case "FileName":
+                            string fileWord = condiction.Value.ToString();
+                            tmp = tmp.Where(x => x.FileName.Contains(fileWord));
+                            break;
+                        case "LineId":
+                            int line = Convert.ToInt32(condiction.Value);
+                            tmp = tmp.Where(x => x.LineId == line);
+                            break;
+                        case "CompanyId":
+                            int companyId = Convert.ToInt32(condiction.Value);
+                            List<int> branchIds = db.Lv3CustomerBranches.Where(b => b.CompanyId == companyId).Select(br => br.BranchId).ToList();
+                            List<int> lineIds = db.Lv4Lines.Where(li => branchIds.Contains(li.BranchId)).Select(y => y.LineId).ToList();
+                            tmp = tmp.Where(x => lineIds.Contains(x.LineId));
+                            break;
+                    }
+                }
+            }
 
-            var fileList = from file in db.Lv6Files
-                           where file.FileCategoryId == 2 && file.IsDeleted == false
-                           select new
-                           {
-                               Id = file.FileId,
-                               Name = file.FileName,
-                               NickName = file.FileName
-                           };
-
-            return fileList;
+            return tmp.Select(n => new { Id = n.FileId, Name = n.FileName, NickName = n.FileName });
         }
 
         // 從資料庫取得所有公司分類
@@ -873,6 +990,7 @@ namespace WFTP.Pages
         #endregion
 
         #region Models
+        
         public class CompanyItem : INotifyPropertyChanged
         {
             private string _name;
@@ -976,6 +1094,8 @@ namespace WFTP.Pages
 
         }
         #endregion
+
+        
 
        
 
