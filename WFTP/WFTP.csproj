@@ -87,8 +87,8 @@
     <Compile Include="Helper\ExtensionHelper.cs" />
     <Compile Include="Lib\FTPClient.cs" />
     <Compile Include="Lib\PredicateBuilder.cs" />
-    <Compile Include="Pages\Download.xaml.cs">
-      <DependentUpon>Download.xaml</DependentUpon>
+    <Compile Include="Pages\Progress.xaml.cs">
+      <DependentUpon>Progress.xaml</DependentUpon>
     </Compile>
     <Compile Include="Pages\Login.xaml.cs">
       <DependentUpon>Login.xaml</DependentUpon>
@@ -116,7 +116,7 @@
       <DependentUpon>Main.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Page Include="Pages\Download.xaml">
+    <Page Include="Pages\Progress.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

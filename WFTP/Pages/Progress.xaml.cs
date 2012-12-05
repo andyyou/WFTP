@@ -56,17 +56,42 @@ namespace WFTP.Pages
 
         public void bgworkerUpdateProgress_DoWorkHandler(object sender, DoWorkEventArgs e)
         {
+            Thread.Sleep(500);
+
             Dictionary<string, string> fileInfo = (Dictionary<string, string>)e.Argument;
+            long remoteFileSize = Convert.ToInt64(fileInfo["RemoteFileSize"]);
 
-            BackgroundWorker worker = sender as BackgroundWorker;
+            BackgroundWorker bgworkerUpdateProgress = sender as BackgroundWorker;
 
-            int i = 0;
-            while (i <= 100)
+            FileInfo localFileInfo = new FileInfo(String.Format(@"{0}\{1}", fileInfo["LocalFilePath"], fileInfo["LocalFileName"]));
+            long localFileSize = localFileInfo.Length;
+
+            while (localFileSize <= remoteFileSize)
             {
-                worker.ReportProgress(i);
-                i++;
-                Thread.Sleep(50);
+                localFileInfo = new FileInfo(String.Format(@"{0}\{1}", fileInfo["LocalFilePath"], fileInfo["LocalFileName"]));
+                localFileSize = localFileInfo.Length;
+                //localFileSize = localFileInfo.Length;
+                //bgworkerUpdateProgress.ReportProgress((int)(localFileSize / remoteFileSize) * 100);
+                double size = ((double)localFileSize / (double)remoteFileSize) * 100;
+                bgworkerUpdateProgress.ReportProgress((int)size);
+
+                //FileProgressItem item = _dataDownloadFiles.Where(file => file.FileId == fileInfo["FileId"]).First();
+                //double size = ((double)localFileSize / (double)remoteFileSize) * 100;
+                //item.Progress = (int)((localFileSize / remoteFileSize) * 100);
+                if (localFileSize == remoteFileSize)
+                {
+                    break;
+                }
+                Thread.Sleep(500);
             }
+
+            //int i = 0;
+            //while (i <= 1000000)
+            //{
+            //    bgworkerUpdateProgress.ReportProgress(i);
+            //    i++;
+            //    Thread.Sleep(50);
+            //}
             e.Result = fileInfo["FileId"];
         }
 
