@@ -38,7 +38,7 @@ namespace WFTP
 
             // 初始化各頁面
             Switcher.query = new Query();
-            Switcher.download = new Download();
+            Switcher.download = new Progress();
             Switcher.upload = new Upload();
             Switcher.manage = new Manage();
 

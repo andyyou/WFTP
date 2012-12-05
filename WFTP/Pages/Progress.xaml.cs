@@ -20,14 +20,14 @@ using System.IO;
 namespace WFTP.Pages
 {
     /// <summary>
-    /// Download.xaml 的互動邏輯
+    /// Progress.xaml 的互動邏輯
     /// </summary>
-    public partial class Download : UserControl
+    public partial class Progress : UserControl
     {
         public BindingList<FileProgressItem> _dataDownloadFiles = new BindingList<FileProgressItem>();
         public BindingList<FileProgressItem> _dataUploadFiles = new BindingList<FileProgressItem>();
 
-        public Download()
+        public Progress()
         {
             InitializeComponent();
             
