@@ -39,7 +39,8 @@
                 </Setter>
                 
             </Style>
-           
+            
+
             <GridView x:Key="ListView">
                 <GridViewColumn Header="FileName"
                                 DisplayMemberBinding="{Binding FileName}"
@@ -56,7 +57,7 @@
                     </GridViewColumn.CellTemplate>
                 </GridViewColumn>
             </GridView>
-
+            
             <ListView x:Key="TileView">
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                     <WrapPanel Orientation="Horizontal"
@@ -129,7 +130,7 @@
             <TabItem Header="進階查詢">
                 <DockPanel Margin="5" >
                     <WrapPanel DockPanel.Dock="Top" Height="50">
-                        <Grid Width="770" Name="grdSearch" Visibility="Hidden">
+                        <Grid Width="770" Name="grdSearch" Visibility="Hidden" >
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="200"/>
                                 <ColumnDefinition Width="*"/>
@@ -140,9 +141,22 @@
                                 Height="50"
                                 Content="{StaticResource appbar_arrow_left}" 
                                 Style="{DynamicResource MetroCircleButtonStyle}" 
-                                FontFamily="Microsoft JhengHei" Margin="0,0,150,0" Click="btnPrevPage_Click" />
+                                FontFamily="Microsoft JhengHei" 
+                                Margin="0,0,150,0" 
+                                Click="btnPrevPage_Click" />
                             <TextBox Controls:TextboxHelper.Watermark="請輸入搜尋字串"  Grid.Column="1" Margin="20,0,0,0" Name="txtSearch" Height="30"/>
-                            <ComboBox Name="cmbSearchCompany" Height="30" Grid.Column="1" Visibility="Hidden" ItemsSource="{Binding}" SelectedValuePath="{Binding Path=CompanyItem.CompanyId}" DisplayMemberPath="Name" SelectedValue="CompanyId" SelectedItem="{Binding Path=CompanyItem}" SelectedIndex="0"></ComboBox>
+                            <ComboBox Name="cmbSearchCompany" 
+                                      Height="30" 
+                                      Grid.Column="1"
+                                      Visibility="Hidden" 
+                                      ItemsSource="{Binding}" 
+                                      SelectedValuePath="{Binding Path=CompanyItem.CompanyId}" 
+                                      DisplayMemberPath="Name" 
+                                      SelectedValue="CompanyId"
+                                      SelectedItem="{Binding Path=CompanyItem}"
+                                      SelectedIndex="0"
+                                      FontFamily="Microsoft JhengHei"
+                                      ></ComboBox>
                             <WrapPanel Name="wpDate" Grid.Column="1" Width="Auto" Height="30" Visibility="Hidden">
                                 <Label Content="起"></Label>
                                 <DatePicker  Width="110" HorizontalAlignment="Left" Name="dtpSearchStart"  />
@@ -153,10 +167,11 @@
                                       Height="30" Width="100"
                                       VerticalAlignment="Top" 
                                       HorizontalAlignment="Left" SelectedIndex="0"
+                                      FontFamily="Microsoft JhengHei"
                                       Margin="100,10,0,0" SelectionChanged="cmbSearchClass_SelectionChanged">
-                                <ComboBoxItem Content="檔名"></ComboBoxItem>
-                                <ComboBoxItem Content="日期"></ComboBoxItem>
-                                <ComboBoxItem Content="公司"></ComboBoxItem>
+                                <ComboBoxItem Content="檔名" FontFamily="Microsoft JhengHei"></ComboBoxItem>
+                                <ComboBoxItem Content="日期" FontFamily="Microsoft JhengHei"></ComboBoxItem>
+                                <ComboBoxItem Content="公司" FontFamily="Microsoft JhengHei"></ComboBoxItem>
                             </ComboBox>
                             <Button Name="btnSearch" 
                                     Grid.Column="2" 
@@ -173,16 +188,24 @@
                                  Width="50" 
                                  Margin="80,0,70,0"
                                  Content="{StaticResource appbar_tiles_nine}" 
-                                 Style="{DynamicResource MetroCircleButtonStyle}" Grid.Column="2" />
+                                 Style="{DynamicResource MetroCircleButtonStyle}" Grid.Column="2" Click="btnAdvanceTileView_Click" />
                             <Button Name="btnAdvanceListView" 
                                 Height="50" 
                                 Width="50" 
                                 Margin="136,0,14,0"
                                 Content="{StaticResource appbar_list_two}" 
-                                Style="{DynamicResource MetroCircleButtonStyle}" Grid.Column="2" />
+                                Style="{DynamicResource MetroCircleButtonStyle}" Grid.Column="2" Click="btnAdvanceListView_Click" />
                         </Grid>
                     </WrapPanel>
                     <WrapPanel DockPanel.Dock="Bottom">
+                        <Label Name="lbMessage" 
+                               Width="760" 
+                               FontFamily="Microsoft JhengHei"
+                               FontSize="16"
+                               HorizontalAlignment="Stretch" 
+                               HorizontalContentAlignment="Center"
+                               Visibility="Hidden"
+                               />
                         <ListView Name="lvwAdvanceClassify"
                                   Width="760"
                                   Height="390"

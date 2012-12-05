@@ -172,11 +172,15 @@ namespace WFTP.Pages
             _searchConditions["FileCategoryId"] = originTile.Tag.ToString();
             lvwAdvanceClassify.Items.Clear();
         }
+        // 回Advance Query首頁
         private void btnPrevPage_Click(object sender, RoutedEventArgs e)
         {
             grdSearch.Visibility = System.Windows.Visibility.Hidden;
+            lbMessage.Content = "";
+            lbMessage.Visibility = System.Windows.Visibility.Hidden;
             InitAdvanceCatalog();
         }
+        // 進階查詢項目切換
         private void cmbSearchClass_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             ComboBox cmb = sender as ComboBox;
@@ -211,9 +215,8 @@ namespace WFTP.Pages
                 default:
                     break;
             }
-
-
         }
+        // 執行搜尋
         private void btnSearch_Click(object sender, RoutedEventArgs e)
         {
             _searchConditions["LastUploadDateStart"] = "";
@@ -221,8 +224,8 @@ namespace WFTP.Pages
             _searchConditions["FileName"] = "";
             _searchConditions["LineId"] = "";
             _searchConditions["CompanyId"] = "";
-
-
+            lbMessage.Content = "";
+            // 1. Filter conditions
             ComboBoxItem item = cmbSearchClass.SelectedItem as ComboBoxItem;
             switch (item.Content.ToString().Trim())
             {
@@ -261,42 +264,19 @@ namespace WFTP.Pages
                 default:
                     break;
             }
+            // 設定完條件後執行物件建置
+            GenerateListviewItem();
+        }
+        private void btnAdvanceTileView_Click(object sender, RoutedEventArgs e)
+        {
+            _isAdvanceTileView = true;
+            GenerateListviewItem();
+        }
 
-            dynamic files = GetAdvanceFileList();
-            lvwAdvanceClassify.View = lvwAdvanceClassify.FindResource("TileView") as ViewBase;
-            lvwAdvanceClassify.Items.Clear();
-            foreach (var file in files)
-            {
-                if (_isAdvanceTileView)
-                {
-
-                    BitmapImage bitmap = new BitmapImage();
-                    bitmap.BeginInit();
-                    bitmap.CacheOption = BitmapCacheOption.OnLoad;
-                    bitmap.UriSource = new Uri(@"pack://application:,,,/WFTP;component/Icons/folder.ico");
-                    bitmap.EndInit();
-                    Image img = new Image();
-                    img.Width = 60;
-                    img.Height = 60;
-                    img.Source = bitmap;
-                    string title = Convert.ToString(file.NickName);
-                    Tile tile = new Tile();
-                    tile.FontFamily = new FontFamily("Microsoft JhengHei");
-                    tile.Width = 120;
-                    tile.Height = 120;
-                    tile.Margin = new Thickness(5);
-                    tile.Content = img;
-                    tile.Title = title.Length > 12 ? String.Format("{0}…", title.Substring(0, 11)) : title;
-                    // tile.Click += new RoutedEventHandler(tileAdvance_Click);
-                    lvwAdvanceClassify.Items.Add(tile);
-                }
-                else
-                {
-
-                }
-            }
-            // download chosen file here
-            // DownloadFile(tile.Tag.ToString());
+        private void btnAdvanceListView_Click(object sender, RoutedEventArgs e)
+        {
+            _isAdvanceTileView = false;
+            GenerateListviewItem();
         }
         #endregion
 
@@ -829,7 +809,8 @@ namespace WFTP.Pages
                     }
                 }
             }
-            return tmp.Select(n => new { Id = n.FileId, Name = n.FileName, NickName = n.FileName });
+
+            return tmp.Where(x => x.IsDeleted == false).Select(n => new { Id = n.FileId, Name = n.FileName, NickName = n.FileName, FullPath = n.Path});
         }
         // Advance:從資料庫取得所有公司分類
         private dynamic GetCompanyList()
@@ -845,12 +826,170 @@ namespace WFTP.Pages
 
             return companyList;
         }
+        // Advance:執行把資料建置到Listview
+        private void GenerateListviewItem()
+        {
+            lvwAdvanceClassify.ItemsSource = null;
+            lvwAdvanceClassify.Items.Clear();
+            dynamic files = GetAdvanceFileList();
+
+            // For list mode datasource
+            System.Collections.ObjectModel.ObservableCollection<FileInfo> fileCollection =
+                new System.Collections.ObjectModel.ObservableCollection<FileInfo>();
+
+            // 刪除舊有暫存檔
+            int level = Convert.ToInt32(lvwAdvanceClassify.Tag);
+
+            if (level == 2)
+            {
+                string[] oldFiles = null;
+                oldFiles = System.IO.Directory.GetFiles(System.IO.Path.GetTempPath(), "WFTP*");
+
+                foreach (string file in oldFiles)
+                {
+                    System.IO.File.Delete(file);
+                }
+            }
+            
+            foreach (var file in files)
+            {
+                if (_isAdvanceTileView)
+                {
+                    bool isImageFile = false;
+                    lvwAdvanceClassify.View = lvwAdvanceClassify.FindResource("TileView") as ViewBase;
+                    /// Using path column
+                    // string path = file.FullPath;
+                    // List<string> remoteFileFullPathList = GetFtpCatalog(path).ToList();
+
+                    /// Using store procedure to get full path.
+                    string path = DBHelper.GenerateFileFullPath(file.Id);
+                    if (CheckFtpFile(path))
+                    {
+
+                        BitmapImage bitmap = new BitmapImage();
+                        bitmap.BeginInit();
+                        bitmap.CacheOption = BitmapCacheOption.OnLoad;
+                        
+                        if (level == 1)
+                        {
+                            bitmap.UriSource = new Uri(@"pack://application:,,,/WFTP;component/Icons/folder.ico");
+                        }
+                        else
+                        {
+                            ExtensionHelper helper = new ExtensionHelper();
+                            string iconPath = helper.GetIconPath(
+                                System.IO.Path.GetExtension(file.NickName));
+
+                            if (iconPath != "img.ico")
+                            {
+                                bitmap.UriSource = new Uri(iconPath);
+                            }
+                            else
+                            {
+                                isImageFile = true;
+                                string tmpFolder = System.IO.Path.GetTempPath();
+                                string localFileName = string.Format("WFTP-{0}", file.Name);
+
+                                FTPClient client = new FTPClient();
+                                client.Get(path, tmpFolder, localFileName, false);
+                                bitmap.UriSource = new Uri(String.Format(@"{0}\{1}", tmpFolder, localFileName));
+                            }
+                        }
+                        bitmap.EndInit();
+                        Image img = new Image();
+                        if (!isImageFile)
+                        {
+                            img.Width = 60;
+                            img.Height = 60;
+                        }
+                        else
+                        {
+                            img.Width = 120;
+                            img.Height = 120;
+                        }
+                        
+                        img.Source = bitmap;
+                        string title = Convert.ToString(file.NickName);
+                        Tile tile = new Tile();
+                        tile.FontFamily = new FontFamily("Microsoft JhengHei");
+                        tile.Width = 120;
+                        tile.Height = 120;
+                        tile.Margin = new Thickness(5);
+                        tile.Content = img;
+                        tile.Tag = path; // Download Path
+                        tile.ToolTip = file.NickName;
+                        // tile.Click += new RoutedEventHandler(tileAdvance_Click);
+                        if (isImageFile)
+                        {
+                            tile.Background = new SolidColorBrush(Color.FromArgb(0, 0, 0, 0));
+                        }
+                        else
+                        {
+                            tile.Title = title.Length > 12 ? String.Format("{0}…", title.Substring(0, 11)) : title;
+                        }
+                        lvwAdvanceClassify.Items.Add(tile);
+                    }
+                }
+                else
+                {
+                    lvwAdvanceClassify.View = lvwAdvanceClassify.FindResource("ListView") as ViewBase;
+                     string path = DBHelper.GenerateFileFullPath(file.Id);
+                     if (CheckFtpFile(path))
+                     {
+                         fileCollection.Add(new FileInfo
+                         {
+                             FileName = file.Name,
+                             FilePath = DBHelper.GenerateFileFullPath(file.Id)
+                         });
+                     }
+                }
+            }
+            // 修改Listview Datasource
+            if (!_isAdvanceTileView)
+            {
+                lvwAdvanceClassify.ItemsSource = fileCollection;
+            }
+            if (lvwAdvanceClassify.Items.Count == 0)
+            {
+                lbMessage.Visibility = System.Windows.Visibility.Visible;
+                lbMessage.Content = "搜尋完成,無資料紀錄";
+            }
+            else
+            {
+                lbMessage.Visibility = System.Windows.Visibility.Hidden;
+                lbMessage.Content = "";
+            }
+
+            // download chosen file here
+            // DownloadFile(tile.Tag.ToString());
+        }
         // FTP:取得 FTP 資料夾清單
         private string[] GetFtpCatalog()
         {
             FTPClient client = new FTPClient();
 
             return client.Dir(_ftpPath);
+        }
+        // FTP:取得 FTP 資料夾清單
+        private string[] GetFtpCatalog(string path)
+        {
+            FTPClient client = new FTPClient();
+
+            return client.Dir(path);
+        }
+        // FTP:確認檔案是否存在
+        private bool CheckFtpFile(string path)
+        {
+            FTPClient client = new FTPClient();
+            string[] tmp = client.Dir(path);
+            if (tmp.Count() > 0)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
         // Query:取得階層名稱及 Id
         private void GetCatalogInfo(int level, string condition)
@@ -1074,6 +1213,8 @@ namespace WFTP.Pages
         }
 
         #endregion
+
+        
 
         
 
