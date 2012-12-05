@@ -12,6 +12,10 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Collections.ObjectModel;
+using System.Threading;
+using System.ComponentModel;
+using Newtonsoft.Json;
+using System.IO;
 
 namespace WFTP.Pages
 {
@@ -20,31 +24,122 @@ namespace WFTP.Pages
     /// </summary>
     public partial class Download : UserControl
     {
+        public BindingList<FileProgressItem> _dataDownloadFiles = new BindingList<FileProgressItem>();
+        public BindingList<FileProgressItem> _dataUploadFiles = new BindingList<FileProgressItem>();
+
         public Download()
         {
             InitializeComponent();
-            // For test
-            //var downloadFile = new ObservableCollection<FileProcessInfo>();
-            //downloadFile.Add(new FileProcessInfo() { Name = "Download-File-1", Process = 60 });
-            //downloadFile.Add(new FileProcessInfo() { Name = "Download-File-2", Process = 100 });
-            //downloadFile.Add(new FileProcessInfo() { Name = "Download-File-3", Process = 10 });
-            //downloadFile.Add(new FileProcessInfo() { Name = "Download-File-4", Process = 5 });
-            //lvwDownloadList.DataContext = downloadFile;
+            
+            // Initialize listview databinding
+            lvwDownloadList.ItemsSource = _dataDownloadFiles;
+            lvwUploadList.ItemsSource = _dataUploadFiles;
+        }
 
-            var uploadFile = new ObservableCollection<FileProcessInfo>();
-            uploadFile.Add(new FileProcessInfo() { Name = "Upload-File-1", Process = 10 });
-            uploadFile.Add(new FileProcessInfo() { Name = "Upload-File-2", Process = 74 });
-            uploadFile.Add(new FileProcessInfo() { Name = "Upload-File-3", Process = 57 });
-            uploadFile.Add(new FileProcessInfo() { Name = "Upload-File-4", Process = 100 });
-            lvwUploadList.DataContext = uploadFile;
+        public void UpdateProgress(Dictionary<string, string> fileInfo)
+        {
+            lvwDownloadList.Dispatcher.Invoke(System.Windows.Threading.DispatcherPriority.Background, (ThreadStart)delegate
+            {
+                BackgroundWorker bgworkerUpdateProgress = new BackgroundWorker();
+                bgworkerUpdateProgress.DoWork += bgworkerUpdateProgress_DoWorkHandler;
+                bgworkerUpdateProgress.RunWorkerCompleted += bgworkerUpdateProgress_RunWorkerCompleted;
+                bgworkerUpdateProgress.WorkerReportsProgress = true;
+                bgworkerUpdateProgress.ProgressChanged += (s, x) =>
+                {
+                    FileProgressItem item = _dataDownloadFiles.Where(file => file.FileId == fileInfo["FileId"]).First();
+                    item.Progress = x.ProgressPercentage;
+                };
+
+                bgworkerUpdateProgress.RunWorkerAsync(fileInfo);
+            });
+        }
+
+        public void bgworkerUpdateProgress_DoWorkHandler(object sender, DoWorkEventArgs e)
+        {
+            Dictionary<string, string> fileInfo = (Dictionary<string, string>)e.Argument;
+
+            BackgroundWorker worker = sender as BackgroundWorker;
+
+            int i = 0;
+            while (i <= 100)
+            {
+                worker.ReportProgress(i);
+                i++;
+                Thread.Sleep(50);
+            }
+            e.Result = fileInfo["FileId"];
+        }
+
+        private void bgworkerUpdateProgress_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+            string fileId = e.Result.ToString();
+
+            List<WFTP.Main.ProgressInfo> progressList = JsonConvert.DeserializeObject<List<WFTP.Main.ProgressInfo>>(
+                File.ReadAllText(WFTP.Main._PROGRESSLIST)).Select(c => (WFTP.Main.ProgressInfo)c).ToList();
+
+            var fileList = progressList.Where(o => o.FileId == fileId);
+            List<int> fileIndex = new List<int>();
+            foreach (var file in fileList)
+            {
+                fileIndex.Add(progressList.IndexOf(file));
+            }
+            foreach (var index in fileIndex)
+            {
+                progressList.RemoveAt(index);
+            }
+
+            string jsonList = JsonConvert.SerializeObject(progressList, Formatting.Indented);
+            File.WriteAllText(WFTP.Main._PROGRESSLIST, jsonList, Encoding.UTF8);
         }
     }
-    #region Sample Data For Test
 
-    public class FileProcessInfo
+    #region Models
+
+    public class FileProgressInfo
     {
         public string Name { set; get; }
-        public int Process { set; get; }
+        public int Progress { set; get; }
+    }
+
+    public class FileProgressItem : INotifyPropertyChanged
+    {
+        private string _name;
+        private int _progress;
+
+        public string Name
+        {
+            get
+            {
+                return _name;
+            }
+            set
+            {
+                _name = value;
+                RaisePropertyChanged("Name");
+            }
+        }
+        public int Progress
+        {
+            get
+            {
+                return _progress;
+            }
+            set
+            {
+                _progress = value;
+                RaisePropertyChanged("Progress");
+            }
+        }
+        public string FileId { get; set; }
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        protected virtual void RaisePropertyChanged(String propertyName)
+        {
+            if ((PropertyChanged != null))
+            {
+                PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+            }
+        }
 
     }
 

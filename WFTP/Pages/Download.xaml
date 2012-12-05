@@ -22,7 +22,7 @@
                     <GridViewColumn Header="進度" Width="55">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
-                                <TextBlock Text="{Binding Path=Process, StringFormat={}{0}%}" />
+                                <TextBlock Text="{Binding Path=Progress, StringFormat={}{0}%}" />
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
@@ -43,7 +43,7 @@
                     <GridViewColumn Header="進度" Width="55">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
-                                <TextBlock Text="{Binding Path=Process, StringFormat={}{0}%}" />
+                                <TextBlock Text="{Binding Path=Progress, StringFormat={}{0}%}" />
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
