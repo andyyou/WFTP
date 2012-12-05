@@ -7,7 +7,7 @@ namespace WFTP
     {
         public static Main main;
         public static Query query;
-        public static Download download;
+        public static Progress download;
         public static Upload upload;
         public static Manage manage;
 
