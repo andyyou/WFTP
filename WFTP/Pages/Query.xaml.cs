@@ -77,11 +77,14 @@ namespace WFTP.Pages
              _searchConditions.Add("LineId","");
              _searchConditions.Add("CompanyId", "");
 
+            // Example
+            // Sample for use store procedure generate full path by FileId
+            // string answer = DBHelper.GenerateFileFullPath(1);
+
         }
 
-        #region Actions Events
-
-        // For Tile Mode
+        #region Query Events
+        
         private void tile_Click(object sender, RoutedEventArgs e)
         {
             int level = Convert.ToInt32(lvwClassify.Tag) + 1;
@@ -102,16 +105,6 @@ namespace WFTP.Pages
                 DownloadFile(tile.Tag.ToString());
             }
         }
-
-        private void tileAdvance_Click(object sender, RoutedEventArgs e)
-        {
-            grdSearch.Visibility = System.Windows.Visibility.Visible;
-            Tile originTile = (Tile)sender;
-            _searchConditions["FileCategoryId"] = originTile.Tag.ToString();
-            lvwAdvanceClassify.Items.Clear();
-        }
-
-        // For List Mode
         private void lstDown_Click(object sender, RoutedEventArgs e)
         {
             int level = Convert.ToInt32(lvwClassify.Tag) + 1;
@@ -131,7 +124,6 @@ namespace WFTP.Pages
                 DownloadFile(btn.Tag.ToString());
             }
         }
-
         private void navBar_PathChanged(object sender, RoutedPropertyChangedEventArgs<string> e)
         {
             string displayPath = navBar.GetDisplayPath();
@@ -149,7 +141,6 @@ namespace WFTP.Pages
                     _ftpPath = String.Format("{0}{1}/", _ftpPath, _catalogLevelName[i]);
                 }
             }
-
             GetCatalog(level);
             lvwClassify.Tag = level;
 
@@ -159,38 +150,52 @@ namespace WFTP.Pages
                 GetBreadcrumbBarPath(level);
             }
         }
-
         private void btnTileView_Click(object sender, RoutedEventArgs e)
         {
             _isTileView = true;
             GetCatalog(Convert.ToInt32(lvwClassify.Tag));
         }
-
         private void btnListView_Click(object sender, RoutedEventArgs e)
         {
             _isTileView = false;
             GetCatalog(Convert.ToInt32(lvwClassify.Tag));
         }
 
+        #endregion
+
+        #region Advance Query Event
+
+        private void tileAdvance_Click(object sender, RoutedEventArgs e)
+        {
+            grdSearch.Visibility = System.Windows.Visibility.Visible;
+            Tile originTile = (Tile)sender;
+            _searchConditions["FileCategoryId"] = originTile.Tag.ToString();
+            lvwAdvanceClassify.Items.Clear();
+        }
+        private void btnPrevPage_Click(object sender, RoutedEventArgs e)
+        {
+            grdSearch.Visibility = System.Windows.Visibility.Hidden;
+            InitAdvanceCatalog();
+        }
         private void cmbSearchClass_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             ComboBox cmb = sender as ComboBox;
             ComboBoxItem item = cmb.SelectedItem as ComboBoxItem;
             // Hidden All Controls
-            if (grdSearch.Children.Contains(btnSearch)) 
+            if (grdSearch.Children.Contains(btnSearch))
             {
                 txtSearch.Visibility = System.Windows.Visibility.Hidden;
                 wpDate.Visibility = System.Windows.Visibility.Hidden;
                 cmbSearchCompany.Visibility = System.Windows.Visibility.Hidden;
             }
             switch (item.Content.ToString().Trim())
-            { 
+            {
                 case "公司":
                     var companys = GetCompanyList();
                     _dataCompanys.Clear();
                     foreach (var c in companys)
                     {
-                        _dataCompanys.Add(new CompanyItem { Name = c.CompanyNickName, ClassifyId = c.ClassifyId, CompanyId = c.CompanyId});
+                        _dataCompanys.Add(new CompanyItem { Name = c.CompanyNickName, ClassifyId = c.ClassifyId, CompanyId = c.CompanyId });
                     }
                     cmbSearchCompany.Visibility = System.Windows.Visibility.Visible;
                     break;
@@ -206,16 +211,9 @@ namespace WFTP.Pages
                 default:
                     break;
             }
-            
+
 
         }
-        // Advance Tab back to index
-        private void btnPrevPage_Click(object sender, RoutedEventArgs e)
-        {
-            grdSearch.Visibility = System.Windows.Visibility.Hidden;
-            InitAdvanceCatalog();
-        }
-
         private void btnSearch_Click(object sender, RoutedEventArgs e)
         {
             _searchConditions["LastUploadDateStart"] = "";
@@ -223,13 +221,13 @@ namespace WFTP.Pages
             _searchConditions["FileName"] = "";
             _searchConditions["LineId"] = "";
             _searchConditions["CompanyId"] = "";
-            
+
 
             ComboBoxItem item = cmbSearchClass.SelectedItem as ComboBoxItem;
             switch (item.Content.ToString().Trim())
             {
                 case "公司":
-                    if(cmbSearchCompany.Visibility == System.Windows.Visibility.Visible)
+                    if (cmbSearchCompany.Visibility == System.Windows.Visibility.Visible)
                     {
                         CompanyItem i = cmbSearchCompany.SelectedItem as CompanyItem;
                         _searchConditions["CompanyId"] = i.CompanyId.ToString();
@@ -248,9 +246,9 @@ namespace WFTP.Pages
                         if (dtpSearchStart.SelectedDate != null)
                             _searchConditions["LastUploadDateStart"] = dtpSearchStart.SelectedDate.Value.ToShortDateString();
                         if (dtpSearchEnd.SelectedDate != null)
-                        _searchConditions["LastUploadDateEnd"] = dtpSearchEnd.SelectedDate.Value.ToShortDateString();
+                            _searchConditions["LastUploadDateEnd"] = dtpSearchEnd.SelectedDate.Value.ToShortDateString();
                     }
-                    
+
                     break;
 
                 case "檔名":
@@ -293,8 +291,8 @@ namespace WFTP.Pages
                     lvwAdvanceClassify.Items.Add(tile);
                 }
                 else
-                { 
-                    
+                {
+
                 }
             }
             // download chosen file here
@@ -303,7 +301,9 @@ namespace WFTP.Pages
         #endregion
 
         #region R Method
-
+        /// <summary>
+        /// Query:改善效能第一次載入只讀取第一層
+        /// </summary>
         private void GetBreadcrumbBarPath()
         {
             // Combination Datasource of Folder secheme
@@ -336,9 +336,8 @@ namespace WFTP.Pages
             XmlDataProvider dataFolders = this.FindResource("dataProvider") as XmlDataProvider;
             dataFolders.Document = _xdoc;
         }
-        
         /// <summary>
-        /// 效能改善: 延遲載入
+        /// Query:效能改善: 延遲載入
         /// </summary>
         /// <param name="level">選擇到的層級才載入</param>
         public void GetBreadcrumbBarPath(int level)
@@ -434,9 +433,8 @@ namespace WFTP.Pages
                     break;
             }
         }
-
         /// <summary>
-        /// 取得目錄內容
+        /// Query:取得目錄內容
         /// </summary>
         /// <param name="level">目錄階層</param>
         private void GetCatalog(int level)
@@ -624,9 +622,8 @@ namespace WFTP.Pages
                 lvwClassify.ItemsSource = fileCollection;
             }
         }
-
         /// <summary>
-        /// 取得進階搜尋內容
+        /// Advance:初始化Advance Query第一層
         /// </summary>
         private void InitAdvanceCatalog()
         {
@@ -659,9 +656,7 @@ namespace WFTP.Pages
                 lvwAdvanceClassify.Items.Add(tile);
             }
         }
-
-
-        // 從資料庫取得分類名稱及其子項目數量(階層 1)
+        // Query:從資料庫取得分類名稱及其子項目數量(階層 1)
         private dynamic GetLv1Catalog()
         {
             WFTPDbContext db = new WFTPDbContext();
@@ -681,8 +676,7 @@ namespace WFTP.Pages
 
             return lv1Catalog;
         }
-
-        // 從資料庫取得分類名稱及其子項目數量(階層 2)
+        // Query:從資料庫取得分類名稱及其子項目數量(階層 2)
         private dynamic GetLv2Catalog()
         {
             WFTPDbContext db = new WFTPDbContext();
@@ -703,8 +697,7 @@ namespace WFTP.Pages
 
             return lv2Catalog;
         }
-
-        // 從資料庫取得分類名稱及其子項目數量(階層 3)
+        // Query:從資料庫取得分類名稱及其子項目數量(階層 3)
         private dynamic GetLv3Catalog()
         {
             WFTPDbContext db = new WFTPDbContext();
@@ -725,8 +718,7 @@ namespace WFTP.Pages
 
             return lv3Catalog;
         }
-
-        // 從資料庫取得分類名稱及其子項目數量(階層 4)
+        // Query:從資料庫取得分類名稱及其子項目數量(階層 4)
         private dynamic GetLv4Catalog()
         {
             WFTPDbContext db = new WFTPDbContext();
@@ -746,8 +738,7 @@ namespace WFTP.Pages
 
             return lv4Catalog;
         }
-
-        // 從資料庫取得分類名稱及其子項目數量(階層 5)
+        // Query:從資料庫取得分類名稱及其子項目數量(階層 5)
         private dynamic GetFileCatalog()
         {
             WFTPDbContext db = new WFTPDbContext();
@@ -767,8 +758,7 @@ namespace WFTP.Pages
 
             return fileCatalogList;
         }
-
-        // 從資料庫取得分類名稱及其子項目數量(階層 6)
+        // Query:從資料庫取得分類名稱及其子項目數量(階層 6)
         private dynamic GetFileList()
         {
             WFTPDbContext db = new WFTPDbContext();
@@ -784,8 +774,7 @@ namespace WFTP.Pages
 
             return fileList;
         }
-
-        // 從資料庫取得分類名稱(階層 5) Advance
+        // Advance:從資料庫取得檔案分類名稱(階層 1) 
         private dynamic GetOnlyFileCatalog()
         {
             WFTPDbContext db = new WFTPDbContext();
@@ -800,9 +789,7 @@ namespace WFTP.Pages
 
             return fileCatalogList;
         }
-
-        // UNDONE: GetAdvanceFiles
-        // 從資料庫取得分類名稱及其子項目數量(階層 6) Advance
+        // Advance:從資料庫取得檔案列表(階層 2) 使用_searchConditions加入搜尋條件
         private dynamic GetAdvanceFileList()
         {
             WFTPDbContext db = new WFTPDbContext();
@@ -842,11 +829,9 @@ namespace WFTP.Pages
                     }
                 }
             }
-
             return tmp.Select(n => new { Id = n.FileId, Name = n.FileName, NickName = n.FileName });
         }
-
-        // 從資料庫取得所有公司分類
+        // Advance:從資料庫取得所有公司分類
         private dynamic GetCompanyList()
         {
             WFTPDbContext db = new WFTPDbContext();
@@ -860,16 +845,14 @@ namespace WFTP.Pages
 
             return companyList;
         }
-
-        // 取得 FTP 資料夾清單
+        // FTP:取得 FTP 資料夾清單
         private string[] GetFtpCatalog()
         {
             FTPClient client = new FTPClient();
 
             return client.Dir(_ftpPath);
         }
-    
-        // 取得階層名稱及 Id
+        // Query:取得階層名稱及 Id
         private void GetCatalogInfo(int level, string condition)
         {
             WFTPDbContext db = new WFTPDbContext();
@@ -940,7 +923,7 @@ namespace WFTP.Pages
             _catalogLevelId[level] = id;
             _catalogLevelName[level+1] = name;
         }
-
+        // FTP:下載
         private void DownloadFile(string filePath)
         {
             string fileName = System.IO.Path.GetFileNameWithoutExtension(filePath);
@@ -970,16 +953,6 @@ namespace WFTP.Pages
 
         #endregion
 
-        #region FileModel
-
-        public class FileInfo
-        {
-            public string FileName { get; set; }
-            public string FilePath { get; set; }
-        }
-
-        #endregion
-
         #region ISwitchable Members
 
         public void UtilizeState(object state)
@@ -990,7 +963,13 @@ namespace WFTP.Pages
         #endregion
 
         #region Models
-        
+
+        public class FileInfo
+        {
+            public string FileName { get; set; }
+            public string FilePath { get; set; }
+        }
+        // For ComboboxItem of advance query
         public class CompanyItem : INotifyPropertyChanged
         {
             private string _name;
@@ -1038,7 +1017,7 @@ namespace WFTP.Pages
             }
 
         }
-
+        // For ComboboxItem of advance query
         public class ClassifyItem : INotifyPropertyChanged
         {
             private string _name;
@@ -1093,6 +1072,7 @@ namespace WFTP.Pages
             }
 
         }
+
         #endregion
 
         

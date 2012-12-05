@@ -38,5 +38,8 @@ namespace DataProvider
 
         [Column]
         public Boolean IsDeleted;
+
+        [Column]
+        public string Path;
     }
 }
