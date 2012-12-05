@@ -185,15 +185,30 @@ namespace WFTP
 
         private void DownloadFile(Dictionary<string,string> fileInfo)
         {
-            FTPClient client = new FTPClient();
-            string fileId = fileInfo["FileId"];
+            BackgroundWorker bgworkerDownload = new BackgroundWorker();
+            bgworkerDownload.DoWork += bgworkerDownload_DoWorkHandler;
+            bgworkerDownload.RunWorkerCompleted += bgworkerDownload_RunWorkerCompleted;
+            bgworkerDownload.RunWorkerAsync(fileInfo);
 
-            client.Get(fileInfo["RemoteFilePath"], fileInfo["LocalFilePath"], fileInfo["LocalFileName"], true);
-
-            FileInfo localFile = new FileInfo(String.Format(@"{0}\{1}", fileInfo["LocalFilePath"], fileInfo["LocalFileName"]));
-            long remoteFileSize = Convert.ToInt64(fileInfo["RemoteFileSize"]);
+            //FileInfo localFile = new FileInfo(String.Format(@"{0}\{1}", fileInfo["LocalFilePath"], fileInfo["LocalFileName"]));
+            //long remoteFileSize = Convert.ToInt64(fileInfo["RemoteFileSize"]);
 
             Switcher.download.UpdateProgress(fileInfo);
+        }
+
+        public void bgworkerDownload_DoWorkHandler(object sender, DoWorkEventArgs e)
+        {
+            Dictionary<string, string> fileInfo = (Dictionary<string, string>)e.Argument;
+
+            FTPClient client = new FTPClient();
+            client.Get(fileInfo["RemoteFilePath"], fileInfo["LocalFilePath"], fileInfo["LocalFileName"], true);
+
+            //Switcher.download.UpdateProgress(fileInfo);
+        }
+
+        private void bgworkerDownload_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+            
         }
 
         #endregion
