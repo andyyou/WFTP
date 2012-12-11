@@ -211,6 +211,29 @@ namespace WFTP
             
         }
 
+        private void UploadFile(Dictionary<string, string> fileInfo)
+        {
+            BackgroundWorker bgworkerUpload = new BackgroundWorker();
+            bgworkerUpload.DoWork += bgworkerUpload_DoWorkHandler;
+            bgworkerUpload.RunWorkerCompleted += bgworkerUpload_RunWorkerCompleted;
+            bgworkerUpload.RunWorkerAsync(fileInfo);
+
+            Switcher.download.UpdateProgress(fileInfo);
+        }
+
+        public void bgworkerUpload_DoWorkHandler(object sender, DoWorkEventArgs e)
+        {
+            Dictionary<string, string> fileInfo = (Dictionary<string, string>)e.Argument;
+
+            FTPClient client = new FTPClient();
+            client.Get(fileInfo["RemoteFilePath"], fileInfo["LocalFilePath"], fileInfo["LocalFileName"], true);
+        }
+
+        private void bgworkerUpload_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+
+        }
+
         #endregion
 
         #region Data Model

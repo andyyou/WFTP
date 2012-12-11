@@ -116,6 +116,11 @@ namespace WFTP.Pages
             string jsonList = JsonConvert.SerializeObject(progressList, Formatting.Indented);
             File.WriteAllText(WFTP.Main._PROGRESSLIST, jsonList, Encoding.UTF8);
         }
+
+        private void btnResume_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
     }
 
     #region Models

@@ -972,9 +972,18 @@ namespace WFTP.Pages
         // FTP:取得 FTP 資料夾清單
         private string[] GetFtpCatalog()
         {
-            FTPClient client = new FTPClient();
+            HttpWebRequest req = (HttpWebRequest)HttpWebRequest.Create(String.Format("{0}{1}", _apiDir, _ftpPath));
+            req.Method = "GET";
+            using (WebResponse wr = req.GetResponse())
+            {
+                Stream responseStream = wr.GetResponseStream();
+                StreamReader reader = new StreamReader(responseStream, Encoding.GetEncoding("utf-8"));
 
-            return client.Dir(_ftpPath);
+                return reader.ReadToEnd().Split(',');
+            }
+            //FTPClient client = new FTPClient();
+
+            //return client.Dir(_ftpPath);
         }
         // FTP:取得 FTP 資料夾清單
         private string[] GetFtpCatalog(string path)
@@ -986,16 +995,32 @@ namespace WFTP.Pages
         // FTP:確認檔案是否存在
         private bool CheckFtpFile(string path)
         {
-            FTPClient client = new FTPClient();
-            string[] tmp = client.Dir(path);
-            if (tmp.Count() > 0)
+            HttpWebRequest req = (HttpWebRequest)HttpWebRequest.Create(String.Format("{0}{1}", _apiCheck, path));
+            req.Method = "GET";
+            using (WebResponse wr = req.GetResponse())
             {
-                return true;
+                Stream responseStream = wr.GetResponseStream();
+                StreamReader reader = new StreamReader(responseStream, Encoding.GetEncoding("utf-8"));
+
+                if (reader.ReadToEnd().Equals("true"))
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
             }
-            else
-            {
-                return false;
-            }
+            //FTPClient client = new FTPClient();
+            //string[] tmp = client.Dir(path);
+            //if (tmp.Count() > 0)
+            //{
+            //    return true;
+            //}
+            //else
+            //{
+            //    return false;
+            //}
         }
         // Query:取得階層名稱及 Id
         private void GetCatalogInfo(int level, string condition)
