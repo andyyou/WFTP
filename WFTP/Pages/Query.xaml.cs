@@ -22,6 +22,8 @@ using System.ComponentModel;
 using System.Data.Linq.SqlClient;
 using System.Net;
 using System.IO;
+using System.Threading;
+using System.Windows.Threading;
 
 namespace WFTP.Pages
 {
@@ -46,6 +48,10 @@ namespace WFTP.Pages
         private XmlDocument _xdoc;
         // For Advance Query
         private BindingList<CompanyItem> _dataCompanys = new BindingList<CompanyItem>();
+        private BindingList<int> _dataPager = new BindingList<int>();
+        private int _advTotalPage = 1;
+        private int _advCurrentPage = 1;
+        private const int _advPageSize = 12;
         #endregion
 
         public Query()
@@ -73,6 +79,7 @@ namespace WFTP.Pages
 
             // Initialize cmb databinding for Advance Query
             cmbSearchCompany.ItemsSource = _dataCompanys;
+            cmbPager.ItemsSource = _dataPager;
 
             // Initialize search dictionary
              _searchConditions.Add("FileCategoryId","");
@@ -129,6 +136,11 @@ namespace WFTP.Pages
                 DownloadFile(btn.Tag.ToString());
             }
         }
+        private void lstAdvanceDown_Click(object sender, RoutedEventArgs e)
+        {
+            Button btn = (Button)sender;
+            DownloadFile(btn.Tag.ToString());
+        }
         private void navBar_PathChanged(object sender, RoutedPropertyChangedEventArgs<string> e)
         {
             string displayPath = navBar.GetDisplayPath();
@@ -172,10 +184,21 @@ namespace WFTP.Pages
 
         private void tileAdvance_Click(object sender, RoutedEventArgs e)
         {
-            grdSearch.Visibility = System.Windows.Visibility.Visible;
             Tile originTile = (Tile)sender;
-            _searchConditions["FileCategoryId"] = originTile.Tag.ToString();
-            lvwAdvanceClassify.Items.Clear();
+            int level = Convert.ToInt32(lvwAdvanceClassify.Tag);
+            
+            if (level == 0)
+            {
+                grdSearch.Visibility = System.Windows.Visibility.Visible;
+                
+                _searchConditions["FileCategoryId"] = originTile.Tag.ToString();
+                lvwAdvanceClassify.Items.Clear();
+                lvwAdvanceClassify.Tag = 1;
+            }
+            else
+            {
+                DownloadFile(originTile.Tag.ToString());
+            }
         }
         // 回Advance Query首頁
         private void btnPrevPage_Click(object sender, RoutedEventArgs e)
@@ -183,7 +206,9 @@ namespace WFTP.Pages
             grdSearch.Visibility = System.Windows.Visibility.Hidden;
             lbMessage.Content = "";
             lbMessage.Visibility = System.Windows.Visibility.Hidden;
+            cmbPager.Visibility = System.Windows.Visibility.Hidden;
             InitAdvanceCatalog();
+            lvwAdvanceClassify.Tag = 0;
         }
         // 進階查詢項目切換
         private void cmbSearchClass_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -270,18 +295,64 @@ namespace WFTP.Pages
                     break;
             }
             // 設定完條件後執行物件建置
-            GenerateListviewItem();
+            _advCurrentPage = 1;
+            new Thread(() =>
+            {
+                Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Normal,
+                 new Action(() =>
+                 {
+                     GenerateListviewItem(_advCurrentPage);
+                 }));
+            }).Start();
+            // GenerateListviewItem();
+            
         }
         private void btnAdvanceTileView_Click(object sender, RoutedEventArgs e)
         {
             _isAdvanceTileView = true;
-            GenerateListviewItem();
+            new Thread(() =>
+            {
+                Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Normal,
+                 new Action(() =>
+                 {
+                     GenerateListviewItem(_advCurrentPage);
+                 }));
+            }).Start();
+            // GenerateListviewItem();
         }
 
         private void btnAdvanceListView_Click(object sender, RoutedEventArgs e)
         {
             _isAdvanceTileView = false;
-            GenerateListviewItem();
+            new Thread(() =>
+            {
+                Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Normal,
+                 new Action(() =>
+                 {
+                     GenerateListviewItem(_advCurrentPage);
+                 }));
+            }).Start();
+            // GenerateListviewItem();
+        }
+        private void cmbPager_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+           
+
+        }
+        private void cmbPager_DropDownClosed(object sender, EventArgs e)
+        {
+            if (cmbPager.Items.Count > 0)
+            {
+                _advCurrentPage = Int32.TryParse(cmbPager.SelectedItem.ToString(), out _advCurrentPage) ? _advCurrentPage : 1;
+                new Thread(() =>
+                {
+                    Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Normal,
+                     new Action(() =>
+                     {
+                         GenerateListviewItem(_advCurrentPage);
+                     }));
+                }).Start();
+            }
         }
         #endregion
 
@@ -818,6 +889,48 @@ namespace WFTP.Pages
 
             return tmp.Where(x => x.IsDeleted == false).Select(n => new { Id = n.FileId, Name = n.FileName, NickName = n.FileName, FullPath = n.Path});
         }
+        private dynamic GetAdvanceFileList(int skipNum, int recordNum)
+        {
+            WFTPDbContext db = new WFTPDbContext();
+            var tmp = db.Lv6Files.Select(x => x);
+            foreach (KeyValuePair<string, string> condiction in _searchConditions)
+            {
+                if (!String.IsNullOrEmpty(condiction.Value))
+                {
+                    switch (condiction.Key)
+                    {
+                        case "FileCategoryId":
+                            int value = Int32.TryParse(condiction.Value, out value) ? value : 0;
+                            tmp = tmp.Where(x => x.FileCategoryId == value);
+                            break;
+                        case "LastUploadDateStart":
+                            DateTime dateStart = DateTime.TryParse(condiction.Value.ToString(), out dateStart) ? dateStart : DateTime.Now.AddDays(-1);
+                            tmp = tmp.Where(x => x.LastUploadDate >= dateStart);
+                            break;
+                        case "LastUploadDateEnd":
+                            DateTime dateEnd = DateTime.TryParse(condiction.Value.ToString(), out dateEnd) ? dateEnd : DateTime.Now;
+                            tmp = tmp.Where(x => x.LastUploadDate < dateEnd);
+                            break;
+                        case "FileName":
+                            string fileWord = condiction.Value.ToString();
+                            tmp = tmp.Where(x => x.FileName.Contains(fileWord));
+                            break;
+                        case "LineId":
+                            int line = Convert.ToInt32(condiction.Value);
+                            tmp = tmp.Where(x => x.LineId == line);
+                            break;
+                        case "CompanyId":
+                            int companyId = Convert.ToInt32(condiction.Value);
+                            List<int> branchIds = db.Lv3CustomerBranches.Where(b => b.CompanyId == companyId).Select(br => br.BranchId).ToList();
+                            List<int> lineIds = db.Lv4Lines.Where(li => branchIds.Contains(li.BranchId)).Select(y => y.LineId).ToList();
+                            tmp = tmp.Where(x => lineIds.Contains(x.LineId));
+                            break;
+                    }
+                }
+            }
+
+            return tmp.Where(x => x.IsDeleted == false).Select(n => new { Id = n.FileId, Name = n.FileName, NickName = n.FileName, FullPath = n.Path }).Skip(skipNum).Take(recordNum);
+        }
         // Advance:從資料庫取得所有公司分類
         private dynamic GetCompanyList()
         {
@@ -833,30 +946,47 @@ namespace WFTP.Pages
             return companyList;
         }
         // Advance:執行把資料建置到Listview
-        private void GenerateListviewItem()
+        private void GenerateListviewItem(int page)
         {
             lvwAdvanceClassify.ItemsSource = null;
             lvwAdvanceClassify.Items.Clear();
+            cmbPager.ItemsSource = null;
+            _dataPager.Clear();
+
             dynamic files = GetAdvanceFileList();
-
-            // For list mode datasource
-            System.Collections.ObjectModel.ObservableCollection<FileInfo> fileCollection =
-                new System.Collections.ObjectModel.ObservableCollection<FileInfo>();
-
-            // 刪除舊有暫存檔
-            int level = Convert.ToInt32(lvwAdvanceClassify.Tag);
-
-            //if (level == 2)
-            //{
-            //    string[] oldFiles = null;
-            //    oldFiles = System.IO.Directory.GetFiles(System.IO.Path.GetTempPath(), "WFTP*");
-
-            //    foreach (string file in oldFiles)
-            //    {
-            //        System.IO.File.Delete(file);
-            //    }
-            //}
+            int totalRecordNum = Enumerable.Count(files);
+            _advCurrentPage = page;
             
+            if (totalRecordNum <= _advPageSize)
+            {
+                _advTotalPage = 1;
+                cmbPager.Visibility = System.Windows.Visibility.Hidden;
+            }
+            else
+            {
+                _advTotalPage = totalRecordNum % _advPageSize == 0 ?
+                             totalRecordNum / _advPageSize :
+                             totalRecordNum / _advPageSize + 1;
+                if (_advTotalPage == 0)
+                    _advTotalPage = 1;
+               
+                for (int i = 1; i <= _advTotalPage; i++)
+                {
+                    _dataPager.Add(i);
+                }
+                cmbPager.Visibility = System.Windows.Visibility.Visible;
+                cmbPager.SelectedItem = page ;
+            }
+            cmbPager.ItemsSource = _dataPager;
+            int skipNum = (_advCurrentPage - 1) * _advPageSize;
+            files = GetAdvanceFileList(skipNum, _advPageSize);
+
+             // For list mode datasource
+             System.Collections.ObjectModel.ObservableCollection<FileInfo> fileCollection =
+                 new System.Collections.ObjectModel.ObservableCollection<FileInfo>();
+          
+
+           
             foreach (var file in files)
             {
                 if (_isAdvanceTileView)
@@ -871,36 +1001,30 @@ namespace WFTP.Pages
                     string path = DBHelper.GenerateFileFullPath(file.Id);
                     if (CheckFtpFile(path))
                     {
-
                         BitmapImage bitmap = new BitmapImage();
                         bitmap.BeginInit();
                         bitmap.CacheOption = BitmapCacheOption.OnLoad;
-                        
-                        if (level == 1)
+
+
+                        ExtensionHelper helper = new ExtensionHelper();
+                        string iconPath = helper.GetIconPath(
+                            System.IO.Path.GetExtension(file.NickName));
+
+                        if (iconPath != "img.ico")
                         {
-                            bitmap.UriSource = new Uri(@"pack://application:,,,/WFTP;component/Icons/folder.ico");
+                            bitmap.UriSource = new Uri(iconPath);
                         }
                         else
                         {
-                            ExtensionHelper helper = new ExtensionHelper();
-                            string iconPath = helper.GetIconPath(
-                                System.IO.Path.GetExtension(file.NickName));
+                            isImageFile = true;
+                            //string tmpFolder = System.IO.Path.GetTempPath();
+                            //string localFileName = string.Format("WFTP-{0}", file.Name);
 
-                            if (iconPath != "img.ico")
-                            {
-                                bitmap.UriSource = new Uri(iconPath);
-                            }
-                            else
-                            {
-                                isImageFile = true;
-                                //string tmpFolder = System.IO.Path.GetTempPath();
-                                //string localFileName = string.Format("WFTP-{0}", file.Name);
-
-                                //FTPClient client = new FTPClient();
-                                //client.Get(path, tmpFolder, localFileName, false);
-                                bitmap.UriSource = new Uri(String.Format(@"{0}{1}", _apiThumb, path));
-                            }
+                            //FTPClient client = new FTPClient();
+                            //client.Get(path, tmpFolder, localFileName, false);
+                            bitmap.UriSource = new Uri(String.Format(@"{0}{1}", _apiThumb, path));
                         }
+
                         bitmap.EndInit();
                         Image img = new Image();
                         if (!isImageFile)
@@ -913,7 +1037,7 @@ namespace WFTP.Pages
                             img.Width = 120;
                             img.Height = 120;
                         }
-                        
+
                         img.Source = bitmap;
                         string title = Convert.ToString(file.NickName);
                         Tile tile = new Tile();
@@ -924,7 +1048,7 @@ namespace WFTP.Pages
                         tile.Content = img;
                         tile.Tag = path; // Download Path
                         tile.ToolTip = file.NickName;
-                        // tile.Click += new RoutedEventHandler(tileAdvance_Click);
+                        tile.Click += new RoutedEventHandler(tileAdvance_Click);
                         if (isImageFile)
                         {
                             tile.Background = new SolidColorBrush(Color.FromArgb(0, 0, 0, 0));
@@ -938,7 +1062,7 @@ namespace WFTP.Pages
                 }
                 else
                 {
-                    lvwAdvanceClassify.View = lvwAdvanceClassify.FindResource("ListView") as ViewBase;
+                    lvwAdvanceClassify.View = lvwAdvanceClassify.FindResource("AdvanceListView") as ViewBase;
                      string path = DBHelper.GenerateFileFullPath(file.Id);
                      if (CheckFtpFile(path))
                      {
@@ -969,6 +1093,7 @@ namespace WFTP.Pages
             // download chosen file here
             // DownloadFile(tile.Tag.ToString());
         }
+
         // FTP:取得 FTP 資料夾清單
         private string[] GetFtpCatalog()
         {
@@ -1258,6 +1383,10 @@ namespace WFTP.Pages
         }
 
         #endregion
+
+        
+
+        
 
         
 
