@@ -20,6 +20,8 @@ using WFTP.Lib;
 using System.Xml.XPath;
 using System.ComponentModel;
 using System.Data.Linq.SqlClient;
+using System.Net;
+using System.IO;
 
 namespace WFTP.Pages
 {
@@ -33,6 +35,9 @@ namespace WFTP.Pages
         private List<string> _remoteFolders = new List<string>();
         private Dictionary<int, int> _catalogLevelId = new Dictionary<int, int>();
         private Dictionary<int, string> _catalogLevelName = new Dictionary<int, string>();
+        private const string _apiThumb = "http://192.168.100.177:2121/thumb?p=";
+        private const string _apiCheck = "http://192.168.100.177:2121/check?p=";
+        private const string _apiDir = "http://192.168.100.177:2121/dir?p=";
        
         private Dictionary<string, string> _searchConditions = new Dictionary<string,string>();
         private bool _isTileView = true;
@@ -470,16 +475,16 @@ namespace WFTP.Pages
                 new System.Collections.ObjectModel.ObservableCollection<FileInfo>();
 
             // 刪除舊有暫存檔
-            if (level == 6)
-            {
-                string[] oldFiles = null;
-                oldFiles = System.IO.Directory.GetFiles(System.IO.Path.GetTempPath(),"WFTP*");
+            //if (level == 6)
+            //{
+            //    string[] oldFiles = null;
+            //    oldFiles = System.IO.Directory.GetFiles(System.IO.Path.GetTempPath(),"WFTP*");
 
-                foreach (string file in oldFiles)
-                {
-                    System.IO.File.Delete(file);
-                }
-            }
+            //    foreach (string file in oldFiles)
+            //    {
+            //        System.IO.File.Delete(file);
+            //    }
+            //}
 
             foreach (var classifyItem in classify)
             {
@@ -517,12 +522,13 @@ namespace WFTP.Pages
                             else
                             {
                                 isImageFile = true;
-                                string tmpFolder = System.IO.Path.GetTempPath();
-                                string localFileName = string.Format("WFTP-{0}", classifyItem.Name);
+                                //string tmpFolder = System.IO.Path.GetTempPath();
+                                //string localFileName = string.Format("WFTP-{0}", classifyItem.Name);
 
-                                FTPClient client = new FTPClient();
-                                client.Get(remoteFileList[classifyItem.Name], tmpFolder, localFileName, false);
-                                bitmap.UriSource = new Uri(String.Format(@"{0}\{1}", tmpFolder, localFileName));
+                                //FTPClient client = new FTPClient();
+                                //client.Get(remoteFileList[classifyItem.Name], tmpFolder, localFileName, false);
+                                //bitmap.UriSource = new Uri(String.Format(@"{0}\{1}", tmpFolder, localFileName));
+                                bitmap.UriSource = new Uri(String.Format(@"{0}{1}", _apiThumb,remoteFileList[classifyItem.Name]));
                             }
                         }
                         bitmap.EndInit();
@@ -840,16 +846,16 @@ namespace WFTP.Pages
             // 刪除舊有暫存檔
             int level = Convert.ToInt32(lvwAdvanceClassify.Tag);
 
-            if (level == 2)
-            {
-                string[] oldFiles = null;
-                oldFiles = System.IO.Directory.GetFiles(System.IO.Path.GetTempPath(), "WFTP*");
+            //if (level == 2)
+            //{
+            //    string[] oldFiles = null;
+            //    oldFiles = System.IO.Directory.GetFiles(System.IO.Path.GetTempPath(), "WFTP*");
 
-                foreach (string file in oldFiles)
-                {
-                    System.IO.File.Delete(file);
-                }
-            }
+            //    foreach (string file in oldFiles)
+            //    {
+            //        System.IO.File.Delete(file);
+            //    }
+            //}
             
             foreach (var file in files)
             {
@@ -887,12 +893,12 @@ namespace WFTP.Pages
                             else
                             {
                                 isImageFile = true;
-                                string tmpFolder = System.IO.Path.GetTempPath();
-                                string localFileName = string.Format("WFTP-{0}", file.Name);
+                                //string tmpFolder = System.IO.Path.GetTempPath();
+                                //string localFileName = string.Format("WFTP-{0}", file.Name);
 
-                                FTPClient client = new FTPClient();
-                                client.Get(path, tmpFolder, localFileName, false);
-                                bitmap.UriSource = new Uri(String.Format(@"{0}\{1}", tmpFolder, localFileName));
+                                //FTPClient client = new FTPClient();
+                                //client.Get(path, tmpFolder, localFileName, false);
+                                bitmap.UriSource = new Uri(String.Format(@"{0}{1}", _apiThumb, path));
                             }
                         }
                         bitmap.EndInit();
@@ -1088,6 +1094,20 @@ namespace WFTP.Pages
                 
                 //MessageBox.Show(filePath + "\n" + fileName + "\n" + fileExt);
             }
+        }
+
+        // Image Lazy Loading
+        public static Lazy<ImageDrawing> LoadImage(string fileName)
+        {
+            return new Lazy<ImageDrawing>(() =>
+            {
+                System.Drawing.Bitmap b = new System.Drawing.Bitmap(fileName);
+                System.Drawing.Size s = b.Size;
+                System.Windows.Media.ImageDrawing im = new System.Windows.Media.ImageDrawing();
+                im.Rect = new System.Windows.Rect(0, 0, s.Width, s.Height);
+                im.ImageSource = new System.Windows.Media.Imaging.BitmapImage(new Uri(fileName, UriKind.Absolute));
+                return im;
+            });
         }
 
         #endregion
