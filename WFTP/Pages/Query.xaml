@@ -206,11 +206,23 @@
                                HorizontalContentAlignment="Center"
                                Visibility="Hidden"
                                />
+                       
                         <ListView Name="lvwAdvanceClassify"
                                   Width="760"
                                   Height="390"
                                   Margin="0,10,0,0"
                                   SelectionMode="Single" />
+                        <Grid Width="760"
+                              HorizontalAlignment="Stretch">
+                        <ComboBox Name="cmbPager" 
+                                  Width="60" 
+                                  FontFamily="Microsoft JhengHei"
+                                  FontSize="12"
+                                  Margin="480,-5,0,0"
+                                  HorizontalAlignment="Right" 
+                                  HorizontalContentAlignment="Right"
+                                  Visibility="Hidden" SelectionChanged="cmbPager_SelectionChanged" DropDownClosed="cmbPager_DropDownClosed" />
+                        </Grid>
                     </WrapPanel>
                 </DockPanel>
             </TabItem>
