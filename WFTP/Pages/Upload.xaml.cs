@@ -227,9 +227,9 @@ namespace WFTP.Pages
         {
             try
             {
-                if (value == null || !((bool)value)) return Visibility.Hidden;
+                if (value == null || !((bool)value)) return 0.0;
 
-                return Visibility.Visible;
+                return 100;
             }
             catch (InvalidCastException) { }
             return "<Unknown Value>";
