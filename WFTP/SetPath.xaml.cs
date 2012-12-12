@@ -15,6 +15,7 @@ using DataProvider;
 using System.Xml.XPath;
 using WFTP.Lib;
 using System.IO;
+using WFTP.Helper;
 
 namespace WFTP
 {
@@ -375,17 +376,6 @@ namespace WFTP
 
         #endregion
 
-        #region 取得 FTP 資料夾清單
-
-        private string[] GetFtpCatalog()
-        {
-            FTPClient client = new FTPClient();
-
-            return client.Dir(_ftpPath);
-        }
-
-        #endregion
-
         private void GetCatalogInfo(int level, string condition)
         {
             WFTPDbContext db = new WFTPDbContext();
@@ -471,7 +461,6 @@ namespace WFTP
         /// <param name="id">關聯 ID</param>
         private void GetCatalog(int level)
         {
-
             dynamic classify = null;
             switch (level)
             {
@@ -492,16 +481,13 @@ namespace WFTP
                     break;
             }
 
-            List<string> remoteFolderFullPathList = GetFtpCatalog().ToList();
+            ApiHelper ah = new ApiHelper();
+            List<string> remoteFolderFullPathList = ah.Dir(_ftpPath).ToList();
             Dictionary<string, string> remoteFileList = new Dictionary<string, string>();
             foreach (var item in remoteFolderFullPathList)
             {
                 remoteFileList.Add(item.Substring(item.LastIndexOf('/') + 1), item);
             }
-
-            
-          
-            
         }
     }
 }
