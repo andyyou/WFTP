@@ -20,8 +20,6 @@ using WFTP.Lib;
 using System.Xml.XPath;
 using System.ComponentModel;
 using System.Data.Linq.SqlClient;
-using System.Net;
-using System.IO;
 using System.Threading;
 using System.Windows.Threading;
 
@@ -91,9 +89,14 @@ namespace WFTP.Pages
             // string answer = DBHelper.GenerateFileFullPath(1);
 
         }
-
+        #region User Control Event
+        private void query_Loaded(object sender, RoutedEventArgs e)
+        {
+            query.DataContext = GlobalHelper.AdminItem;
+        }
+        #endregion
         #region Query Events
-        
+
         private void tile_Click(object sender, RoutedEventArgs e)
         {
             int level = Convert.ToInt32(lvwClassify.Tag) + 1;
@@ -133,10 +136,17 @@ namespace WFTP.Pages
                 DownloadFile(btn.Tag.ToString());
             }
         }
+        private void lstDelete_Click(object sender, RoutedEventArgs e)
+        { 
+        }
         private void lstAdvanceDown_Click(object sender, RoutedEventArgs e)
         {
             Button btn = (Button)sender;
             DownloadFile(btn.Tag.ToString());
+        }
+        private void lstAdvanceDelete_Click(object sender, RoutedEventArgs e)
+        {
+            
         }
         private void navBar_PathChanged(object sender, RoutedPropertyChangedEventArgs<string> e)
         {
@@ -155,7 +165,15 @@ namespace WFTP.Pages
                     _ftpPath = String.Format("{0}{1}/", _ftpPath, _catalogLevelName[i]);
                 }
             }
-            GetCatalog(level);
+            new Thread(() =>
+            {
+                Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Normal,
+                 new Action(() =>
+                 {
+                     GetCatalog(level);
+                 }));
+            }).Start();
+            //GetCatalog(level);
             lvwClassify.Tag = level;
 
             // Lazy loading for BreadcrumbBar
@@ -167,12 +185,28 @@ namespace WFTP.Pages
         private void btnTileView_Click(object sender, RoutedEventArgs e)
         {
             _isTileView = true;
-            GetCatalog(Convert.ToInt32(lvwClassify.Tag));
+            new Thread(() =>
+            {
+                Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Normal,
+                 new Action(() =>
+                 {
+                     GetCatalog(Convert.ToInt32(lvwClassify.Tag));
+                 }));
+            }).Start();
+            //GetCatalog(Convert.ToInt32(lvwClassify.Tag));
         }
         private void btnListView_Click(object sender, RoutedEventArgs e)
         {
             _isTileView = false;
-            GetCatalog(Convert.ToInt32(lvwClassify.Tag));
+            new Thread(() =>
+            {
+                Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Normal,
+                 new Action(() =>
+                 {
+                     GetCatalog(Convert.ToInt32(lvwClassify.Tag));
+                 }));
+            }).Start();
+            //GetCatalog(Convert.ToInt32(lvwClassify.Tag));
         }
 
         #endregion
@@ -246,15 +280,6 @@ namespace WFTP.Pages
         // 執行搜尋
         private void btnSearch_Click(object sender, RoutedEventArgs e)
         {
-            new Thread(() =>
-            {
-                Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Normal,
-                 new Action(() =>
-                 {
-                     pgiLoadImage.Visibility = System.Windows.Visibility.Visible;
-                 }));
-            }).Start();
-            
             _searchConditions["LastUploadDateStart"] = "";
             _searchConditions["LastUploadDateEnd"] = "";
             _searchConditions["FileName"] = "";
@@ -1081,7 +1106,6 @@ namespace WFTP.Pages
                 lbMessage.Visibility = System.Windows.Visibility.Hidden;
                 lbMessage.Content = "";
             }
-            pgiLoadImage.Visibility = System.Windows.Visibility.Hidden;
            
         }
 
@@ -1321,6 +1345,8 @@ namespace WFTP.Pages
         }
 
         #endregion
+
+       
         
     }
 }
