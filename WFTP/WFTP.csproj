@@ -85,6 +85,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Helper\ExtensionHelper.cs" />
+    <Compile Include="Helper\GlobalHelper.cs" />
     <Compile Include="Lib\FTPClient.cs" />
     <Compile Include="Lib\PredicateBuilder.cs" />
     <Compile Include="Pages\Progress.xaml.cs">
