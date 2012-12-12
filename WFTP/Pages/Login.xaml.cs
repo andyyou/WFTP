@@ -66,7 +66,7 @@ namespace WFTP.Pages
 
                     // UNDONE: limit rules not check yet.
                     GlobalHelper.Rank = rank;
-                    GlobalHelper.IsAdmin = true;
+                    GlobalHelper.IsAdmin = false;
                     Switcher.Switch(Switcher.query);
                 }
                 else

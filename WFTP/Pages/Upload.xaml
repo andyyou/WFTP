@@ -69,16 +69,11 @@
             <ListView.View>
                 <GridView>
                     <GridViewColumn Header="File Name" DisplayMemberBinding="{Binding File.Name}"  Width="200"/>
-                    <GridViewColumn Width="100" >
-                        <GridViewColumnHeader
-                            
-                            Content="Replace"
-                            Visibility="{Binding Path=IsAdmin, 
+                    <GridViewColumn Width="{Binding Path=IsAdmin, 
                                          Converter={StaticResource converter},
                                          Mode=TwoWay, 
-                                         UpdateSourceTrigger=PropertyChanged}"
-                            />
-                        
+                                         UpdateSourceTrigger=PropertyChanged}" 
+                                    Header="Replace">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
                                 <CheckBox IsChecked="{Binding Path=IsReplace, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
