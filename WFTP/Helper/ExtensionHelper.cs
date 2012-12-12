@@ -20,7 +20,7 @@ namespace WFTP.Helper
             extList.Add(".jpeg", "img.ico");
             extList.Add(".png", "img.ico");
             extList.Add(".gif", "img.ico");
-            extList.Add(".tiff", "img.ico");
+            extList.Add(".tif", "img.ico");
             // document
             extList.Add(".doc", "doc.ico");
             extList.Add(".docx", "doc.ico");

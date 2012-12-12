@@ -37,8 +37,11 @@ namespace WFTP.Pages
         private List<string> _remoteFolders = new List<string>();
         private Dictionary<int, int> _catalogLevelId = new Dictionary<int, int>();
         private Dictionary<int, string> _catalogLevelName = new Dictionary<int, string>();
+        // Return thumbnail if image exist and format supported
         private const string _apiThumb = "http://192.168.100.177:2121/thumb?p=";
+        // Return file size if file exist, otherwise return false
         private const string _apiCheck = "http://192.168.100.177:2121/check?p=";
+        // Return files list if path exist
         private const string _apiDir = "http://192.168.100.177:2121/dir?p=";
        
         private Dictionary<string, string> _searchConditions = new Dictionary<string,string>();
@@ -136,6 +139,11 @@ namespace WFTP.Pages
                 DownloadFile(btn.Tag.ToString());
             }
         }
+        private void lstAdvanceDown_Click(object sender, RoutedEventArgs e)
+        {
+            Button btn = (Button)sender;
+            DownloadFile(btn.Tag.ToString());
+        }
         private void navBar_PathChanged(object sender, RoutedPropertyChangedEventArgs<string> e)
         {
             string displayPath = navBar.GetDisplayPath();
@@ -179,10 +187,21 @@ namespace WFTP.Pages
 
         private void tileAdvance_Click(object sender, RoutedEventArgs e)
         {
-            grdSearch.Visibility = System.Windows.Visibility.Visible;
             Tile originTile = (Tile)sender;
-            _searchConditions["FileCategoryId"] = originTile.Tag.ToString();
-            lvwAdvanceClassify.Items.Clear();
+            int level = Convert.ToInt32(lvwAdvanceClassify.Tag);
+            
+            if (level == 0)
+            {
+                grdSearch.Visibility = System.Windows.Visibility.Visible;
+                
+                _searchConditions["FileCategoryId"] = originTile.Tag.ToString();
+                lvwAdvanceClassify.Items.Clear();
+                lvwAdvanceClassify.Tag = 1;
+            }
+            else
+            {
+                DownloadFile(originTile.Tag.ToString());
+            }
         }
         // 回Advance Query首頁
         private void btnPrevPage_Click(object sender, RoutedEventArgs e)
@@ -192,6 +211,7 @@ namespace WFTP.Pages
             lbMessage.Visibility = System.Windows.Visibility.Hidden;
             cmbPager.Visibility = System.Windows.Visibility.Hidden;
             InitAdvanceCatalog();
+            lvwAdvanceClassify.Tag = 0;
         }
         // 進階查詢項目切換
         private void cmbSearchClass_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -945,8 +965,6 @@ namespace WFTP.Pages
             cmbPager.ItemsSource = null;
             _dataPager.Clear();
 
-            int level = Convert.ToInt32(lvwAdvanceClassify.Tag);
-
             dynamic files = GetAdvanceFileList();
             int totalRecordNum = Enumerable.Count(files);
             _advCurrentPage = page;
@@ -993,36 +1011,30 @@ namespace WFTP.Pages
                     string path = DBHelper.GenerateFileFullPath(file.Id);
                     if (CheckFtpFile(path))
                     {
-
                         BitmapImage bitmap = new BitmapImage();
                         bitmap.BeginInit();
                         bitmap.CacheOption = BitmapCacheOption.OnLoad;
-                        
-                        if (level == 1)
+
+
+                        ExtensionHelper helper = new ExtensionHelper();
+                        string iconPath = helper.GetIconPath(
+                            System.IO.Path.GetExtension(file.NickName));
+
+                        if (iconPath != "img.ico")
                         {
-                            bitmap.UriSource = new Uri(@"pack://application:,,,/WFTP;component/Icons/folder.ico");
+                            bitmap.UriSource = new Uri(iconPath);
                         }
                         else
                         {
-                            ExtensionHelper helper = new ExtensionHelper();
-                            string iconPath = helper.GetIconPath(
-                                System.IO.Path.GetExtension(file.NickName));
+                            isImageFile = true;
+                            //string tmpFolder = System.IO.Path.GetTempPath();
+                            //string localFileName = string.Format("WFTP-{0}", file.Name);
 
-                            if (iconPath != "img.ico")
-                            {
-                                bitmap.UriSource = new Uri(iconPath);
-                            }
-                            else
-                            {
-                                isImageFile = true;
-                                //string tmpFolder = System.IO.Path.GetTempPath();
-                                //string localFileName = string.Format("WFTP-{0}", file.Name);
-
-                                //FTPClient client = new FTPClient();
-                                //client.Get(path, tmpFolder, localFileName, false);
-                                bitmap.UriSource = new Uri(String.Format(@"{0}{1}", _apiThumb, path));
-                            }
+                            //FTPClient client = new FTPClient();
+                            //client.Get(path, tmpFolder, localFileName, false);
+                            bitmap.UriSource = new Uri(String.Format(@"{0}{1}", _apiThumb, path));
                         }
+
                         bitmap.EndInit();
                         Image img = new Image();
                         if (!isImageFile)
@@ -1035,7 +1047,7 @@ namespace WFTP.Pages
                             img.Width = 120;
                             img.Height = 120;
                         }
-                        
+
                         img.Source = bitmap;
                         string title = Convert.ToString(file.NickName);
                         Tile tile = new Tile();
@@ -1046,7 +1058,7 @@ namespace WFTP.Pages
                         tile.Content = img;
                         tile.Tag = path; // Download Path
                         tile.ToolTip = file.NickName;
-                        // tile.Click += new RoutedEventHandler(tileAdvance_Click);
+                        tile.Click += new RoutedEventHandler(tileAdvance_Click);
                         if (isImageFile)
                         {
                             tile.Background = new SolidColorBrush(Color.FromArgb(0, 0, 0, 0));
@@ -1060,7 +1072,7 @@ namespace WFTP.Pages
                 }
                 else
                 {
-                    lvwAdvanceClassify.View = lvwAdvanceClassify.FindResource("ListView") as ViewBase;
+                    lvwAdvanceClassify.View = lvwAdvanceClassify.FindResource("AdvanceListView") as ViewBase;
                      string path = DBHelper.GenerateFileFullPath(file.Id);
                      if (CheckFtpFile(path))
                      {
@@ -1094,9 +1106,18 @@ namespace WFTP.Pages
         // FTP:取得 FTP 資料夾清單
         private string[] GetFtpCatalog()
         {
-            FTPClient client = new FTPClient();
+            HttpWebRequest req = (HttpWebRequest)HttpWebRequest.Create(String.Format("{0}{1}", _apiDir, _ftpPath));
+            req.Method = "GET";
+            using (WebResponse wr = req.GetResponse())
+            {
+                Stream responseStream = wr.GetResponseStream();
+                StreamReader reader = new StreamReader(responseStream, Encoding.GetEncoding("utf-8"));
 
-            return client.Dir(_ftpPath);
+                return reader.ReadToEnd().Split(',');
+            }
+            //FTPClient client = new FTPClient();
+
+            //return client.Dir(_ftpPath);
         }
         // FTP:取得 FTP 資料夾清單
         private string[] GetFtpCatalog(string path)
@@ -1108,16 +1129,32 @@ namespace WFTP.Pages
         // FTP:確認檔案是否存在
         private bool CheckFtpFile(string path)
         {
-            FTPClient client = new FTPClient();
-            string[] tmp = client.Dir(path);
-            if (tmp.Count() > 0)
+            HttpWebRequest req = (HttpWebRequest)HttpWebRequest.Create(String.Format("{0}{1}", _apiCheck, path));
+            req.Method = "GET";
+            using (WebResponse wr = req.GetResponse())
             {
-                return true;
+                Stream responseStream = wr.GetResponseStream();
+                StreamReader reader = new StreamReader(responseStream, Encoding.GetEncoding("utf-8"));
+
+                if (reader.ReadToEnd().Equals("false"))
+                {
+                    return false;
+                }
+                else
+                {
+                    return true;
+                }
             }
-            else
-            {
-                return false;
-            }
+            //FTPClient client = new FTPClient();
+            //string[] tmp = client.Dir(path);
+            //if (tmp.Count() > 0)
+            //{
+            //    return true;
+            //}
+            //else
+            //{
+            //    return false;
+            //}
         }
         // Query:取得階層名稱及 Id
         private void GetCatalogInfo(int level, string condition)

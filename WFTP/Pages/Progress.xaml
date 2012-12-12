@@ -3,19 +3,41 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
              mc:Ignorable="d" 
              d:DesignHeight="561"
              d:DesignWidth="778"
              FontFamily="Microsoft JhengHei">
+    <Control.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../Resources/Icons.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Colours.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Fonts.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/Blue.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/BaseLight.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Control.Resources>
+    
     <Grid>
+        <Button Name="btnResume"
+                Width="50" 
+                Height="50"
+                Margin="692,5,36,506"
+                Content="{StaticResource appbar_refresh}" 
+                Style="{DynamicResource MetroCircleButtonStyle}" 
+                FontFamily="Microsoft JhengHei"
+                Click="btnResume_Click" />
+        <!--下載進度-->
         <Label Name="lblDownloadListTitle"
-               Margin="31,13,649,503" 
+               Margin="31,30,649,486" 
                Content="下載進度"
                FontSize="20" 
                FontFamily="Microsoft JhengHei"
                Foreground="DarkGray" />
-        <!--下載進度-->
-        <ListView Name="lvwDownloadList" Margin="40,49,36,292" ItemsSource="{Binding}">
+        <ListView Name="lvwDownloadList" Margin="40,66,36,275" ItemsSource="{Binding}">
             <ListView.View>
                 <GridView>
                     <GridViewColumn Header="檔案名稱" DisplayMemberBinding="{Binding Name}" Width="652" />
@@ -31,12 +53,12 @@
         </ListView>
         <!--上傳進度-->
         <Label Name="lblUpladListTitle"
-               Margin="31,281,649,235"
+               Margin="31,291,649,225"
                Content="上傳進度"
                FontSize="20"
                FontFamily="Microsoft JhengHei"
                Foreground="DarkGray" />
-        <ListView Name="lvwUploadList" Margin="40,317,36,24" ItemsSource="{Binding}">
+        <ListView Name="lvwUploadList" Margin="40,327,36,14" ItemsSource="{Binding}">
             <ListView.View>
                 <GridView>
                     <GridViewColumn DisplayMemberBinding="{Binding Name}" Header="檔案名稱" Width="652" />

@@ -58,6 +58,23 @@
                 </GridViewColumn>
             </GridView>
             
+            <GridView x:Key="AdvanceListView">
+                <GridViewColumn Header="FileName"
+                                DisplayMemberBinding="{Binding FileName}"
+                                Width="455" />
+                <GridViewColumn Header="FilePath" Width="60">
+                    <GridViewColumn.CellTemplate>
+                        <DataTemplate>
+                            <Button Content="下載"
+                                    Tag="{Binding FilePath}"
+                                    FontSize="12"
+                                    FontFamily="Microsoft JhengHei"
+                                    Click="lstAdvanceDown_Click" />
+                        </DataTemplate>
+                    </GridViewColumn.CellTemplate>
+                </GridViewColumn>
+            </GridView>
+
             <ListView x:Key="TileView">
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                     <WrapPanel Orientation="Horizontal"
