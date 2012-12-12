@@ -5,10 +5,12 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:odc="clr-namespace:Odyssey.Controls;assembly=Odyssey"
              xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+             xmlns:l="clr-namespace:WFTP.Pages"
              mc:Ignorable="d" 
              d:DesignHeight="561"
              d:DesignWidth="778"
-             FontFamily="Microsoft JhengHei">
+             FontFamily="Microsoft JhengHei"
+             Name="query" Loaded="query_Loaded">
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -20,7 +22,7 @@
                 <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/Blue.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/BaseLight.xaml" />
             </ResourceDictionary.MergedDictionaries>
-
+            <l:BoolToVisibilityConverter x:Key="converter" />
             <Style TargetType="ListView">
                 <Setter Property="Template">
                     <Setter.Value>
@@ -40,11 +42,26 @@
                 
             </Style>
             
-
             <GridView x:Key="ListView">
                 <GridViewColumn Header="FileName"
                                 DisplayMemberBinding="{Binding FileName}"
-                                Width="455" />
+                                Width="390" />
+                <GridViewColumn Header="Action" 
+                                Width="{Binding Path=IsAdmin, 
+                                         Converter={StaticResource converter},
+                                         Mode=TwoWay, 
+                                         UpdateSourceTrigger=PropertyChanged}" >
+                    <GridViewColumn.CellTemplate>
+                        <DataTemplate>
+                            <Button Content="刪除"
+                                    Tag="{Binding FilePath}"
+                                    FontSize="12"
+                                    FontFamily="Microsoft JhengHei"
+                                    Click="lstDelete_Click"
+                                    />
+                        </DataTemplate>
+                    </GridViewColumn.CellTemplate>
+                </GridViewColumn>
                 <GridViewColumn Header="FilePath" Width="60">
                     <GridViewColumn.CellTemplate>
                         <DataTemplate>
@@ -61,7 +78,23 @@
             <GridView x:Key="AdvanceListView">
                 <GridViewColumn Header="FileName"
                                 DisplayMemberBinding="{Binding FileName}"
-                                Width="455" />
+                                Width="390" />
+                <GridViewColumn Header="Action" 
+                                Width="{Binding Path=IsAdmin, 
+                                         Converter={StaticResource converter},
+                                         Mode=TwoWay, 
+                                         UpdateSourceTrigger=PropertyChanged}" >
+                    <GridViewColumn.CellTemplate>
+                        <DataTemplate>
+                            <Button Content="刪除"
+                                    Tag="{Binding FilePath}"
+                                    FontSize="12"
+                                    FontFamily="Microsoft JhengHei"
+                                    Click="lstAdvanceDelete_Click"
+                                    />
+                        </DataTemplate>
+                    </GridViewColumn.CellTemplate>
+                </GridViewColumn>
                 <GridViewColumn Header="FilePath" Width="60">
                     <GridViewColumn.CellTemplate>
                         <DataTemplate>
@@ -223,23 +256,20 @@
                                HorizontalContentAlignment="Center"
                                Visibility="Hidden"
                                />
-                        <Controls:ProgressIndicator ProgressColour="{StaticResource AccentColorBrush}"
-                                                    Name="pgiLoadImage"
-                                                    Height="6"
-                                                    Width="760" 
-                                                    Visibility="Hidden"/>
+                        
                         <ListView Name="lvwAdvanceClassify"
                                   Width="760"
                                   Height="390"
                                   Margin="0,10,0,0"
                                   SelectionMode="Single" />
                         <Grid Width="760"
-                              HorizontalAlignment="Stretch">
+                              HorizontalAlignment="Stretch" Height="33">
                         <ComboBox Name="cmbPager" 
                                   Width="60" 
+                                  Height="20"
                                   FontFamily="Microsoft JhengHei"
                                   FontSize="12"
-                                  Margin="480,-5,0,0"
+                                  Margin="0,-20,0,0"
                                   HorizontalAlignment="Right" 
                                   HorizontalContentAlignment="Right"
                                   Visibility="Hidden" SelectionChanged="cmbPager_SelectionChanged" DropDownClosed="cmbPager_DropDownClosed" />

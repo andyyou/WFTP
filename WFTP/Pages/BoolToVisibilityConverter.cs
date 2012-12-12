@@ -16,7 +16,7 @@ namespace WFTP.Pages
             {
                 if (value == null || !((bool)value)) return 0.0;
 
-                return 100;
+                return 60;
             }
             catch (InvalidCastException) { }
             return "<Unknown Value>";
