@@ -40,11 +40,22 @@
         <ListView Name="lvwDownloadList" Margin="40,66,36,275" ItemsSource="{Binding}">
             <ListView.View>
                 <GridView>
-                    <GridViewColumn Header="檔案名稱" DisplayMemberBinding="{Binding Name}" Width="652" />
+                    <GridViewColumn Header="檔案名稱" DisplayMemberBinding="{Binding Name}" Width="597" />
                     <GridViewColumn Header="進度" Width="55">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
                                 <TextBlock Text="{Binding Path=Progress, StringFormat={}{0}%}" />
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                    <GridViewColumn Header="取消下載" Width="55">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <Button Content="取消"
+                                    Tag="{Binding FileId}"
+                                    FontSize="12"
+                                    FontFamily="Microsoft JhengHei"
+                                    Click="lstCancel_Click" />
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>

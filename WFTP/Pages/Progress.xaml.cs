@@ -26,6 +26,7 @@ namespace WFTP.Pages
     {
         public BindingList<FileProgressItem> _dataDownloadFiles = new BindingList<FileProgressItem>();
         public BindingList<FileProgressItem> _dataUploadFiles = new BindingList<FileProgressItem>();
+        public List<string> _cancelList = new List<string>();
 
         public Progress()
         {
@@ -117,6 +118,12 @@ namespace WFTP.Pages
             }
         }
 
+        private void lstCancel_Click(object sender, RoutedEventArgs e)
+        {
+            Button btn = (Button)sender;
+            _cancelList.Add(btn.Tag.ToString());
+        }
+
         public void UpdateProgress(Dictionary<string, string> fileInfo)
         {
             lvwDownloadList.Dispatcher.Invoke(System.Windows.Threading.DispatcherPriority.Background, (ThreadStart)delegate
@@ -149,6 +156,14 @@ namespace WFTP.Pages
 
             while (localFileSize <= remoteFileSize)
             {
+                ////////////////////////////////////////////////////////////////////////
+                if (_cancelList.Contains(fileInfo["FileId"]))
+                {
+                    e.Cancel = true;
+                    break;
+                }
+                ////////////////////////////////////////////////////////////////////////
+
                 localFileInfo = new FileInfo(String.Format(@"{0}\{1}", fileInfo["LocalFilePath"], fileInfo["LocalFileName"]));
                 localFileSize = localFileInfo.Length;
                 double size = ((double)localFileSize / (double)remoteFileSize) * 100;
@@ -166,24 +181,27 @@ namespace WFTP.Pages
 
         private void bgworkerUpdateProgress_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
-            string fileId = e.Result.ToString();
-
-            List<Main.ProgressInfo> progressList = JsonConvert.DeserializeObject<List<Main.ProgressInfo>>(
-                File.ReadAllText(Main._LISTPATH)).Select(c => (Main.ProgressInfo)c).ToList();
-
-            var fileList = progressList.Where(o => o.FileId == fileId);
-            List<int> fileIndex = new List<int>();
-            foreach (var file in fileList)
+            if (!e.Cancelled)
             {
-                fileIndex.Add(progressList.IndexOf(file));
+                string fileId = e.Result.ToString();
+
+                List<Main.ProgressInfo> progressList = JsonConvert.DeserializeObject<List<Main.ProgressInfo>>(
+                    File.ReadAllText(Main._LISTPATH)).Select(c => (Main.ProgressInfo)c).ToList();
+
+                var fileList = progressList.Where(o => o.FileId == fileId);
+                List<int> fileIndex = new List<int>();
+                foreach (var file in fileList)
+                {
+                    fileIndex.Add(progressList.IndexOf(file));
+                }
+                foreach (var index in fileIndex)
+                {
+                    progressList.RemoveAt(index);
+                }
+
+                string jsonList = JsonConvert.SerializeObject(progressList, Formatting.Indented);
+                File.WriteAllText(Main._LISTPATH, jsonList, Encoding.UTF8);
             }
-            foreach (var index in fileIndex)
-            {
-                progressList.RemoveAt(index);
-            }
-            
-            string jsonList = JsonConvert.SerializeObject(progressList, Formatting.Indented);
-            File.WriteAllText(Main._LISTPATH, jsonList, Encoding.UTF8);
         }
     }
 
