@@ -84,6 +84,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Helper\ApiHelper.cs" />
     <Compile Include="Helper\ExtensionHelper.cs" />
     <Compile Include="Helper\GlobalHelper.cs" />
     <Compile Include="Lib\FTPClient.cs" />
