@@ -34,6 +34,87 @@ namespace WFTP.Pages
             // Initialize listview databinding
             lvwDownloadList.ItemsSource = _dataDownloadFiles;
             lvwUploadList.ItemsSource = _dataUploadFiles;
+
+            // Load progress list
+            ReadProgressList();
+        }
+
+        public void ReadProgressList()
+        {
+            // Read progress list
+            List<Main.ProgressInfo> progressList = JsonConvert.DeserializeObject<List<Main.ProgressInfo>>(
+                File.ReadAllText(Main._LISTPATH)).Select(c => (Main.ProgressInfo)c).ToList();
+
+            List<Main.ProgressInfo> tmpProgressList = new List<Main.ProgressInfo>();
+            tmpProgressList.AddRange(progressList);
+
+            if (progressList.Count > 0)
+            {
+                foreach (Main.ProgressInfo info in progressList)
+                {
+                    if (info.Type.Equals("Download"))
+                    {
+                        // 如果本地端未完成檔案存在才顯示於進度清單中，否則就將該筆進度刪除
+                        if (File.Exists(info.LocalFilePath))
+                        {
+                            FileInfo localFileInfo = new FileInfo(info.LocalFilePath);
+                            long localFileSize = localFileInfo.Length;
+                            int percentage = Convert.ToInt32(((double)localFileSize / (double)info.FileSize) * 100);
+                            _dataDownloadFiles.Add(new FileProgressItem
+                            {
+                                Name = System.IO.Path.GetFileName(info.LocalFilePath),
+                                Progress = percentage,
+                                FileId = info.FileId
+                            });
+                        }
+                        else
+                        {
+                            int indexOfFile = tmpProgressList.IndexOf(info);
+                            tmpProgressList.RemoveAt(indexOfFile);
+                        }
+                    }
+                    else
+                    {
+
+                    }
+                }
+
+                // Serialize progress list to json format
+                string jsonList = JsonConvert.SerializeObject(tmpProgressList, Formatting.Indented);
+
+                // Overwrite progress list
+                File.WriteAllText(Main._LISTPATH, jsonList, Encoding.UTF8);
+            }
+        }
+
+        private void btnResume_Click(object sender, RoutedEventArgs e)
+        {
+            // Read progress list
+            List<Main.ProgressInfo> progressList = JsonConvert.DeserializeObject<List<Main.ProgressInfo>>(
+                File.ReadAllText(Main._LISTPATH)).Select(c => (Main.ProgressInfo)c).ToList();
+
+            if (progressList.Count > 0)
+            {
+                foreach (Main.ProgressInfo info in progressList)
+                {
+                    if (info.Type.Equals("Download"))
+                    {
+                        // Download file from FTP server
+                        Dictionary<string, string> fileInfo = new Dictionary<string, string>();
+                        fileInfo.Add("FileId", info.FileId);
+                        fileInfo.Add("RemoteFilePath", info.RemoteFilePath);
+                        fileInfo.Add("LocalFilePath", System.IO.Path.GetDirectoryName(info.LocalFilePath));
+                        fileInfo.Add("LocalFileName", System.IO.Path.GetFileName(info.LocalFilePath));
+                        fileInfo.Add("RemoteFileSize", Convert.ToString(info.FileSize));
+
+                        Switcher.main.DownloadFile(fileInfo);
+                    }
+                    else
+                    {
+
+                    }
+                }
+            }
         }
 
         public void UpdateProgress(Dictionary<string, string> fileInfo)
@@ -70,14 +151,9 @@ namespace WFTP.Pages
             {
                 localFileInfo = new FileInfo(String.Format(@"{0}\{1}", fileInfo["LocalFilePath"], fileInfo["LocalFileName"]));
                 localFileSize = localFileInfo.Length;
-                //localFileSize = localFileInfo.Length;
-                //bgworkerUpdateProgress.ReportProgress((int)(localFileSize / remoteFileSize) * 100);
                 double size = ((double)localFileSize / (double)remoteFileSize) * 100;
                 bgworkerUpdateProgress.ReportProgress((int)size);
 
-                //FileProgressItem item = _dataDownloadFiles.Where(file => file.FileId == fileInfo["FileId"]).First();
-                //double size = ((double)localFileSize / (double)remoteFileSize) * 100;
-                //item.Progress = (int)((localFileSize / remoteFileSize) * 100);
                 if (localFileSize == remoteFileSize)
                 {
                     break;
@@ -85,13 +161,6 @@ namespace WFTP.Pages
                 Thread.Sleep(500);
             }
 
-            //int i = 0;
-            //while (i <= 1000000)
-            //{
-            //    bgworkerUpdateProgress.ReportProgress(i);
-            //    i++;
-            //    Thread.Sleep(50);
-            //}
             e.Result = fileInfo["FileId"];
         }
 
@@ -99,8 +168,8 @@ namespace WFTP.Pages
         {
             string fileId = e.Result.ToString();
 
-            List<WFTP.Main.ProgressInfo> progressList = JsonConvert.DeserializeObject<List<WFTP.Main.ProgressInfo>>(
-                File.ReadAllText(WFTP.Main._PROGRESSLIST)).Select(c => (WFTP.Main.ProgressInfo)c).ToList();
+            List<Main.ProgressInfo> progressList = JsonConvert.DeserializeObject<List<Main.ProgressInfo>>(
+                File.ReadAllText(Main._LISTPATH)).Select(c => (Main.ProgressInfo)c).ToList();
 
             var fileList = progressList.Where(o => o.FileId == fileId);
             List<int> fileIndex = new List<int>();
@@ -112,14 +181,9 @@ namespace WFTP.Pages
             {
                 progressList.RemoveAt(index);
             }
-
+            
             string jsonList = JsonConvert.SerializeObject(progressList, Formatting.Indented);
-            File.WriteAllText(WFTP.Main._PROGRESSLIST, jsonList, Encoding.UTF8);
-        }
-
-        private void btnResume_Click(object sender, RoutedEventArgs e)
-        {
-
+            File.WriteAllText(Main._LISTPATH, jsonList, Encoding.UTF8);
         }
     }
 

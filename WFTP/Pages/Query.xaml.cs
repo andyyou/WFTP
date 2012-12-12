@@ -37,8 +37,11 @@ namespace WFTP.Pages
         private List<string> _remoteFolders = new List<string>();
         private Dictionary<int, int> _catalogLevelId = new Dictionary<int, int>();
         private Dictionary<int, string> _catalogLevelName = new Dictionary<int, string>();
+        // Return thumbnail if image exist and format supported
         private const string _apiThumb = "http://192.168.100.177:2121/thumb?p=";
+        // Return file size if file exist, otherwise return false
         private const string _apiCheck = "http://192.168.100.177:2121/check?p=";
+        // Return files list if path exist
         private const string _apiDir = "http://192.168.100.177:2121/dir?p=";
        
         private Dictionary<string, string> _searchConditions = new Dictionary<string,string>();
@@ -1127,13 +1130,13 @@ namespace WFTP.Pages
                 Stream responseStream = wr.GetResponseStream();
                 StreamReader reader = new StreamReader(responseStream, Encoding.GetEncoding("utf-8"));
 
-                if (reader.ReadToEnd().Equals("true"))
+                if (reader.ReadToEnd().Equals("false"))
                 {
-                    return true;
+                    return false;
                 }
                 else
                 {
-                    return false;
+                    return true;
                 }
             }
             //FTPClient client = new FTPClient();

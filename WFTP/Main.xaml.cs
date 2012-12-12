@@ -30,7 +30,7 @@ namespace WFTP
     public partial class Main : MetroWindow
     {
         public DataTable _progressList;
-        public const string _PROGRESSLIST = @"C:\test.json";
+        public static string _LISTPATH = @"C:\test.json";
 
         public Main()
         {
@@ -38,7 +38,7 @@ namespace WFTP
 
             // 初始化各頁面
             Switcher.query = new Query();
-            Switcher.download = new Progress();
+            Switcher.progress = new Progress();
             Switcher.upload = new Upload();
             Switcher.manage = new Manage();
 
@@ -110,7 +110,7 @@ namespace WFTP
         private void btnDownload_Click(object sender, RoutedEventArgs e)
         {
             //Switcher.Switch(new Download());
-            Switcher.Switch(Switcher.download);
+            Switcher.Switch(Switcher.progress);
         }
 
         #region Method
@@ -126,7 +126,7 @@ namespace WFTP
 
             // Read progress list
             List<ProgressInfo> progressList = JsonConvert.DeserializeObject<List<ProgressInfo>>(
-                File.ReadAllText(_PROGRESSLIST)).Select(c => (ProgressInfo)c).ToList();
+                File.ReadAllText(_LISTPATH)).Select(c => (ProgressInfo)c).ToList();
 
             var existFile = progressList.Where(o => 
                 o.Type == "Download"
@@ -155,12 +155,12 @@ namespace WFTP
             string jsonList = JsonConvert.SerializeObject(progressList, Formatting.Indented);
 
             // Overwrite progress list
-            File.WriteAllText(_PROGRESSLIST, jsonList, Encoding.UTF8);
+            File.WriteAllText(_LISTPATH, jsonList, Encoding.UTF8);
 
             if (type.Equals("Download"))
             {
                 // Add file to download list
-                Switcher.download._dataDownloadFiles.Add(new FileProgressItem {
+                Switcher.progress._dataDownloadFiles.Add(new FileProgressItem {
                     Name = System.IO.Path.GetFileName(localFilePath),
                     Progress = 0,
                     FileId = fileId
@@ -183,7 +183,7 @@ namespace WFTP
             }
         }
 
-        private void DownloadFile(Dictionary<string,string> fileInfo)
+        public void DownloadFile(Dictionary<string,string> fileInfo)
         {
             BackgroundWorker bgworkerDownload = new BackgroundWorker();
             bgworkerDownload.DoWork += bgworkerDownload_DoWorkHandler;
@@ -193,7 +193,7 @@ namespace WFTP
             //FileInfo localFile = new FileInfo(String.Format(@"{0}\{1}", fileInfo["LocalFilePath"], fileInfo["LocalFileName"]));
             //long remoteFileSize = Convert.ToInt64(fileInfo["RemoteFileSize"]);
 
-            Switcher.download.UpdateProgress(fileInfo);
+            Switcher.progress.UpdateProgress(fileInfo);
         }
 
         public void bgworkerDownload_DoWorkHandler(object sender, DoWorkEventArgs e)
@@ -218,7 +218,7 @@ namespace WFTP
             bgworkerUpload.RunWorkerCompleted += bgworkerUpload_RunWorkerCompleted;
             bgworkerUpload.RunWorkerAsync(fileInfo);
 
-            Switcher.download.UpdateProgress(fileInfo);
+            Switcher.progress.UpdateProgress(fileInfo);
         }
 
         public void bgworkerUpload_DoWorkHandler(object sender, DoWorkEventArgs e)
