@@ -28,11 +28,10 @@ namespace WFTP.Pages
     {
         private dynamic _dataTmp = new BindingList<FileInfo>();
         private dynamic _dataTo = new BindingList<FileItem>();
-        public AdminItem Admin = new AdminItem();
+       
         public Upload()
         {
             InitializeComponent();
-           
         }
        
         #region ISwitchable Members
@@ -49,8 +48,7 @@ namespace WFTP.Pages
             lvwToUplpad.ItemsSource = _dataTo;
             lvwTempList.ItemsSource = _dataTmp;
             // Get Admin Rank
-            Admin.IsAdmin = GlobalHelper.IsAdmin;
-            grdMain.DataContext = Admin;
+            grdMain.DataContext = GlobalHelper.AdminItem;
         }
 
         private void btnSettingFolder_Click(object sender, RoutedEventArgs e)
@@ -143,105 +141,7 @@ namespace WFTP.Pages
                 }
             }
         }
-        public bool GetBool()
-        {
-            return true;
-        }
+      
         
     }
-
-    #region Model
-    public class FileItem : INotifyPropertyChanged
-    {
-        private string _target_path;
-        private bool _is_replace;
-        public FileInfo File { set; get; }
-
-        public string TargetPath {
-            get {
-                return _target_path;
-            }
-            set {
-                _target_path = value;
-                RaisePropertyChanged("TargetPath"); 
-            }
-        }
-        public bool IsReplace
-        {
-            get {
-                return _is_replace;
-            }
-            set
-            {
-                _is_replace = value;
-                RaisePropertyChanged("IsReplace"); 
-            }
-        }
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        protected virtual void RaisePropertyChanged(String propertyName)
-        {
-            if ((PropertyChanged != null))
-            {
-                PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
-            }
-        }
-
-    }
-    public class AdminItem : INotifyPropertyChanged
-    {
-        private bool _isAdmin;
-
-        public bool IsAdmin
-        {
-            get
-            {
-                return _isAdmin;
-            }
-            set
-            {
-                _isAdmin = value;
-                RaisePropertyChanged("IsAdmin");
-            }
-        }
-       
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        protected virtual void RaisePropertyChanged(String propertyName)
-        {
-            if ((PropertyChanged != null))
-            {
-                PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
-            }
-        }
-
-    }
-    #endregion
-
-    #region Depency Class
-
-    public class BoolToVisibilityConverter : IValueConverter
-    {
-        public object Convert(object value, Type targetType,
-            object parameter, CultureInfo culture)
-        {
-            try
-            {
-                if (value == null || !((bool)value)) return 0.0;
-
-                return 100;
-            }
-            catch (InvalidCastException) { }
-            return "<Unknown Value>";
-        }
-
-        public object ConvertBack(object value, Type targetType,
-            object parameter, CultureInfo culture)
-        {
-            return null;
-        }
-    }
-    #endregion
-
-   
 }
