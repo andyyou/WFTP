@@ -3,17 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using WFTP.Lib;
+using WFTP.Pages;
 
 namespace WFTP.Helper
 {
     public static class GlobalHelper
     {
-        public static int Rank { set; get; }
-        public static bool IsAdmin { set; get; }
-
-
-       
-
-
+        // The property is for binding use.
+        public static AdminItem AdminItem { set; get; }
     }
 }

@@ -65,8 +65,10 @@ namespace WFTP.Pages
                     int rank = Convert.ToInt32(user.Rank);
 
                     // UNDONE: limit rules not check yet.
-                    GlobalHelper.Rank = rank;
-                    GlobalHelper.IsAdmin = (rank <= 2)?true:false;
+                    GlobalHelper.AdminItem = new AdminItem();
+                    GlobalHelper.AdminItem.IsAdmin = (rank <= 2) ? true : false;
+                    GlobalHelper.AdminItem.Rank = rank;
+
                     Switcher.Switch(Switcher.query);
                 }
                 else

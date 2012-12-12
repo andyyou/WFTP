@@ -88,6 +88,8 @@
     <Compile Include="Helper\GlobalHelper.cs" />
     <Compile Include="Lib\FTPClient.cs" />
     <Compile Include="Lib\PredicateBuilder.cs" />
+    <Compile Include="Pages\BoolToVisibilityConverter.cs" />
+    <Compile Include="Pages\NotifyProperty.cs" />
     <Compile Include="Pages\Progress.xaml.cs">
       <DependentUpon>Progress.xaml</DependentUpon>
     </Compile>
