@@ -54,7 +54,7 @@ namespace WFTP.Pages
         private BindingList<int> _dataPager = new BindingList<int>();
         private int _advTotalPage = 1;
         private int _advCurrentPage = 1;
-        private const int _advPageSize = 12;
+        private const int _advPageSize = 100;
         #endregion
 
         public Query()
@@ -252,6 +252,15 @@ namespace WFTP.Pages
         // 執行搜尋
         private void btnSearch_Click(object sender, RoutedEventArgs e)
         {
+            new Thread(() =>
+            {
+                Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Normal,
+                 new Action(() =>
+                 {
+                     pgiLoadImage.Visibility = System.Windows.Visibility.Visible;
+                 }));
+            }).Start();
+            
             _searchConditions["LastUploadDateStart"] = "";
             _searchConditions["LastUploadDateEnd"] = "";
             _searchConditions["FileName"] = "";
@@ -987,8 +996,6 @@ namespace WFTP.Pages
              // For list mode datasource
              System.Collections.ObjectModel.ObservableCollection<FileInfo> fileCollection =
                  new System.Collections.ObjectModel.ObservableCollection<FileInfo>();
-          
-
            
             foreach (var file in files)
             {
@@ -1092,9 +1099,8 @@ namespace WFTP.Pages
                 lbMessage.Visibility = System.Windows.Visibility.Hidden;
                 lbMessage.Content = "";
             }
-
-            // download chosen file here
-            // DownloadFile(tile.Tag.ToString());
+            pgiLoadImage.Visibility = System.Windows.Visibility.Hidden;
+           
         }
 
         // FTP:取得 FTP 資料夾清單
@@ -1386,17 +1392,6 @@ namespace WFTP.Pages
         }
 
         #endregion
-
-        
-
-        
-
-        
-
-        
-
-       
-
         
     }
 }

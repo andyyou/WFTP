@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+             xmlns:l="clr-namespace:WFTP.Pages"
              mc:Ignorable="d" 
              d:DesignHeight="561"
              d:DesignWidth="778"
@@ -17,11 +18,14 @@
                 <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/Blue.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/BaseLight.xaml" />
+                
             </ResourceDictionary.MergedDictionaries>
+            <l:BoolToVisibilityConverter x:Key="converter" />
         </ResourceDictionary>
+       
     </Control.Resources>
     
-    <Grid Loaded="Grid_Loaded">
+    <Grid Loaded="Grid_Loaded" Name="grdMain">
         <Button Name="btnUpload"
                 Width="50" 
                 Height="50"
@@ -57,10 +61,30 @@
                   Height="193" 
                   Margin="36,0,37,306" 
                   VerticalAlignment="Bottom"
-                  ItemsSource="{Binding}" SelectionMode="Multiple" DataContext="{Binding}" PreviewMouseRightButtonDown="lvwToUplpad_PreviewMouseRightButtonDown" MouseRightButtonUp="lvwToUplpad_MouseRightButtonUp">
+                  ItemsSource="{Binding}" 
+                  SelectionMode="Multiple" 
+                  DataContext="{Binding}" 
+                  PreviewMouseRightButtonDown="lvwToUplpad_PreviewMouseRightButtonDown" 
+                  MouseRightButtonUp="lvwToUplpad_MouseRightButtonUp">
             <ListView.View>
                 <GridView>
                     <GridViewColumn Header="File Name" DisplayMemberBinding="{Binding File.Name}"  Width="200"/>
+                    <GridViewColumn Width="100" >
+                        <GridViewColumnHeader
+                            
+                            Content="Replace"
+                            Visibility="{Binding Path=IsAdmin, 
+                                         Converter={StaticResource converter},
+                                         Mode=TwoWay, 
+                                         UpdateSourceTrigger=PropertyChanged}"
+                            />
+                        
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <CheckBox IsChecked="{Binding Path=IsReplace, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
                     <GridViewColumn Header="Target Path" Width="495">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>

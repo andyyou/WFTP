@@ -223,7 +223,11 @@
                                HorizontalContentAlignment="Center"
                                Visibility="Hidden"
                                />
-                       
+                        <Controls:ProgressIndicator ProgressColour="{StaticResource AccentColorBrush}"
+                                                    Name="pgiLoadImage"
+                                                    Height="6"
+                                                    Width="760" 
+                                                    Visibility="Hidden"/>
                         <ListView Name="lvwAdvanceClassify"
                                   Width="760"
                                   Height="390"

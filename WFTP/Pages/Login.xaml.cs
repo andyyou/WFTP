@@ -12,6 +12,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using DataProvider;
+using WFTP.Helper;
 
 namespace WFTP.Pages
 {
@@ -48,11 +49,12 @@ namespace WFTP.Pages
                 string account = txtID.Text.Trim();
                 string pwd = txtPassword.Password;
 
-                var user = from employe in db.Employees
+                CEmployee user = (from employe in db.Employees
                            where employe.Account == account && employe.Password == pwd
-                           select employe;
+                           select employe).First();
 
-                if (user.Count() > 0)
+
+                if (user.Activity)
                 {
                     // 登入成功時儲存登入頁面相關欄位資料
                     Properties.Settings.Default.Id = account;
@@ -60,7 +62,11 @@ namespace WFTP.Pages
                     Properties.Settings.Default.Pwd = pwd;
                     Properties.Settings.Default.RememberPwd = Convert.ToBoolean(togRememberPwd.IsChecked);
                     Properties.Settings.Default.Save();
+                    int rank = Convert.ToInt32(user.Rank);
 
+                    // UNDONE: limit rules not check yet.
+                    GlobalHelper.Rank = rank;
+                    GlobalHelper.IsAdmin = true;
                     Switcher.Switch(Switcher.query);
                 }
                 else
