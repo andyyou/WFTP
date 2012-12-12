@@ -70,6 +70,10 @@ namespace WFTP.Pages
                     GlobalHelper.AdminItem.Rank = rank;
 
                     Switcher.Switch(Switcher.query);
+                    Switcher.main.btnQuery.Visibility = Visibility.Visible;
+                    Switcher.main.btnManage.Visibility = (rank <= 2) ? Visibility.Visible : Visibility.Collapsed;
+                    Switcher.main.btnUpload.Visibility = Visibility.Visible;
+                    Switcher.main.btnDownload.Visibility = Visibility.Visible;
                 }
                 else
                 {

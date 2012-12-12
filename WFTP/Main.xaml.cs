@@ -254,13 +254,6 @@ namespace WFTP
 
         public void Navigate(UserControl nextPage)
         {
-            if (nextPage is Pages.Query)
-            {
-                btnQuery.Visibility = Visibility.Visible;
-                btnManage.Visibility = Visibility.Visible;
-                btnUpload.Visibility = Visibility.Visible;
-                btnDownload.Visibility = Visibility.Visible;
-            }
             this.transitioning.Content = nextPage;
         }
 
