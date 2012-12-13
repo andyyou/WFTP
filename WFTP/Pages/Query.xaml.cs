@@ -1232,7 +1232,7 @@ namespace WFTP.Pages
                 // Save document 
                 fileName = dlg.FileName;
 
-                Switcher.main.UpdateProgressList("Download", filePath, dlg.FileName);
+                Switcher.progress.UpdateProgressList("Download", filePath, dlg.FileName);
                 
                 //MessageBox.Show(filePath + "\n" + fileName + "\n" + fileExt);
             }

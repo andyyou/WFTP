@@ -16,8 +16,6 @@ using MahApps.Metro.Controls;
 using WFTP.Pages;
 using WFTP.Lib;
 using System.IO;
-using Newtonsoft.Json.Linq;
-using Newtonsoft.Json;
 using System.ComponentModel;
 using System.Threading;
 using System.Collections.ObjectModel;
@@ -31,7 +29,7 @@ namespace WFTP
     public partial class Main : MetroWindow
     {
         public DataTable _progressList;
-        public static string _LISTPATH = @"C:\test.json";
+        //public static string _LISTPATH = @"C:\test.json";
 
         public Main()
         {
@@ -61,6 +59,8 @@ namespace WFTP
             Switcher.main = this;
             Switcher.Switch(new Login()); //載入 Login
         }
+
+        #region User Control Event
 
         private void CloseButtonMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
@@ -112,140 +112,6 @@ namespace WFTP
         {
             //Switcher.Switch(new Download());
             Switcher.Switch(Switcher.progress);
-        }
-
-        #region Method
-
-        public void UpdateProgressList(string type, string remoteFilePath, string localFilePath)
-        {
-            // Create fileId
-            string fileId = "Download_" + Guid.NewGuid().ToString().Replace('-', '_');
-
-            // Get remote file size
-            ApiHelper ah = new ApiHelper();
-            long fileSize = ah.GetFileSize(remoteFilePath);
-
-            // Read progress list
-            List<ProgressInfo> progressList = JsonConvert.DeserializeObject<List<ProgressInfo>>(
-                File.ReadAllText(_LISTPATH)).Select(c => (ProgressInfo)c).ToList();
-
-            var existFile = progressList.Where(o => 
-                o.Type == "Download"
-                && o.RemoteFilePath == remoteFilePath
-                && o.LocalFilePath == localFilePath).FirstOrDefault();
-            int indexOfFile = progressList.IndexOf(existFile);
-
-            if (indexOfFile != -1)
-            {
-                progressList.RemoveAt(indexOfFile);
-            }
-
-            // Create new progress info
-            ProgressInfo progressInfo = new ProgressInfo()
-            {
-                Type = type,
-                RemoteFilePath = remoteFilePath,
-                LocalFilePath = localFilePath,
-                FileSize = fileSize,
-                FileId = fileId
-            };
-            
-            progressList.Add(progressInfo);
-
-            // Serialize progress list to json format
-            string jsonList = JsonConvert.SerializeObject(progressList, Formatting.Indented);
-
-            // Overwrite progress list
-            File.WriteAllText(_LISTPATH, jsonList, Encoding.UTF8);
-
-            if (type.Equals("Download"))
-            {
-                // Add file to download list
-                Switcher.progress._dataDownloadFiles.Add(new FileProgressItem {
-                    Name = System.IO.Path.GetFileName(localFilePath),
-                    Progress = 0,
-                    FileId = fileId
-                });
-
-                // Download file from FTP server
-                Dictionary<string, string> fileInfo = new Dictionary<string, string>();
-                fileInfo.Add("FileId", fileId);
-                fileInfo.Add("RemoteFilePath", remoteFilePath);
-                fileInfo.Add("LocalFilePath", System.IO.Path.GetDirectoryName(localFilePath));
-                fileInfo.Add("LocalFileName", System.IO.Path.GetFileName(localFilePath));
-                fileInfo.Add("RemoteFileSize", Convert.ToString(fileSize));
-
-                DownloadFile(fileInfo);
-            }
-            else
-            {
-                // Upload file to FTP server
-
-            }
-        }
-
-        public void DownloadFile(Dictionary<string,string> fileInfo)
-        {
-            BackgroundWorker bgworkerDownload = new BackgroundWorker();
-            bgworkerDownload.DoWork += bgworkerDownload_DoWorkHandler;
-            bgworkerDownload.RunWorkerCompleted += bgworkerDownload_RunWorkerCompleted;
-            bgworkerDownload.RunWorkerAsync(fileInfo);
-
-            //FileInfo localFile = new FileInfo(String.Format(@"{0}\{1}", fileInfo["LocalFilePath"], fileInfo["LocalFileName"]));
-            //long remoteFileSize = Convert.ToInt64(fileInfo["RemoteFileSize"]);
-
-            Switcher.progress.UpdateProgress(fileInfo);
-        }
-
-        public void bgworkerDownload_DoWorkHandler(object sender, DoWorkEventArgs e)
-        {
-            Dictionary<string, string> fileInfo = (Dictionary<string, string>)e.Argument;
-
-            FTPClient client = new FTPClient();
-            client.Get(fileInfo["RemoteFilePath"], fileInfo["LocalFilePath"], fileInfo["LocalFileName"], true);
-
-            //Switcher.download.UpdateProgress(fileInfo);
-        }
-
-        private void bgworkerDownload_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
-        {
-            
-        }
-
-        private void UploadFile(Dictionary<string, string> fileInfo)
-        {
-            BackgroundWorker bgworkerUpload = new BackgroundWorker();
-            bgworkerUpload.DoWork += bgworkerUpload_DoWorkHandler;
-            bgworkerUpload.RunWorkerCompleted += bgworkerUpload_RunWorkerCompleted;
-            bgworkerUpload.RunWorkerAsync(fileInfo);
-
-            Switcher.progress.UpdateProgress(fileInfo);
-        }
-
-        public void bgworkerUpload_DoWorkHandler(object sender, DoWorkEventArgs e)
-        {
-            Dictionary<string, string> fileInfo = (Dictionary<string, string>)e.Argument;
-
-            FTPClient client = new FTPClient();
-            
-        }
-
-        private void bgworkerUpload_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
-        {
-
-        }
-
-        #endregion
-
-        #region Data Model
-
-        public class ProgressInfo
-        {
-            public string Type;
-            public string RemoteFilePath;
-            public string LocalFilePath;
-            public long FileSize;
-            public string FileId;
         }
 
         #endregion
