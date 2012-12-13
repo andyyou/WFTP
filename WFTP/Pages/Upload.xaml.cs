@@ -52,15 +52,6 @@ namespace WFTP.Pages
 
         private void btnSettingFolder_Click(object sender, RoutedEventArgs e)
         {
-            if (_dataTo.Count > 0)
-            {
-                MessageBoxResult confirm = MessageBox.Show("尚有資料未上傳，您確定要切換資料夾嗎？", "確認", MessageBoxButton.OKCancel, MessageBoxImage.Question);
-                if (confirm != MessageBoxResult.OK)
-                {
-                    return;
-                }
-            }
-
             lbPath.Width = 500;
             var dialog = new System.Windows.Forms.FolderBrowserDialog();
             System.Windows.Forms.DialogResult result = dialog.ShowDialog();
@@ -68,7 +59,6 @@ namespace WFTP.Pages
             {
                 lbPath.Content = dialog.SelectedPath.ToString();
                 lbPath.ToolTip = dialog.SelectedPath.ToString();
-                _dataTo.Clear();
             }
 
             DirectoryInfo dirInfo = new DirectoryInfo(lbPath.Content.ToString());
@@ -84,8 +74,10 @@ namespace WFTP.Pages
         {
             SetPath sp = new SetPath(400,500);
             string target_path = "";
+            string target_real_path = "";
             sp.ShowDialog();
             target_path = sp.Path;
+            target_real_path = sp.RealPath;
 
             if (!String.IsNullOrEmpty(target_path))
             {
@@ -95,7 +87,7 @@ namespace WFTP.Pages
                     List<FileInfo> removeItems = new List<FileInfo>();
                     foreach (FileInfo i in lvwTempList.SelectedItems)
                     {
-                        _dataTo.Add(new FileItem() { File = i, TargetPath = target_path , IsReplace=true});
+                        _dataTo.Add(new FileItem() { File = i, TargetPath = target_path, TargetRealPath = target_real_path, IsReplace = true });
                         removeItems.Add(i);
                     }
 
@@ -128,7 +120,11 @@ namespace WFTP.Pages
 
         private void btnUpload_Click(object sender, RoutedEventArgs e)
         {
-
+            foreach (FileItem item in _dataTo)
+            {
+                MessageBox.Show("本地路徑：" + item.File.FullName + "\n遠端路徑：" + item.TargetPath + "\n遠端真實路徑：" + item.TargetRealPath);
+                //Switcher.progress.UpdateProgressList("Upload", item.TargetPath, item.File.FullName);
+            }
         }
 
         private void lvwToUplpad_PreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
@@ -141,16 +137,19 @@ namespace WFTP.Pages
             
             SetPath sp = new SetPath(400,500);
             string target_path = "";
+            string target_real_path = "";
             if (lvwToUplpad.SelectedItems.Count > 0)
             {
                 sp.ShowDialog();
                 target_path = sp.Path;
+                target_real_path = sp.RealPath;
 
                 if (!String.IsNullOrEmpty(target_path))
                 {
                     foreach (FileItem i in lvwToUplpad.SelectedItems)
                     {
                         i.TargetPath = target_path;
+                        i.TargetRealPath = target_real_path;
                     }
                 }
             }

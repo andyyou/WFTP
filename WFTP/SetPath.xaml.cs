@@ -32,6 +32,7 @@ namespace WFTP
 
         #region Properties
         public string Path { set; get; }
+        public string RealPath { set; get; }
         #endregion
 
         public SetPath()
@@ -86,6 +87,7 @@ namespace WFTP
         private void btnCancel_Click(object sender, RoutedEventArgs e)
         {
             this.Path = null;
+            this.RealPath = null;
             this.Close();
         }
 
@@ -115,6 +117,7 @@ namespace WFTP
             {
                 GetBreadcrumbBarPath(level);
                 this.Path = navBar.Path;
+                this.RealPath = _ftpPath;
             }
         }
         #endregion

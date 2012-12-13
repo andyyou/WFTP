@@ -225,8 +225,17 @@ namespace WFTP.Pages
             }
             else
             {
-                // Upload file to FTP server
+                // Add file to upload list
+                Switcher.progress._dataUploadFiles.Add(new FileProgressItem
+                {
+                    Name = System.IO.Path.GetFileName(localFilePath),
+                    Progress = 0,
+                    FileId = fileId
+                });
 
+                // Upload file to FTP server
+                Dictionary<string, string> fileInfo = new Dictionary<string, string>();
+                StartUpload(fileInfo);
             }
         }
 
@@ -371,6 +380,36 @@ namespace WFTP.Pages
                 }
             }
         }
+
+        public void StartUpload(Dictionary<string, string> fileInfo)
+        {
+            lvwDownloadList.Dispatcher.Invoke(System.Windows.Threading.DispatcherPriority.Background, (ThreadStart)delegate
+            {
+                BackgroundWorker bgworkerStartUpload = new BackgroundWorker();
+                bgworkerStartUpload.DoWork += bgworkerStartUpload_DoWorkHandler;
+                bgworkerStartUpload.RunWorkerCompleted += bgworkerStartUpload_RunWorkerCompleted;
+                bgworkerStartUpload.WorkerReportsProgress = true;
+                bgworkerStartUpload.ProgressChanged += (s, x) =>
+                {
+                    FileProgressItem item = _dataUploadFiles.Where(file => file.FileId == fileInfo["FileId"]).First();
+                    item.Progress = x.ProgressPercentage;
+                };
+
+                bgworkerStartUpload.RunWorkerAsync(fileInfo);
+            });
+        }
+
+        public void bgworkerStartUpload_DoWorkHandler(object sender, DoWorkEventArgs e)
+        {
+
+        }
+
+        private void bgworkerStartUpload_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+
+        }
+
+
 
         #endregion
     }
