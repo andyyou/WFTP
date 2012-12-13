@@ -146,15 +146,43 @@ namespace WFTP.Pages
             List<ProgressInfo> progressList = JsonConvert.DeserializeObject<List<ProgressInfo>>(
                 File.ReadAllText(GlobalHelper.ProgressList)).Select(c => (ProgressInfo)c).ToList();
 
-            var existFile = progressList.Where(o =>
-                o.Type == "Download"
-                && o.RemoteFilePath == remoteFilePath
-                && o.LocalFilePath == localFilePath).FirstOrDefault();
-            int indexOfFile = progressList.IndexOf(existFile);
+            //var existFile = progressList.Where(o =>
+            //    o.Type == "Download"
+            //    && o.RemoteFilePath == remoteFilePath
+            //    && o.LocalFilePath == localFilePath).FirstOrDefault();
+            //int indexOfFile = progressList.IndexOf(existFile);
 
-            if (indexOfFile != -1)
+            //if (indexOfFile != -1)
+            //{
+            //    progressList.RemoveAt(indexOfFile);
+            //}
+
+            // Check file is duplicated
+            string localFilename = "";
+            if (File.Exists(localFilePath) || File.Exists(localFilePath + ".wftp"))
             {
-                progressList.RemoveAt(indexOfFile);
+                int i = 1;
+                string filePathWithoutExt = String.Format(@"{0}\{1}",
+                    System.IO.Path.GetDirectoryName(localFilePath),
+                    System.IO.Path.GetFileNameWithoutExtension(localFilePath));
+                string filePathExt = System.IO.Path.GetExtension(localFilePath);
+
+                while (true)
+                {
+                    localFilePath = String.Format("{0} ({1}){2}",
+                        filePathWithoutExt,
+                        i,
+                        filePathExt);
+                    if (File.Exists(localFilePath) || File.Exists(localFilePath + ".wftp"))
+                    {
+                        i++;
+                        continue;
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
             }
 
             // Create new progress info
@@ -254,8 +282,9 @@ namespace WFTP.Pages
                 MessageBox.Show(ftp.LastErrorText);
                 return;
             }
-
+            
             string localFilename = String.Format(@"{0}\{1}",fileInfo["LocalFilePath"], fileInfo["LocalFileName"]);
+            localFilename += ".wftp";
             asyncResult["LocalFilePath"] = localFilename;
             string remoteFilename = fileInfo["RemoteFilePath"];
             long remoteFilesize = Convert.ToInt64(fileInfo["RemoteFileSize"]);
@@ -278,7 +307,6 @@ namespace WFTP.Pages
                 if (File.Exists(localFilename))
                 {
                     FileInfo localFile = new FileInfo(localFilename);
-                    //double percentage = ((double)ftp.AsyncBytesReceived64 / (double)remoteFilesize) * 100;
                     double percentage = ((double)localFile.Length / (double)remoteFilesize) * 100;
                     bgworkerUpdateProgress.ReportProgress((int)percentage);
                 }
@@ -286,21 +314,27 @@ namespace WFTP.Pages
                 // Sleep 0.5 second.
                 ftp.SleepMs(500);
             }
-            
+
+            bool downloadSuccess = false;
             // Did the download succeed?
             if (ftp.AsyncSuccess == true)
             {
+                downloadSuccess = true;
                 bgworkerUpdateProgress.ReportProgress(100);
                 asyncResult["IsCompleted"] = "true";
-                //MessageBox.Show("File Downloaded!");
             }
             else
             {
-                //MessageBox.Show("File Download Failed!");
+
             }
             
             ftp.Disconnect();
             ftp.Dispose();
+
+            if (downloadSuccess)
+            {
+                File.Move(localFilename, localFilename.Replace(".wftp", ""));
+            }
 
             e.Result = asyncResult;
         }

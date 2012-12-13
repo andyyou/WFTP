@@ -14,7 +14,6 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using MahApps.Metro.Controls;
 using WFTP.Pages;
-using WFTP.Lib;
 using System.IO;
 using System.ComponentModel;
 using System.Threading;

@@ -88,7 +88,6 @@
     <Compile Include="Helper\ApiHelper.cs" />
     <Compile Include="Helper\ExtensionHelper.cs" />
     <Compile Include="Helper\GlobalHelper.cs" />
-    <Compile Include="Lib\FTPClient.cs" />
     <Compile Include="Lib\PredicateBuilder.cs" />
     <Compile Include="Pages\BoolToVisibilityConverter.cs" />
     <Compile Include="Pages\NotifyProperty.cs" />

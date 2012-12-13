@@ -16,7 +16,6 @@ using MahApps.Metro.Controls;
 using System.Xml;
 using Odyssey.Controls;
 using WFTP.Helper;
-using WFTP.Lib;
 using System.Xml.XPath;
 using System.ComponentModel;
 using System.Data.Linq.SqlClient;
