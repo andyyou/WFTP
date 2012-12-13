@@ -23,6 +23,7 @@
                 <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/BaseLight.xaml" />
             </ResourceDictionary.MergedDictionaries>
             <l:BoolToVisibilityConverter x:Key="converter" />
+            <l:BoolToBigVisibilityConverter x:Key="bconverter" />
             <Style TargetType="ListView">
                 <Setter Property="Template">
                     <Setter.Value>
@@ -173,7 +174,33 @@
                                   Width="760"
                                   Height="390"
                                   Margin="0,10,0,0"
-                                  SelectionMode="Single" />
+                                  SelectionMode="Single">
+                            <ListView.ContextMenu>
+                                <ContextMenu
+                                     Width="{Binding Path=IsAdmin, 
+                                         Converter={StaticResource bconverter},
+                                         Mode=TwoWay, 
+                                         UpdateSourceTrigger=PropertyChanged}"
+                                    >
+                                    <MenuItem Header="新增" Click="rmenuAdd_Click">
+                                        <MenuItem.Icon>
+                                            <Image Source="/WFTP;component/Images/icon_plus.png" />
+                                        </MenuItem.Icon>
+                                    </MenuItem>
+                                    <MenuItem Header="刪除" Click="rmenuDelete_Click">
+                                        <MenuItem.Icon>
+                                            <Image Source="/WFTP;component/Images/icon_remove.png" />
+                                        </MenuItem.Icon>
+                                    </MenuItem>
+                                    <Separator />
+                                    <MenuItem Header="取消選擇" Click="rmenuCancelSelected_Click">
+                                        <MenuItem.Icon>
+                                            <Image Source="/WFTP;component/Images/icon_cancel.png" />
+                                        </MenuItem.Icon>
+                                    </MenuItem>
+                                </ContextMenu>
+                            </ListView.ContextMenu>
+                        </ListView>
                     </WrapPanel>
                 </DockPanel>
             </TabItem>

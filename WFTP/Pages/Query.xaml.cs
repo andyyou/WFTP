@@ -94,7 +94,37 @@ namespace WFTP.Pages
         {
             query.DataContext = GlobalHelper.AdminItem;
         }
+
+        // ContextMenu Events
+        private void rmenuAdd_Click(object sender, RoutedEventArgs e)
+        {
+            if (lvwClassify.SelectedItems.Count == 0)
+            {
+                MessageBox.Show(navBar.Path);
+            }
+            else if (_isTileView)
+            {
+                Tile item = lvwClassify.SelectedItem as Tile;
+                string result = String.Format("Tilte:{0} \n Tag:{1}", item.Title, item.Tag);
+                MessageBox.Show(result);
+            }
+            else if (!_isTileView)
+            {
+                FileInfo item = lvwClassify.SelectedItem as FileInfo;
+                string result = String.Format("Tilte:{0} \n Tag:{1}", item.FileName, item.FilePath);
+                MessageBox.Show(result);
+            }
+        }
+        private void rmenuDelete_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+        private void rmenuCancelSelected_Click(object sender, RoutedEventArgs e)
+        {
+            lvwClassify.UnselectAll();
+        }
         #endregion
+
         #region Query Events
 
         private void tile_Click(object sender, RoutedEventArgs e)

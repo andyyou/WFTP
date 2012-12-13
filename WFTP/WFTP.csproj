@@ -233,6 +233,9 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
+    <Resource Include="Images\icon_plus.png" />
+    <Resource Include="Images\icon_remove.png" />
+    <Resource Include="Images\icon_cancel.png" />
     <Content Include="Lib\Newtonsoft.Json.dll" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
