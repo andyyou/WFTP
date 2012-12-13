@@ -16,7 +16,6 @@ using MahApps.Metro.Controls;
 using System.Xml;
 using Odyssey.Controls;
 using WFTP.Helper;
-using WFTP.Lib;
 using System.Xml.XPath;
 using System.ComponentModel;
 using System.Data.Linq.SqlClient;
@@ -925,30 +924,35 @@ namespace WFTP.Pages
             // ID Path 會少一層用來寫入db用
             string[] ids = idPath.Split(new char[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
             int level = paths.Count();
+            ApiHelper api = new ApiHelper();
             switch (level)
             { 
                 case 1:
                     CLv1Classify.InsertOrUpdate(null, paths[0], folderName);
-                    // UNDONE: 尚未建立目錄
+                    api.CreateDirectory(path);
                     GetCatalog(1);
                     break;
                 case 2:
                     int classfyId = Convert.ToInt32(ids[0]);
                     CLv2Customer.InsertOrUpdate(null, paths[1], folderName, classfyId);
+                    api.CreateDirectory(path);
                     GetCatalog(2);
                     break;
                 case 3:
                     int companyId = Convert.ToInt32(ids[1]);
                     CLv3CustomerBranch.InsertOrUpdate(null, paths[2], folderName, companyId);
+                    api.CreateDirectory(path);
                     GetCatalog(3);
                     break;
                 case 4:
                     int branchId =  Convert.ToInt32(ids[2]);
                     CLv4Line.InsertOrUpdate(null, paths[3], folderName, branchId);
+                    api.CreateDirectory(path);
                     GetCatalog(4);
                     break;
                 case 5:
                     CFileCategory.InsertOrUpdate(null, paths[4], folderName);
+                    api.CreateDirectory(path);
                     GetCatalog(5);
                     break;
             };
@@ -1320,7 +1324,7 @@ namespace WFTP.Pages
                 // Save document 
                 fileName = dlg.FileName;
 
-                Switcher.main.UpdateProgressList("Download", filePath, dlg.FileName);
+                Switcher.progress.UpdateProgressList("Download", filePath, dlg.FileName);
                 
                 //MessageBox.Show(filePath + "\n" + fileName + "\n" + fileExt);
             }
