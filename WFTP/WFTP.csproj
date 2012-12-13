@@ -51,6 +51,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="ChilkatDotNet4, Version=9.3.2.0, Culture=neutral, PublicKeyToken=eb5fc1fc52ef09bd, processorArchitecture=x86" />
     <Reference Include="MahApps.Metro">
       <HintPath>..\packages\MahApps.Metro.0.10.0.0\lib\net40\MahApps.Metro.dll</HintPath>
     </Reference>
@@ -87,7 +88,6 @@
     <Compile Include="Helper\ApiHelper.cs" />
     <Compile Include="Helper\ExtensionHelper.cs" />
     <Compile Include="Helper\GlobalHelper.cs" />
-    <Compile Include="Lib\FTPClient.cs" />
     <Compile Include="Lib\PredicateBuilder.cs" />
     <Compile Include="Pages\BoolToVisibilityConverter.cs" />
     <Compile Include="Pages\NotifyProperty.cs" />
@@ -236,6 +236,7 @@
     <Resource Include="Images\icon_plus.png" />
     <Resource Include="Images\icon_remove.png" />
     <Resource Include="Images\icon_cancel.png" />
+    <Content Include="Lib\ChilkatDotNet4.dll" />
     <Content Include="Lib\Newtonsoft.Json.dll" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

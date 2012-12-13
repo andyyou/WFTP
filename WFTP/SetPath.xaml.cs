@@ -13,7 +13,6 @@ using System.Windows.Shapes;
 using System.Xml;
 using DataProvider;
 using System.Xml.XPath;
-using WFTP.Lib;
 using System.IO;
 using WFTP.Helper;
 
