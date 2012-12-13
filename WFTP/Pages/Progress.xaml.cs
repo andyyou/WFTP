@@ -158,7 +158,7 @@ namespace WFTP.Pages
             //}
 
             // Check file is duplicated
-            string localFilename = "";
+            
             if (File.Exists(localFilePath) || File.Exists(localFilePath + ".wftp"))
             {
                 int i = 1;

@@ -24,6 +24,8 @@ namespace WFTP.Helper
         public static string ApiDir = "http://192.168.100.177:2121/dir?p=";
         // Return file size if file exist
         public static string ApiGetSize = "http://192.168.100.177:2121/getsize?p=";
+        // Return true if mkdir success
+        public static string ApiMkdir = "http://192.168.100.177:2121/mkdir?p=";
 
         #endregion
 
