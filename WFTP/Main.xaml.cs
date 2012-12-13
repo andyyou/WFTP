@@ -21,6 +21,7 @@ using Newtonsoft.Json;
 using System.ComponentModel;
 using System.Threading;
 using System.Collections.ObjectModel;
+using WFTP.Helper;
 
 namespace WFTP
 {
@@ -121,8 +122,8 @@ namespace WFTP
             string fileId = "Download_" + Guid.NewGuid().ToString().Replace('-', '_');
 
             // Get remote file size
-            FTPClient client = new FTPClient();
-            long fileSize = client.GetFileSize(remoteFilePath);
+            ApiHelper ah = new ApiHelper();
+            long fileSize = ah.GetFileSize(remoteFilePath);
 
             // Read progress list
             List<ProgressInfo> progressList = JsonConvert.DeserializeObject<List<ProgressInfo>>(
@@ -226,7 +227,7 @@ namespace WFTP
             Dictionary<string, string> fileInfo = (Dictionary<string, string>)e.Argument;
 
             FTPClient client = new FTPClient();
-            client.Get(fileInfo["RemoteFilePath"], fileInfo["LocalFilePath"], fileInfo["LocalFileName"], true);
+            
         }
 
         private void bgworkerUpload_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
@@ -253,13 +254,6 @@ namespace WFTP
 
         public void Navigate(UserControl nextPage)
         {
-            if (nextPage is Pages.Query)
-            {
-                btnQuery.Visibility = Visibility.Visible;
-                btnManage.Visibility = Visibility.Visible;
-                btnUpload.Visibility = Visibility.Visible;
-                btnDownload.Visibility = Visibility.Visible;
-            }
             this.transitioning.Content = nextPage;
         }
 

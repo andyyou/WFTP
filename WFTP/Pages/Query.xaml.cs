@@ -20,8 +20,6 @@ using WFTP.Lib;
 using System.Xml.XPath;
 using System.ComponentModel;
 using System.Data.Linq.SqlClient;
-using System.Net;
-using System.IO;
 using System.Threading;
 using System.Windows.Threading;
 
@@ -37,12 +35,6 @@ namespace WFTP.Pages
         private List<string> _remoteFolders = new List<string>();
         private Dictionary<int, int> _catalogLevelId = new Dictionary<int, int>();
         private Dictionary<int, string> _catalogLevelName = new Dictionary<int, string>();
-        // Return thumbnail if image exist and format supported
-        private const string _apiThumb = "http://192.168.100.177:2121/thumb?p=";
-        // Return file size if file exist, otherwise return false
-        private const string _apiCheck = "http://192.168.100.177:2121/check?p=";
-        // Return files list if path exist
-        private const string _apiDir = "http://192.168.100.177:2121/dir?p=";
        
         private Dictionary<string, string> _searchConditions = new Dictionary<string,string>();
         private bool _isTileView = true;
@@ -173,7 +165,15 @@ namespace WFTP.Pages
                     _ftpPath = String.Format("{0}{1}/", _ftpPath, _catalogLevelName[i]);
                 }
             }
-            GetCatalog(level);
+            new Thread(() =>
+            {
+                Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Normal,
+                 new Action(() =>
+                 {
+                     GetCatalog(level);
+                 }));
+            }).Start();
+            //GetCatalog(level);
             lvwClassify.Tag = level;
 
             // Lazy loading for BreadcrumbBar
@@ -185,12 +185,28 @@ namespace WFTP.Pages
         private void btnTileView_Click(object sender, RoutedEventArgs e)
         {
             _isTileView = true;
-            GetCatalog(Convert.ToInt32(lvwClassify.Tag));
+            new Thread(() =>
+            {
+                Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Normal,
+                 new Action(() =>
+                 {
+                     GetCatalog(Convert.ToInt32(lvwClassify.Tag));
+                 }));
+            }).Start();
+            //GetCatalog(Convert.ToInt32(lvwClassify.Tag));
         }
         private void btnListView_Click(object sender, RoutedEventArgs e)
         {
             _isTileView = false;
-            GetCatalog(Convert.ToInt32(lvwClassify.Tag));
+            new Thread(() =>
+            {
+                Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Normal,
+                 new Action(() =>
+                 {
+                     GetCatalog(Convert.ToInt32(lvwClassify.Tag));
+                 }));
+            }).Start();
+            //GetCatalog(Convert.ToInt32(lvwClassify.Tag));
         }
 
         #endregion
@@ -550,7 +566,8 @@ namespace WFTP.Pages
                     break;
             }
 
-            List<string> remoteFolderFullPathList = GetFtpCatalog().ToList();
+            ApiHelper ah = new ApiHelper();
+            List<string> remoteFolderFullPathList = ah.Dir(_ftpPath).ToList();
             Dictionary<string, string> remoteFileList = new Dictionary<string, string>();
             foreach (var item in remoteFolderFullPathList)
             {
@@ -608,13 +625,7 @@ namespace WFTP.Pages
                             else
                             {
                                 isImageFile = true;
-                                //string tmpFolder = System.IO.Path.GetTempPath();
-                                //string localFileName = string.Format("WFTP-{0}", classifyItem.Name);
-
-                                //FTPClient client = new FTPClient();
-                                //client.Get(remoteFileList[classifyItem.Name], tmpFolder, localFileName, false);
-                                //bitmap.UriSource = new Uri(String.Format(@"{0}\{1}", tmpFolder, localFileName));
-                                bitmap.UriSource = new Uri(String.Format(@"{0}{1}", _apiThumb,remoteFileList[classifyItem.Name]));
+                                bitmap.UriSource = new Uri(String.Format(@"{0}{1}", GlobalHelper.ApiThumb, remoteFileList[classifyItem.Name]));
                             }
                         }
                         bitmap.EndInit();
@@ -999,20 +1010,18 @@ namespace WFTP.Pages
              // For list mode datasource
              System.Collections.ObjectModel.ObservableCollection<FileInfo> fileCollection =
                  new System.Collections.ObjectModel.ObservableCollection<FileInfo>();
-           
+
+             ApiHelper ah = new ApiHelper();
             foreach (var file in files)
             {
                 if (_isAdvanceTileView)
                 {
                     bool isImageFile = false;
                     lvwAdvanceClassify.View = lvwAdvanceClassify.FindResource("TileView") as ViewBase;
-                    /// Using path column
-                    // string path = file.FullPath;
-                    // List<string> remoteFileFullPathList = GetFtpCatalog(path).ToList();
 
-                    /// Using store procedure to get full path.
+                    // Using store procedure to get full path.
                     string path = DBHelper.GenerateFileFullPath(file.Id);
-                    if (CheckFtpFile(path))
+                    if (ah.CheckPath(path))
                     {
                         BitmapImage bitmap = new BitmapImage();
                         bitmap.BeginInit();
@@ -1030,12 +1039,7 @@ namespace WFTP.Pages
                         else
                         {
                             isImageFile = true;
-                            //string tmpFolder = System.IO.Path.GetTempPath();
-                            //string localFileName = string.Format("WFTP-{0}", file.Name);
-
-                            //FTPClient client = new FTPClient();
-                            //client.Get(path, tmpFolder, localFileName, false);
-                            bitmap.UriSource = new Uri(String.Format(@"{0}{1}", _apiThumb, path));
+                            bitmap.UriSource = new Uri(String.Format(@"{0}{1}", GlobalHelper.ApiThumb, path));
                         }
 
                         bitmap.EndInit();
@@ -1077,7 +1081,7 @@ namespace WFTP.Pages
                 {
                     lvwAdvanceClassify.View = lvwAdvanceClassify.FindResource("AdvanceListView") as ViewBase;
                      string path = DBHelper.GenerateFileFullPath(file.Id);
-                     if (CheckFtpFile(path))
+                     if (ah.CheckPath(path))
                      {
                          fileCollection.Add(new FileInfo
                          {
@@ -1105,59 +1109,6 @@ namespace WFTP.Pages
            
         }
 
-        // FTP:取得 FTP 資料夾清單
-        private string[] GetFtpCatalog()
-        {
-            HttpWebRequest req = (HttpWebRequest)HttpWebRequest.Create(String.Format("{0}{1}", _apiDir, _ftpPath));
-            req.Method = "GET";
-            using (WebResponse wr = req.GetResponse())
-            {
-                Stream responseStream = wr.GetResponseStream();
-                StreamReader reader = new StreamReader(responseStream, Encoding.GetEncoding("utf-8"));
-
-                return reader.ReadToEnd().Split(',');
-            }
-            //FTPClient client = new FTPClient();
-
-            //return client.Dir(_ftpPath);
-        }
-        // FTP:取得 FTP 資料夾清單
-        private string[] GetFtpCatalog(string path)
-        {
-            FTPClient client = new FTPClient();
-
-            return client.Dir(path);
-        }
-        // FTP:確認檔案是否存在
-        private bool CheckFtpFile(string path)
-        {
-            HttpWebRequest req = (HttpWebRequest)HttpWebRequest.Create(String.Format("{0}{1}", _apiCheck, path));
-            req.Method = "GET";
-            using (WebResponse wr = req.GetResponse())
-            {
-                Stream responseStream = wr.GetResponseStream();
-                StreamReader reader = new StreamReader(responseStream, Encoding.GetEncoding("utf-8"));
-
-                if (reader.ReadToEnd().Equals("false"))
-                {
-                    return false;
-                }
-                else
-                {
-                    return true;
-                }
-            }
-            //FTPClient client = new FTPClient();
-            //string[] tmp = client.Dir(path);
-            //if (tmp.Count() > 0)
-            //{
-            //    return true;
-            //}
-            //else
-            //{
-            //    return false;
-            //}
-        }
         // Query:取得階層名稱及 Id
         private void GetCatalogInfo(int level, string condition)
         {
