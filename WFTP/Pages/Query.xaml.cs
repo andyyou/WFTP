@@ -16,7 +16,6 @@ using MahApps.Metro.Controls;
 using System.Xml;
 using Odyssey.Controls;
 using WFTP.Helper;
-using WFTP.Lib;
 using System.Xml.XPath;
 using System.ComponentModel;
 using System.Data.Linq.SqlClient;
@@ -1232,7 +1231,7 @@ namespace WFTP.Pages
                 // Save document 
                 fileName = dlg.FileName;
 
-                Switcher.main.UpdateProgressList("Download", filePath, dlg.FileName);
+                Switcher.progress.UpdateProgressList("Download", filePath, dlg.FileName);
                 
                 //MessageBox.Show(filePath + "\n" + fileName + "\n" + fileExt);
             }

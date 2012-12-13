@@ -58,5 +58,27 @@ namespace WFTP.Helper
                 }
             }
         }
+
+        public bool CreateDirectory(string path)
+        {
+            HttpWebRequest req = (HttpWebRequest)HttpWebRequest.Create(String.Format("{0}{1}", GlobalHelper.ApiMkdir, path));
+            req.Method = "GET";
+            using (WebResponse wr = req.GetResponse())
+            {
+                Stream responseStream = wr.GetResponseStream();
+                StreamReader reader = new StreamReader(responseStream, encoding);
+
+                string result = reader.ReadToEnd();
+
+                if (result.Equals("true"))
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+        }
     }
 }

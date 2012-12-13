@@ -32,29 +32,32 @@
                 Margin="649,11,79,500"
                 Content="{StaticResource appbar_upload}" 
                 Style="{DynamicResource MetroCircleButtonStyle}" 
-                FontFamily="Microsoft JhengHei"  
-                />
+                FontFamily="Microsoft JhengHei"
+                Click="btnUpload_Click" />
         <Button Name="btnSettingFolder"
                 Width="50" 
                 Height="50"
                 Margin="593,11,135,500"
                 Content="{StaticResource appbar_folder_open}" 
                 Style="{DynamicResource MetroCircleButtonStyle}" 
-                FontFamily="Microsoft JhengHei" Click="btnSettingFolder_Click" />
+                FontFamily="Microsoft JhengHei"
+                Click="btnSettingFolder_Click" />
         <Button Name="btnUp"
                 Width="50" 
                 Height="50"
                 Margin="649,275,79,236"
                 Content="{StaticResource appbar_arrow_up}" 
                 Style="{DynamicResource MetroCircleButtonStyle}" 
-                FontFamily="Microsoft JhengHei" Click="btnUp_Click" />
+                FontFamily="Microsoft JhengHei"
+                Click="btnUp_Click" />
         <Button Name="btnDown"
                 Width="50" 
                 Height="50"
                 Margin="593,275,135,236"
                 Content="{StaticResource appbar_arrow_down}" 
                 Style="{DynamicResource MetroCircleButtonStyle}" 
-                FontFamily="Microsoft JhengHei" Click="btnDown_Click" />
+                FontFamily="Microsoft JhengHei"
+                Click="btnDown_Click" />
 
         <!--上傳列表-->
         <ListView Name="lvwToUplpad"

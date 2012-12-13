@@ -12,7 +12,6 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Collections.ObjectModel;
-using WFTP.Lib;
 using System.IO;
 using System.ComponentModel;
 using System.Runtime.InteropServices;
@@ -53,6 +52,15 @@ namespace WFTP.Pages
 
         private void btnSettingFolder_Click(object sender, RoutedEventArgs e)
         {
+            if (_dataTo.Count > 0)
+            {
+                MessageBoxResult confirm = MessageBox.Show("尚有資料未上傳，您確定要切換資料夾嗎？", "確認", MessageBoxButton.OKCancel, MessageBoxImage.Question);
+                if (confirm != MessageBoxResult.OK)
+                {
+                    return;
+                }
+            }
+
             lbPath.Width = 500;
             var dialog = new System.Windows.Forms.FolderBrowserDialog();
             System.Windows.Forms.DialogResult result = dialog.ShowDialog();
@@ -60,11 +68,12 @@ namespace WFTP.Pages
             {
                 lbPath.Content = dialog.SelectedPath.ToString();
                 lbPath.ToolTip = dialog.SelectedPath.ToString();
+                _dataTo.Clear();
             }
 
             DirectoryInfo dirInfo = new DirectoryInfo(lbPath.Content.ToString());
             FileInfo[] files = dirInfo.GetFiles("*");
-            
+
             foreach (FileInfo file in files)
             {
                 _dataTmp.Add(file);
@@ -115,6 +124,11 @@ namespace WFTP.Pages
             {
                 _dataTo.Remove(f);
             }
+        }
+
+        private void btnUpload_Click(object sender, RoutedEventArgs e)
+        {
+
         }
 
         private void lvwToUplpad_PreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
