@@ -68,6 +68,7 @@ namespace WFTP.Pages
                     GlobalHelper.AdminItem = new AdminItem();
                     GlobalHelper.AdminItem.IsAdmin = (rank <= 2) ? true : false;
                     GlobalHelper.AdminItem.Rank = rank;
+                    GlobalHelper.LoginUserID = account;
 
                     Switcher.Switch(Switcher.query);
                     Switcher.main.btnQuery.Visibility = Visibility.Visible;

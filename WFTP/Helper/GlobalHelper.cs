@@ -11,6 +11,7 @@ namespace WFTP.Helper
     {
         // The property is for binding use.
         public static AdminItem AdminItem { set; get; }
+        public static string LoginUserID { set; get; }
 
         #region API Path
 
