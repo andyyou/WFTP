@@ -930,6 +930,7 @@ namespace WFTP.Pages
                 case 1:
                     CLv1Classify.InsertOrUpdate(null, paths[0], folderName);
                     api.CreateDirectory(path);
+                    GetBreadcrumbBarPath();
                     GetCatalog(1);
                     break;
                 case 2:
