@@ -39,6 +39,7 @@ namespace WFTP.Pages
         private bool _isTileView = true;
         private bool _isAdvanceTileView = true;
         private string _ftpPath = "/";
+        private string _idPath = "/";
         private XmlDocument _xdoc;
         // For Advance Query
         private BindingList<CompanyItem> _dataCompanys = new BindingList<CompanyItem>();
@@ -95,24 +96,46 @@ namespace WFTP.Pages
         }
 
         // ContextMenu Events
+        // Query
         private void rmenuAdd_Click(object sender, RoutedEventArgs e)
         {
-            if (lvwClassify.SelectedItems.Count == 0)
+            // 在本層新增
+            if (lvwClassify.SelectedItems.Count == 0 || Convert.ToInt32(lvwClassify.Tag) == 5) 
             {
-                MessageBox.Show(navBar.Path);
+                StringBuilder pathServer = new StringBuilder();
+                StringBuilder pathId = new StringBuilder();
+                pathServer.Append(_ftpPath);
+                pathId.Append(_idPath);
+                // ShowDialog
+                Create getinput = new Create(400, 200, pathServer.ToString());
+                getinput.ShowDialog();
+                string newFileName = getinput.SystemName;
+                string newNickName = getinput.NickName;
+                pathServer.Append(newFileName);
+                // 產生目錄寫入db
+                CreateFolder(pathServer.ToString(), pathId.ToString(), newNickName);
             }
-            else if (_isTileView)
+            // 在下一層新增
+            else if (_isTileView) 
             {
+                StringBuilder pathServer = new StringBuilder();
+                StringBuilder pathId = new StringBuilder();
+                pathServer.Append(_ftpPath);
+                pathId.Append(_idPath);
                 Tile item = lvwClassify.SelectedItem as Tile;
-                string result = String.Format("Tilte:{0} \n Tag:{1}", item.Title, item.Tag);
-                MessageBox.Show(result);
+                Dictionary<string, string> tag = item.Tag as Dictionary<string, string>;
+                pathServer.Append(tag["Name"]);
+                pathId.Append(tag["Id"]);
+                Create getInput = new Create(400, 200, pathServer.ToString());
+                getInput.ShowDialog();
+                string newFileName = "/" + getInput.SystemName;
+                string newNickName = getInput.NickName;
+                pathServer.Append(newFileName);
+               
+                // 產生目錄寫入db
+                CreateFolder(pathServer.ToString(), pathId.ToString(), newNickName);
             }
-            else if (!_isTileView)
-            {
-                FileInfo item = lvwClassify.SelectedItem as FileInfo;
-                string result = String.Format("Tilte:{0} \n Tag:{1}", item.FileName, item.FilePath);
-                MessageBox.Show(result);
-            }
+           
         }
         private void rmenuDelete_Click(object sender, RoutedEventArgs e)
         {
@@ -122,6 +145,8 @@ namespace WFTP.Pages
         {
             lvwClassify.UnselectAll();
         }
+     
+        
         #endregion
 
         #region Query Events
@@ -184,6 +209,7 @@ namespace WFTP.Pages
             int level = pathList.Count();
 
             _ftpPath = "/";
+            _idPath = "/";
             if (!displayPath.Equals("分類"))
             {
                 GetCatalogInfo(level, pathList.Last());
@@ -192,6 +218,7 @@ namespace WFTP.Pages
                 for (int i = 2; i <= level; i++)
                 {
                     _ftpPath = String.Format("{0}{1}/", _ftpPath, _catalogLevelName[i]);
+                    _idPath = String.Format("{0}{1}/", _idPath, _catalogLevelId[i-1]);
                 }
             }
             new Thread(() =>
@@ -564,11 +591,14 @@ namespace WFTP.Pages
                 // display mode switch btn 
                 btnListView.Visibility = Visibility.Visible;
                 btnTileView.Visibility = Visibility.Visible;
+                // disable add of right click menu
+                rmiAdd.Visibility = System.Windows.Visibility.Collapsed;
             }
             else
             {
                 btnListView.Visibility = Visibility.Hidden;
                 btnTileView.Visibility = Visibility.Hidden;
+                rmiAdd.Visibility = System.Windows.Visibility.Visible;
             }
 
             dynamic classify = null;
@@ -885,6 +915,69 @@ namespace WFTP.Pages
                            };
 
             return fileList;
+        }
+        // UNDONE : Create Folder by path
+        // Query of Manage: 建立目錄
+        private bool CreateFolder(string path, string idPath, string folderName)
+        {
+            string[] paths = path.Split(new char[] {'/'},StringSplitOptions.RemoveEmptyEntries);
+            // ID Path 會少一層用來寫入db用
+            string[] ids = idPath.Split(new char[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
+            int level = paths.Count();
+            ApiHelper api = new ApiHelper();
+            switch (level)
+            { 
+                case 1:
+                    CLv1Classify.InsertOrUpdate(null, paths[0], folderName);
+                    api.CreateDirectory(path);
+                    GetCatalog(1);
+                    break;
+                case 2:
+                    int classfyId = Convert.ToInt32(ids[0]);
+                    CLv2Customer.InsertOrUpdate(null, paths[1], folderName, classfyId);
+                    api.CreateDirectory(path);
+                    GetCatalog(2);
+                    break;
+                case 3:
+                    int companyId = Convert.ToInt32(ids[1]);
+                    CLv3CustomerBranch.InsertOrUpdate(null, paths[2], folderName, companyId);
+                    api.CreateDirectory(path);
+                    GetCatalog(3);
+                    break;
+                case 4:
+                    int branchId =  Convert.ToInt32(ids[2]);
+                    CLv4Line.InsertOrUpdate(null, paths[3], folderName, branchId);
+                    api.CreateDirectory(path);
+                    GetCatalog(4);
+                    break;
+                case 5:
+                    CFileCategory.InsertOrUpdate(null, paths[4], folderName);
+                    api.CreateDirectory(path);
+                    GetCatalog(5);
+                    break;
+            };
+            return true;
+        }
+        // UNDONE : Delete Folder or Files by path
+        // Query of Manage: 刪除目錄或檔案
+        private bool DeleteFolderOrFile(string path)
+        {
+            string[] paths = path.Split(new char[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
+            int level = paths.Count();
+            switch (level)
+            {
+                case 1:
+                    break;
+                case 2:
+                    break;
+                case 3:
+                    break;
+                case 4:
+                    break;
+                case 5:
+                    break;
+            };
+            return true;
         }
         // Advance:從資料庫取得檔案分類名稱(階層 1) 
         private dynamic GetOnlyFileCatalog()
@@ -1374,6 +1467,8 @@ namespace WFTP.Pages
         }
 
         #endregion
+
+      
 
        
         

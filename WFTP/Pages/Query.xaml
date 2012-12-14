@@ -182,18 +182,23 @@
                                          Mode=TwoWay, 
                                          UpdateSourceTrigger=PropertyChanged}"
                                     >
-                                    <MenuItem Header="新增" Click="rmenuAdd_Click">
+                                    <MenuItem Header="新增" Click="rmenuAdd_Click" Name="rmiAdd">
                                         <MenuItem.Icon>
                                             <Image Source="/WFTP;component/Images/icon_plus.png" />
                                         </MenuItem.Icon>
                                     </MenuItem>
-                                    <MenuItem Header="刪除" Click="rmenuDelete_Click">
+                                    <MenuItem Header="編輯" Click="rmenuAdd_Click" Name="rmiEdit">
+                                        <MenuItem.Icon>
+                                            <Image Source="/WFTP;component/Images/icon_edit.gif" />
+                                        </MenuItem.Icon>
+                                    </MenuItem>
+                                    <MenuItem Header="刪除" Click="rmenuDelete_Click" Name="rmiDelete">
                                         <MenuItem.Icon>
                                             <Image Source="/WFTP;component/Images/icon_remove.png" />
                                         </MenuItem.Icon>
                                     </MenuItem>
                                     <Separator />
-                                    <MenuItem Header="取消選擇" Click="rmenuCancelSelected_Click">
+                                    <MenuItem Header="取消選擇" Click="rmenuCancelSelected_Click" Name="rmiCancel">
                                         <MenuItem.Icon>
                                             <Image Source="/WFTP;component/Images/icon_cancel.png" />
                                         </MenuItem.Icon>
