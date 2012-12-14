@@ -647,8 +647,8 @@ namespace WFTP.Pages
                     break;
             }
 
-            ApiHelper ah = new ApiHelper();
-            List<string> remoteFolderFullPathList = ah.Dir(_ftpPath).ToList();
+            ApiHelper api = new ApiHelper();
+            List<string> remoteFolderFullPathList = api.Dir(_ftpPath).ToList();
             Dictionary<string, string> remoteFileList = new Dictionary<string, string>();
             foreach (var item in remoteFolderFullPathList)
             {
@@ -706,7 +706,7 @@ namespace WFTP.Pages
                             else
                             {
                                 isImageFile = true;
-                                bitmap.UriSource = new Uri(String.Format(@"{0}{1}", GlobalHelper.ApiThumb, remoteFileList[classifyItem.Name]));
+                                bitmap.UriSource = new Uri(String.Format(GlobalHelper.ApiThumb, remoteFileList[classifyItem.Name]));
                             }
                         }
                         bitmap.EndInit();
@@ -946,36 +946,38 @@ namespace WFTP.Pages
             // ID Path 會少一層用來寫入db用
             string[] ids = idPath.Split(new char[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
             int level = paths.Count();
+            int stayLevel = ids.Count();
             ApiHelper api = new ApiHelper();
             switch (level)
             { 
                 case 1:
                     CLv1Classify.InsertOrUpdate(null, paths[0], folderName);
                     api.CreateDirectory(path);
-                    GetCatalog(1);
+                    GetBreadcrumbBarPath();
+                    GetCatalog(stayLevel);
                     break;
                 case 2:
                     int classfyId = Convert.ToInt32(ids[0]);
                     CLv2Customer.InsertOrUpdate(null, paths[1], folderName, classfyId);
                     api.CreateDirectory(path);
-                    GetCatalog(2);
+                    GetCatalog(stayLevel);
                     break;
                 case 3:
                     int companyId = Convert.ToInt32(ids[1]);
                     CLv3CustomerBranch.InsertOrUpdate(null, paths[2], folderName, companyId);
                     api.CreateDirectory(path);
-                    GetCatalog(3);
+                    GetCatalog(stayLevel);
                     break;
                 case 4:
                     int branchId =  Convert.ToInt32(ids[2]);
                     CLv4Line.InsertOrUpdate(null, paths[3], folderName, branchId);
                     api.CreateDirectory(path);
-                    GetCatalog(4);
+                    GetCatalog(stayLevel);
                     break;
                 case 5:
                     CFileCategory.InsertOrUpdate(null, paths[4], folderName);
                     api.CreateDirectory(path);
-                    GetCatalog(5);
+                    GetCatalog(stayLevel);
                     break;
             };
             return true;
@@ -1155,7 +1157,7 @@ namespace WFTP.Pages
              System.Collections.ObjectModel.ObservableCollection<FileInfo> fileCollection =
                  new System.Collections.ObjectModel.ObservableCollection<FileInfo>();
 
-             ApiHelper ah = new ApiHelper();
+             ApiHelper api = new ApiHelper();
             foreach (var file in files)
             {
                 if (_isAdvanceTileView)
@@ -1165,7 +1167,7 @@ namespace WFTP.Pages
 
                     // Using store procedure to get full path.
                     string path = DBHelper.GenerateFileFullPath(file.Id);
-                    if (ah.CheckPath(path))
+                    if (api.CheckPath(path))
                     {
                         BitmapImage bitmap = new BitmapImage();
                         bitmap.BeginInit();
@@ -1183,7 +1185,7 @@ namespace WFTP.Pages
                         else
                         {
                             isImageFile = true;
-                            bitmap.UriSource = new Uri(String.Format(@"{0}{1}", GlobalHelper.ApiThumb, path));
+                            bitmap.UriSource = new Uri(String.Format(GlobalHelper.ApiThumb, path));
                         }
 
                         bitmap.EndInit();
@@ -1225,7 +1227,7 @@ namespace WFTP.Pages
                 {
                     lvwAdvanceClassify.View = lvwAdvanceClassify.FindResource("AdvanceListView") as ViewBase;
                      string path = DBHelper.GenerateFileFullPath(file.Id);
-                     if (ah.CheckPath(path))
+                     if (api.CheckPath(path))
                      {
                          fileCollection.Add(new FileInfo
                          {
