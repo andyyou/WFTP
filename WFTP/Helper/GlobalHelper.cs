@@ -17,16 +17,24 @@ namespace WFTP.Helper
 
         #region API Path
 
+        // API Key, prevent unauthorized connection
+        private static string ApiKey = "15eb7a42cce1ab9822caa1f8aaa65a494d38d19654886e67c0a6b15edcdcfde7";
         // Return thumbnail if image exist and format supported
-        public static string ApiThumb = "http://192.168.100.177:2121/thumb?p=";
+        public static string ApiThumb = String.Format("http://192.168.100.177:2121/thumb?key={0}&p={1}", ApiKey, "{0}");
         // Return true if file exist, otherwise return false
-        public static string ApiCheck = "http://192.168.100.177:2121/check?p=";
+        public static string ApiCheck = String.Format("http://192.168.100.177:2121/check?key={0}&p={1}", ApiKey, "{0}");
         // Return files list if path exist
-        public static string ApiDir = "http://192.168.100.177:2121/dir?p=";
+        public static string ApiDir = String.Format("http://192.168.100.177:2121/dir?key={0}&p={1}", ApiKey, "{0}");
         // Return file size if file exist
-        public static string ApiGetSize = "http://192.168.100.177:2121/getsize?p=";
+        public static string ApiGetSize = String.Format("http://192.168.100.177:2121/getsize?key={0}&p={1}", ApiKey, "{0}");
         // Return true if mkdir success
-        public static string ApiMkdir = "http://192.168.100.177:2121/mkdir?p=";
+        public static string ApiMkdir = String.Format("http://192.168.100.177:2121/mkdir?key={0}&p={1}", ApiKey, "{0}");
+        // Return true if rmdir success(the file will be move to Trash folder)
+        public static string ApiRmdir = String.Format("http://192.168.100.177:2121/rmdir?key={0}&p={1}", ApiKey, "{0}");
+        // Return true if rename success(if new file already exist, return false)
+        public static string ApiRename = String.Format("http://192.168.100.177:2121/rename?key={0}&p={1}&np={2}", ApiKey, "{0}", "{1}");
+        // Return true if delete file success(the file will be delete permanently)
+        public static string ApiDeleteFile = String.Format("http://192.168.100.177:2121/deletefile?key={0}&p={1}", ApiKey, "{0}");
 
         #endregion
 

@@ -10,6 +10,7 @@ namespace WFTP.Pages
     public class FileItem : INotifyPropertyChanged
     {
         private string _target_path;
+        private string _target_real_path;
         private bool _is_replace;
         public FileInfo File { set; get; }
 
@@ -23,6 +24,18 @@ namespace WFTP.Pages
             {
                 _target_path = value;
                 RaisePropertyChanged("TargetPath");
+            }
+        }
+        public string TargetRealPath
+        {
+            get
+            {
+                return _target_real_path;
+            }
+            set
+            {
+                _target_real_path = value;
+                RaisePropertyChanged("TargetRealPath");
             }
         }
         public bool IsReplace
