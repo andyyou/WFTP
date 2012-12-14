@@ -17,15 +17,20 @@ namespace WFTP.Helper
         #region API Path
 
         // Return thumbnail if image exist and format supported
-        public static string ApiThumb = "http://192.168.100.177:2121/thumb?p=";
+        public static string ApiThumb = "http://192.168.100.177:2121/thumb?p={0}";
         // Return true if file exist, otherwise return false
-        public static string ApiCheck = "http://192.168.100.177:2121/check?p=";
+        public static string ApiCheck = "http://192.168.100.177:2121/check?p={0}";
         // Return files list if path exist
-        public static string ApiDir = "http://192.168.100.177:2121/dir?p=";
+        public static string ApiDir = "http://192.168.100.177:2121/dir?p={0}";
         // Return file size if file exist
-        public static string ApiGetSize = "http://192.168.100.177:2121/getsize?p=";
+        public static string ApiGetSize = "http://192.168.100.177:2121/getsize?p={0}";
         // Return true if mkdir success
-        public static string ApiMkdir = "http://192.168.100.177:2121/mkdir?p=";
+        public static string ApiMkdir = "http://192.168.100.177:2121/mkdir?p={0}";
+        // Return true if rmdir success(the file will be move to Trash folder)
+        public static string ApiRmdir = "http://192.168.100.177:2121/rmdir?p={0}";
+        // Return true if rename success(if new file already exist, return false)
+        public static string ApiRename = "http://192.168.100.177:2121/rename?p={0}&np={1}";
+
 
         #endregion
 

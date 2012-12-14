@@ -654,7 +654,7 @@ namespace WFTP.Pages
                             else
                             {
                                 isImageFile = true;
-                                bitmap.UriSource = new Uri(String.Format(@"{0}{1}", GlobalHelper.ApiThumb, remoteFileList[classifyItem.Name]));
+                                bitmap.UriSource = new Uri(String.Format(GlobalHelper.ApiThumb, remoteFileList[classifyItem.Name]));
                             }
                         }
                         bitmap.EndInit();
@@ -1068,7 +1068,7 @@ namespace WFTP.Pages
                         else
                         {
                             isImageFile = true;
-                            bitmap.UriSource = new Uri(String.Format(@"{0}{1}", GlobalHelper.ApiThumb, path));
+                            bitmap.UriSource = new Uri(String.Format(GlobalHelper.ApiThumb, path));
                         }
 
                         bitmap.EndInit();
