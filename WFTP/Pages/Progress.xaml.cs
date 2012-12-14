@@ -74,11 +74,19 @@ namespace WFTP.Pages
             }
         }
 
-        private void lstCancel_Click(object sender, RoutedEventArgs e)
+        private void lstCancelDownload_Click(object sender, RoutedEventArgs e)
         {
             Button btn = (Button)sender;
             _cancelList.Add(btn.Tag.ToString());
             btn.IsEnabled = false;
+        }
+
+        private void lstCancelUpload_Click(object sender, RoutedEventArgs e)
+        {
+            //Button btn = (Button)sender;
+            //_cancelList.Add(btn.Tag.ToString());
+            //btn.IsEnabled = false;
+            MessageBox.Show("Download Cancelled!!");
         }
 
         #endregion
@@ -136,11 +144,20 @@ namespace WFTP.Pages
         public void UpdateProgressList(string type, string remoteFilePath, string localFilePath)
         {
             // Create fileId
-            string fileId = "Download_" + Guid.NewGuid().ToString().Replace('-', '_');
+            string fileId = String.Format("{0}_{1}",
+                type, Guid.NewGuid().ToString().Replace('-', '_'));
 
             // Get remote file size
-            ApiHelper ah = new ApiHelper();
-            long fileSize = ah.GetFileSize(remoteFilePath);
+            ApiHelper api = new ApiHelper();
+            long fileSize = 0;
+            if (type.Equals("Download"))
+            {
+                fileSize = api.GetFileSize(remoteFilePath);
+            }
+            else
+            {
+                fileSize = new FileInfo(localFilePath).Length;
+            }
 
             // Read progress list
             List<ProgressInfo> progressList = JsonConvert.DeserializeObject<List<ProgressInfo>>(
@@ -158,29 +175,31 @@ namespace WFTP.Pages
             //}
 
             // Check file is duplicated
-            
-            if (File.Exists(localFilePath) || File.Exists(localFilePath + ".wftp"))
+            if (type.Equals("Download"))
             {
-                int i = 1;
-                string filePathWithoutExt = String.Format(@"{0}\{1}",
-                    System.IO.Path.GetDirectoryName(localFilePath),
-                    System.IO.Path.GetFileNameWithoutExtension(localFilePath));
-                string filePathExt = System.IO.Path.GetExtension(localFilePath);
-
-                while (true)
+                if (File.Exists(localFilePath) || File.Exists(localFilePath + ".wftp"))
                 {
-                    localFilePath = String.Format("{0} ({1}){2}",
-                        filePathWithoutExt,
-                        i,
-                        filePathExt);
-                    if (File.Exists(localFilePath) || File.Exists(localFilePath + ".wftp"))
+                    int i = 1;
+                    string filePathWithoutExt = String.Format(@"{0}\{1}",
+                        System.IO.Path.GetDirectoryName(localFilePath),
+                        System.IO.Path.GetFileNameWithoutExtension(localFilePath));
+                    string filePathExt = System.IO.Path.GetExtension(localFilePath);
+
+                    while (true)
                     {
-                        i++;
-                        continue;
-                    }
-                    else
-                    {
-                        break;
+                        localFilePath = String.Format("{0} ({1}){2}",
+                            filePathWithoutExt,
+                            i,
+                            filePathExt);
+                        if (File.Exists(localFilePath) || File.Exists(localFilePath + ".wftp"))
+                        {
+                            i++;
+                            continue;
+                        }
+                        else
+                        {
+                            break;
+                        }
                     }
                 }
             }
@@ -235,6 +254,12 @@ namespace WFTP.Pages
 
                 // Upload file to FTP server
                 Dictionary<string, string> fileInfo = new Dictionary<string, string>();
+                fileInfo.Add("FileId", fileId);
+                fileInfo.Add("RemoteFilePath", remoteFilePath);
+                fileInfo.Add("LocalFilePath", localFilePath);
+                //fileInfo.Add("LocalFileName", System.IO.Path.GetFileName(localFilePath));
+                fileInfo.Add("LocalFileSize", Convert.ToString(fileSize));
+
                 StartUpload(fileInfo);
             }
         }
@@ -259,7 +284,7 @@ namespace WFTP.Pages
 
         public void bgworkerStartDownload_DoWorkHandler(object sender, DoWorkEventArgs e)
         {
-            BackgroundWorker bgworkerUpdateProgress = sender as BackgroundWorker;
+            BackgroundWorker bgworkerStartDownload = sender as BackgroundWorker;
             Dictionary<string, string> fileInfo = (Dictionary<string, string>)e.Argument;
             Dictionary<string, string> asyncResult = new Dictionary<string, string>();
             asyncResult.Add("IsCompleted", "false");
@@ -317,7 +342,7 @@ namespace WFTP.Pages
                 {
                     FileInfo localFile = new FileInfo(localFilename);
                     double percentage = ((double)localFile.Length / (double)remoteFilesize) * 100;
-                    bgworkerUpdateProgress.ReportProgress((int)percentage);
+                    bgworkerStartDownload.ReportProgress((int)percentage);
                 }
 
                 // Sleep 0.5 second.
@@ -329,7 +354,7 @@ namespace WFTP.Pages
             if (ftp.AsyncSuccess == true)
             {
                 downloadSuccess = true;
-                bgworkerUpdateProgress.ReportProgress(100);
+                bgworkerStartDownload.ReportProgress(100);
                 asyncResult["IsCompleted"] = "true";
             }
             else
@@ -401,12 +426,126 @@ namespace WFTP.Pages
 
         public void bgworkerStartUpload_DoWorkHandler(object sender, DoWorkEventArgs e)
         {
+            ApiHelper api = new ApiHelper();
+            BackgroundWorker bgworkerStartUpload = sender as BackgroundWorker;
+            Dictionary<string, string> fileInfo = (Dictionary<string, string>)e.Argument;
+            Dictionary<string, string> asyncResult = new Dictionary<string, string>();
+            asyncResult.Add("IsCompleted", "false");
+            asyncResult.Add("FileId", fileInfo["FileId"]);
+            asyncResult.Add("RemoteFilePath", fileInfo["RemoteFilePath"]);
+            /*
+            // Asynchronous FTP Upload
+            Chilkat.Ftp2 ftp = new Chilkat.Ftp2();
 
+            bool success;
+
+            success = ftp.UnlockComponent(GlobalHelper.ComponentCode);
+            if (success != true)
+            {
+                MessageBox.Show(ftp.LastErrorText);
+                return;
+            }
+
+            ftp.Hostname = GlobalHelper.FtpHost;
+            ftp.Username = GlobalHelper.FtpUsername;
+            ftp.Password = GlobalHelper.FtpPasswrod;
+            // Resume upload
+            ftp.RestartNext = true;
+
+            // Connect and login to the FTP server.
+            success = ftp.Connect();
+            if (success != true)
+            {
+                MessageBox.Show(ftp.LastErrorText);
+                return;
+            }
+
+            string localFilename = fileInfo["LocalFilePath"];
+            string remoteFilename = fileInfo["RemoteFilePath"];
+            long localFilesize = Convert.ToInt64(fileInfo["LocalFileSize"]);
+
+            success = ftp.AsyncPutFileStart(localFilename, remoteFilename);
+            if (success != true)
+            {
+                MessageBox.Show(ftp.LastErrorText);
+                return;
+            }
+
+            while (ftp.AsyncFinished != true)
+            {
+                if (_cancelList.Contains(fileInfo["FileId"]))
+                {
+                    ftp.AsyncAbort();
+                    break;
+                }
+
+                if (api.CheckPath(remoteFilename))
+                {
+                    long remoteFilesize = api.GetFileSize(remoteFilename);
+                    double percentage = ((double)remoteFilesize / (double)localFilesize) * 100;
+                    bgworkerStartUpload.ReportProgress((int)percentage);
+                }
+
+                // Sleep 0.5 second.
+                ftp.SleepMs(500);
+            }
+
+            bool uploadSuccess = false;
+            // Did the upload succeed?
+            if (ftp.AsyncSuccess == true)
+            {
+                uploadSuccess = true;
+                bgworkerStartUpload.ReportProgress(100);
+                asyncResult["IsCompleted"] = "true";
+            }
+            else
+            {
+
+            }
+
+            ftp.Disconnect();
+            ftp.Dispose();
+
+            if (uploadSuccess)
+            {
+                // Move local file to Recycle bin
+            }
+            */
+            e.Result = asyncResult;
         }
 
         private void bgworkerStartUpload_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
+            Dictionary<string, string> asyncResult = (Dictionary<string, string>)e.Result;
+            bool isCompleted = Convert.ToBoolean(asyncResult["IsCompleted"]);
+            string fileId = asyncResult["FileId"];
 
+            if (isCompleted || _cancelList.Contains(fileId))
+            {
+                List<ProgressInfo> progressList = JsonConvert.DeserializeObject<List<ProgressInfo>>(
+                    File.ReadAllText(GlobalHelper.ProgressList)).Select(c => (ProgressInfo)c).ToList();
+
+                var fileList = progressList.Where(o => o.FileId == fileId);
+                List<int> fileIndex = new List<int>();
+                foreach (var file in fileList)
+                {
+                    fileIndex.Add(progressList.IndexOf(file));
+                }
+                foreach (var index in fileIndex)
+                {
+                    progressList.RemoveAt(index);
+                }
+
+                string jsonList = JsonConvert.SerializeObject(progressList, Formatting.Indented);
+                File.WriteAllText(GlobalHelper.ProgressList, jsonList, Encoding.UTF8);
+
+                if (_cancelList.Contains(fileId))
+                {
+                    ApiHelper api = new ApiHelper();
+                    api.DeleteFile(asyncResult["RemoteFilePath"]);
+                    _cancelList.Remove(fileId);
+                }
+            }
         }
 
 

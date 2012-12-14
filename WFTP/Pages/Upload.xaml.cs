@@ -120,11 +120,18 @@ namespace WFTP.Pages
 
         private void btnUpload_Click(object sender, RoutedEventArgs e)
         {
+            //For Debug use -- start
+            FileInfo info = new FileInfo("C:\\ElectronicGraph1.gif");
+            _dataTo.Add(new FileItem() { File = info, TargetPath = @"PP\台光\台灣廠\台光一號線\電氣圖", TargetRealPath = "/PP/EMC/Taiwan/1/Electric Layout/", IsReplace = true });
+            //For Debug use -- end
+
             foreach (FileItem item in _dataTo)
             {
-                MessageBox.Show("本地路徑：" + item.File.FullName + "\n遠端路徑：" + item.TargetPath + "\n遠端真實路徑：" + item.TargetRealPath);
-                //Switcher.progress.UpdateProgressList("Upload", item.TargetPath, item.File.FullName);
+                //MessageBox.Show("本地路徑：" + item.File.FullName + "\n遠端路徑：" + item.TargetPath + "\n遠端真實路徑：" + item.TargetRealPath);
+                string filename = System.IO.Path.GetFileName(item.File.FullName);
+                Switcher.progress.UpdateProgressList("Upload", item.TargetRealPath + filename, item.File.FullName);
             }
+            _dataTo.Clear();
         }
 
         private void lvwToUplpad_PreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)

@@ -483,8 +483,8 @@ namespace WFTP
                     break;
             }
 
-            ApiHelper ah = new ApiHelper();
-            List<string> remoteFolderFullPathList = ah.Dir(_ftpPath).ToList();
+            ApiHelper api = new ApiHelper();
+            List<string> remoteFolderFullPathList = api.Dir(_ftpPath).ToList();
             Dictionary<string, string> remoteFileList = new Dictionary<string, string>();
             foreach (var item in remoteFolderFullPathList)
             {

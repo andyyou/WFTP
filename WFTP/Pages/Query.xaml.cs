@@ -625,8 +625,8 @@ namespace WFTP.Pages
                     break;
             }
 
-            ApiHelper ah = new ApiHelper();
-            List<string> remoteFolderFullPathList = ah.Dir(_ftpPath).ToList();
+            ApiHelper api = new ApiHelper();
+            List<string> remoteFolderFullPathList = api.Dir(_ftpPath).ToList();
             Dictionary<string, string> remoteFileList = new Dictionary<string, string>();
             foreach (var item in remoteFolderFullPathList)
             {
@@ -1133,7 +1133,7 @@ namespace WFTP.Pages
              System.Collections.ObjectModel.ObservableCollection<FileInfo> fileCollection =
                  new System.Collections.ObjectModel.ObservableCollection<FileInfo>();
 
-             ApiHelper ah = new ApiHelper();
+             ApiHelper api = new ApiHelper();
             foreach (var file in files)
             {
                 if (_isAdvanceTileView)
@@ -1143,7 +1143,7 @@ namespace WFTP.Pages
 
                     // Using store procedure to get full path.
                     string path = DBHelper.GenerateFileFullPath(file.Id);
-                    if (ah.CheckPath(path))
+                    if (api.CheckPath(path))
                     {
                         BitmapImage bitmap = new BitmapImage();
                         bitmap.BeginInit();
@@ -1203,7 +1203,7 @@ namespace WFTP.Pages
                 {
                     lvwAdvanceClassify.View = lvwAdvanceClassify.FindResource("AdvanceListView") as ViewBase;
                      string path = DBHelper.GenerateFileFullPath(file.Id);
-                     if (ah.CheckPath(path))
+                     if (api.CheckPath(path))
                      {
                          fileCollection.Add(new FileInfo
                          {

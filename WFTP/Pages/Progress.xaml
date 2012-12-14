@@ -55,7 +55,7 @@
                                     Tag="{Binding FileId}"
                                     FontSize="12"
                                     FontFamily="Microsoft JhengHei"
-                                    Click="lstCancel_Click" />
+                                    Click="lstCancelDownload_Click" />
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
@@ -72,11 +72,22 @@
         <ListView Name="lvwUploadList" Margin="40,327,36,14" ItemsSource="{Binding}">
             <ListView.View>
                 <GridView>
-                    <GridViewColumn DisplayMemberBinding="{Binding Name}" Header="檔案名稱" Width="652" />
+                    <GridViewColumn DisplayMemberBinding="{Binding Name}" Header="檔案名稱" Width="597" />
                     <GridViewColumn Header="進度" Width="55">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
                                 <TextBlock Text="{Binding Path=Progress, StringFormat={}{0}%}" />
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                    <GridViewColumn Header="取消上傳" Width="55">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <Button Content="取消"
+                                    Tag="{Binding FileId}"
+                                    FontSize="12"
+                                    FontFamily="Microsoft JhengHei"
+                                    Click="lstCancelUpload_Click" />
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
