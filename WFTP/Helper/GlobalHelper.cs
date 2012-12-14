@@ -10,6 +10,7 @@ namespace WFTP.Helper
     {
         // The property is for binding use.
         public static AdminItem AdminItem { set; get; }
+        public static string LoginUserID { set; get; }
 
         //
         public static string ProgressList = "progress.json";
