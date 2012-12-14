@@ -68,6 +68,36 @@ namespace WFTP.Pages
 
         }
 
+        private void btnDeleteLv1_Click(object sender, RoutedEventArgs e)
+        {
+            CLv1Classify.Delete(12, GlobalHelper.LoginUserID);
+        }
+
+        private void btnDeleteLv2_Click(object sender, RoutedEventArgs e)
+        {
+            CLv2Customer.Delete(207, GlobalHelper.LoginUserID);
+        }
+
+        private void btnDeleteCLv3_Click(object sender, RoutedEventArgs e)
+        {
+             CLv3CustomerBranch.Delete(191, GlobalHelper.LoginUserID);
+        }
+
+        private void btnDeleteLv4_Click(object sender, RoutedEventArgs e)
+        {
+            CLv4Line.Delete(1, GlobalHelper.LoginUserID);
+        }
+
+        private void btnLv5File_Click(object sender, RoutedEventArgs e)
+        {
+            CFileCategory.Delete(13, GlobalHelper.LoginUserID);
+        }
+
+        private void btnDeleteFile_Click(object sender, RoutedEventArgs e)
+        {
+            CFile.Delete(100, GlobalHelper.LoginUserID);
+        }
+
 
     }
 }

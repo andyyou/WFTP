@@ -43,6 +43,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DBHelper.cs" />
+    <Compile Include="DeleteLog.cs" />
     <Compile Include="Employee.cs" />
     <Compile Include="File.cs" />
     <Compile Include="FileCategory.cs" />

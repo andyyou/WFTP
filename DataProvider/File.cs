@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Data.Linq.Mapping;
+using System.Data.Linq;
 
 
 namespace DataProvider
@@ -10,39 +11,129 @@ namespace DataProvider
     [Table(Name="Files")]
     public class CFile
     {
-        [Column(IsDbGenerated = true, IsPrimaryKey = true)]
-        public Int32 FileId;
+        private Int32 _FileId;
+        private Int32 _FileCategoryId;
+        private Int32 _LineId;
+        private String _OriginFileName;
+        private DateTime _CreateDate;
+        private DateTime _LastUploadDate;
+        private String _CreateUser;
+        private String _LastEditUser;
+        private String _FileName;
+        private Boolean _IsDeleted;
+        private String _FileHash;
+        private String _Path;
+        private EntityRef<CLv4Line> _CLv4Line;
+        private EntityRef<CFileCategory> _CFileCategory;
 
-        [Column]
-        public int FileCategoryId;
+        #region Properties
+        [Column(Storage = "_FileId", IsDbGenerated = true, IsPrimaryKey = true, DbType = "INT NOT NULL IDENTITY")]
+        public Int32 FileId
+        {
+            get { return _FileId; }
+        }
 
-        [Column]
-        public int LineId;
+        [Column(Storage = "_FileCategoryId")]
+        public Int32 FileCategoryId
+        {
+            get { return _FileCategoryId; }
+            set { _FileCategoryId = value; }
+        }
 
-        [Column]
-        public String OriginFileName;
+        [Column(Storage = "_LineId")]
+        public Int32 LineId
+        {
+            get { return _LineId; }
+            set { _LineId = value; }
+        }
 
-        [Column]
-        public DateTime CreateDate;
+        [Column(Storage = "_OriginFileName")]
+        public String OriginFileName
+        {
+            get { return _OriginFileName; }
+            set { _OriginFileName = value; }
+        }
 
-        [Column]
-        public DateTime LastUploadDate;
+        [Column(Storage = "_CreateDate")]
+        public DateTime CreateDate
+        {
+            get { return _CreateDate; }
+            set { _CreateDate = value; }
+        }
 
-        [Column]
-        public String CreateUser;
+        [Column(Storage = "_LastUploadDate")]
+        public DateTime LastUploadDate
+        {
+            get { return _LastUploadDate; }
+            set { _LastUploadDate = value; }
+        }
 
-        [Column]
-        public String LastEditUser;
+        [Column(Storage = "_CreateUser")]
+        public String CreateUser
+        {
+            get { return _CreateUser; }
+            set { _CreateUser = value; }
+        }
 
-        [Column]
-        public String FileName;
+        [Column(Storage = "_LastEditUser")]
+        public String LastEditUser
+        {
+            get { return _LastEditUser; }
+            set { _LastEditUser = value; }
+        }
 
-        [Column]
-        public Boolean IsDeleted;
+        [Column(Storage = "_FileName")]
+        public String FileName
+        {
+            get { return _FileName; }
+            set { _FileName = value; }
+        }
 
-        [Column]
-        public string Path;
+        [Column(Storage = "_IsDeleted")]
+        public Boolean IsDeleted
+        {
+            get { return _IsDeleted; }
+            set { _IsDeleted = value; }
+        }
 
+        [Column(Storage = "_FileHash")]
+        public String FileHash
+        {
+            get { return _FileHash; }
+            set { _FileHash = value; }
+        }
+
+        [Column(Storage = "_Path")]
+        public String Path
+        {
+            get { return _Path; }
+            set { _Path = value; }
+        }
+
+        // EntitySet 偶數 EntityRef 單數
+        [Association(Storage = "_CLv4Line", ThisKey = "LineId", DeleteRule = "CASCADE")]
+        public CLv4Line Line
+        {
+            get { return this._CLv4Line.Entity; }
+            set { this._CLv4Line.Entity = value; }
+        }
+
+        [Association(Storage = "_CFileCategory", ThisKey = "FileCategoryId", DeleteRule = "CASCADE")]
+        public CFileCategory FileCategory
+        {
+            get { return this._CFileCategory.Entity; }
+            set { this._CFileCategory.Entity = value; }
+        }
+
+        #endregion
+
+        public CFile()
+        {
+            this._CLv4Line = new EntityRef<CLv4Line>();
+            this._CFileCategory = new EntityRef<CFileCategory>();
+        }
+
+        #region Methods
         public static void InsertOrUpdate(int? fileId,int categoryId, int lineId, string originFileName, string fileName, bool? isDelete, string loginUserID)
         {
             WFTPDbContext db = new WFTPDbContext();
@@ -109,5 +200,24 @@ namespace DataProvider
                 }
             }
         }
+        public static void Delete(int fileId, string loginUserId)
+        {
+            WFTPDbContext db = new WFTPDbContext();
+            try
+            {
+                var file = (from files in db.GetTable<CFile>()
+                            where files.FileId == fileId
+                            select files).SingleOrDefault();
+                string record = String.Format("FileId:{0}, LineId:{1}, FileName:{2}, FileHash:{3}, Path:{4}, CreateDate:{5}", file.FileId, file.LineId, file.FileName, file.FileHash, file.Path, file.CreateDate);
+                DeleteLog.Insert("dbo.Files", record, loginUserId);
+                db.Lv6Files.DeleteOnSubmit(file);
+                db.SubmitChanges();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
     }
 }

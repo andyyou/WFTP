@@ -139,7 +139,29 @@ namespace WFTP.Pages
         }
         private void rmenuDelete_Click(object sender, RoutedEventArgs e)
         {
+            if (lvwClassify.SelectedItems.Count != 1)
+            {
+                return;
+            }
+            else
+            {
+                StringBuilder pathServer = new StringBuilder();
+                StringBuilder pathId = new StringBuilder();
+                pathServer.Append(_ftpPath);
+                pathId.Append(_idPath);
+                Tile item = lvwClassify.SelectedItem as Tile;
+                Dictionary<string, string> tag = item.Tag as Dictionary<string, string>;
+                pathServer.Append(tag["Name"]);
+                pathId.Append(tag["Id"]);
+                Create getInput = new Create(400, 200, pathServer.ToString());
+                getInput.ShowDialog();
+                string newFileName = "/" + getInput.SystemName;
+                string newNickName = getInput.NickName;
+                pathServer.Append(newFileName);
 
+                // 產生目錄寫入db
+                //DeleteFolderOrFile();
+            }
         }
         private void rmenuCancelSelected_Click(object sender, RoutedEventArgs e)
         {

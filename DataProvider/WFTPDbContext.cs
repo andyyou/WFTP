@@ -23,7 +23,7 @@ namespace DataProvider
         public Table<CLv4Line> Lv4Lines;
         public Table<CFileCategory> Lv5FileCategorys;
         public Table<CFile> Lv6Files;
-
+        public Table<DeleteLog> DeleteLogs;
         
     }
 }
