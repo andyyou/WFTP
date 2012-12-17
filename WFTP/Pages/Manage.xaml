@@ -14,5 +14,12 @@
         <Button Content="CLv4Line" Height="23" HorizontalAlignment="Left" Margin="314,37,0,0" Name="btnLv4" VerticalAlignment="Top" Width="75" Click="btnLv4_Click" />
         <Button Content="CLv5Category" Height="23" HorizontalAlignment="Left" Margin="412,37,0,0" Name="btnCategory" VerticalAlignment="Top" Width="75" Click="btnCategory_Click" />
         <Button Content="CLv6Files" Height="23" HorizontalAlignment="Left" Margin="508,37,0,0" Name="btnFile" VerticalAlignment="Top" Width="75" Click="btnFile_Click" />
+        <Button Content="Delete CLV1" Height="23" HorizontalAlignment="Left" Margin="28,100,0,0" Name="btnDeleteLv1" VerticalAlignment="Top" Width="75" Click="btnDeleteLv1_Click" />
+        <Button Content="DeleteCLv2" Height="23" HorizontalAlignment="Left" Margin="125,100,0,0" Name="btnDeleteLv2" VerticalAlignment="Top" Width="75" Click="btnDeleteLv2_Click" />
+        <Button Content="DeleteCLv3" Height="23" HorizontalAlignment="Left" Margin="222,100,0,0" Name="btnDeleteCLv3" VerticalAlignment="Top" Width="75" Click="btnDeleteCLv3_Click" />
+        <Button Content="DeleteCLv4" Height="23" HorizontalAlignment="Left" Margin="314,100,0,0" Name="btnDeleteLv4" VerticalAlignment="Top" Width="75" Click="btnDeleteLv4_Click" />
+        <Button Content="DeleteLv5Category" Height="23" HorizontalAlignment="Left" Margin="412,100,0,0" Name="btnLv5File" VerticalAlignment="Top" Width="111" Click="btnLv5File_Click" />
+        <Button Content="Button" Height="23" HorizontalAlignment="Left" Margin="914,312,0,0" Name="button2" VerticalAlignment="Top" Width="75" />
+        <Button Content="DeleteFile" Height="23" HorizontalAlignment="Left" Margin="529,100,0,0" Name="btnDeleteFile" VerticalAlignment="Top" Width="75" Click="btnDeleteFile_Click" />
     </Grid>
 </UserControl>

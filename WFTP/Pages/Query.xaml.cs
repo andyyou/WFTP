@@ -139,7 +139,29 @@ namespace WFTP.Pages
         }
         private void rmenuDelete_Click(object sender, RoutedEventArgs e)
         {
+            if (lvwClassify.SelectedItems.Count != 1)
+            {
+                return;
+            }
+            else
+            {
+                StringBuilder pathServer = new StringBuilder();
+                StringBuilder pathId = new StringBuilder();
+                pathServer.Append(_ftpPath);
+                pathId.Append(_idPath);
+                Tile item = lvwClassify.SelectedItem as Tile;
+                Dictionary<string, string> tag = item.Tag as Dictionary<string, string>;
+                pathServer.Append(tag["Name"]);
+                pathId.Append(tag["Id"]);
+                Create getInput = new Create(400, 200, pathServer.ToString());
+                getInput.ShowDialog();
+                string newFileName = "/" + getInput.SystemName;
+                string newNickName = getInput.NickName;
+                pathServer.Append(newFileName);
 
+                // 產生目錄寫入db
+                //DeleteFolderOrFile();
+            }
         }
         private void rmenuCancelSelected_Click(object sender, RoutedEventArgs e)
         {
@@ -924,6 +946,7 @@ namespace WFTP.Pages
             // ID Path 會少一層用來寫入db用
             string[] ids = idPath.Split(new char[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
             int level = paths.Count();
+            int stayLevel = ids.Count();
             ApiHelper api = new ApiHelper();
             switch (level)
             { 
@@ -931,30 +954,30 @@ namespace WFTP.Pages
                     CLv1Classify.InsertOrUpdate(null, paths[0], folderName);
                     api.CreateDirectory(path);
                     GetBreadcrumbBarPath();
-                    GetCatalog(1);
+                    GetCatalog(stayLevel);
                     break;
                 case 2:
                     int classfyId = Convert.ToInt32(ids[0]);
                     CLv2Customer.InsertOrUpdate(null, paths[1], folderName, classfyId);
                     api.CreateDirectory(path);
-                    GetCatalog(2);
+                    GetCatalog(stayLevel);
                     break;
                 case 3:
                     int companyId = Convert.ToInt32(ids[1]);
                     CLv3CustomerBranch.InsertOrUpdate(null, paths[2], folderName, companyId);
                     api.CreateDirectory(path);
-                    GetCatalog(3);
+                    GetCatalog(stayLevel);
                     break;
                 case 4:
                     int branchId =  Convert.ToInt32(ids[2]);
                     CLv4Line.InsertOrUpdate(null, paths[3], folderName, branchId);
                     api.CreateDirectory(path);
-                    GetCatalog(4);
+                    GetCatalog(stayLevel);
                     break;
                 case 5:
                     CFileCategory.InsertOrUpdate(null, paths[4], folderName);
                     api.CreateDirectory(path);
-                    GetCatalog(5);
+                    GetCatalog(stayLevel);
                     break;
             };
             return true;
