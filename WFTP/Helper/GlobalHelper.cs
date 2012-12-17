@@ -32,7 +32,7 @@ namespace WFTP.Helper
         // Return true if rmdir success(the file will be move to Trash folder)
         public static string ApiRmdir = String.Format("http://192.168.100.177:2121/rmdir?key={0}&p={1}", ApiKey, "{0}");
         // Return true if rename success(if new file already exist, return false)
-        public static string ApiRename = String.Format("http://192.168.100.177:2121/rename?key={0}&p={1}&np={2}", ApiKey, "{0}", "{1}");
+        public static string ApiRename = String.Format("http://192.168.100.177:2121/rename?key={0}&p={1}&n={2}", ApiKey, "{0}", "{1}");
         // Return true if delete file success(the file will be delete permanently)
         public static string ApiDeleteFile = String.Format("http://192.168.100.177:2121/deletefile?key={0}&p={1}", ApiKey, "{0}");
 
