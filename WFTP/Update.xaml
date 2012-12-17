@@ -1,0 +1,52 @@
+﻿<Window x:Class="WFTP.Update"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+        Title="編輯" Height="241" Width="300">
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Resources/Icons.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.AnimatedSingleRowTabControl.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Colours.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Fonts.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/Blue.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/BaseLight.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="138" />
+            <RowDefinition Height="64*" />
+        </Grid.RowDefinitions>
+        <WrapPanel Margin="0,0,0,40">
+            <Label Content="隸屬分類" Name="lbPrevId" Visibility="Collapsed"></Label>
+            <ComboBox Name="cmbPrevId" Width="208" Visibility="Collapsed" 
+                      ItemsSource="{Binding}" 
+                      DisplayMemberPath="NickName" 
+                      SelectedValuePath="Id"
+                      
+                      />
+            <Label Content="系統名稱" Name="lbSystemName"></Label>
+            <TextBox Width="208" Name="txtName"></TextBox>
+            <Label Content="瀏覽別名"></Label>
+            <TextBox Width="208" Name="txtNickName"></TextBox>
+        </WrapPanel>
+        <Button Name="btnCancel" 
+                Height="50" 
+                Width="50" 
+                Grid.Row="1" 
+                Margin="160,12,68,0" 
+                Content="{StaticResource appbar_close}" 
+                Style="{DynamicResource MetroCircleButtonStyle}" Click="btnCancel_Click" />
+
+        <Button  Name="btnGetPath" 
+                 Height="50" 
+                 Width="50" Content="{StaticResource appbar_arrow_right}" 
+                 Style="{DynamicResource MetroCircleButtonStyle}" 
+                 Margin="0,12,12,0" Grid.Row="1" Click="btnGetPath_Click" HorizontalAlignment="Right" />
+        <Label Height="28" HorizontalAlignment="Left" Margin="58,104,0,0" Name="lbMessage" VerticalAlignment="Top" Foreground="#FFFF0D0D" FontWeight="Bold" Grid.RowSpan="2" />
+    </Grid>
+</Window>
