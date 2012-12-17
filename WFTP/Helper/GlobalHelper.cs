@@ -14,6 +14,7 @@ namespace WFTP.Helper
 
         //
         public static string ProgressList = "progress.json";
+        public static string TempFileExt = ".wftp";
 
         #region API Path
 

@@ -118,7 +118,7 @@ namespace WFTP.Pages
                             int percentage = Convert.ToInt32(((double)localFileSize / (double)info.FileSize) * 100);
                             _dataDownloadFiles.Add(new FileProgressItem
                             {
-                                Name = System.IO.Path.GetFileName(info.LocalFilePath).Replace(".wftp", String.Empty),
+                                Name = System.IO.Path.GetFileName(info.LocalFilePath).Replace(GlobalHelper.TempFileExt, String.Empty),
                                 Progress = percentage,
                                 FileId = info.FileId
                             });
@@ -168,7 +168,7 @@ namespace WFTP.Pages
             // Check file is duplicated
             if (type.Equals("Download"))
             {
-                if (File.Exists(localFilePath) || File.Exists(localFilePath + ".wftp"))
+                if (File.Exists(localFilePath) || File.Exists(localFilePath + GlobalHelper.TempFileExt))
                 {
                     int i = 1;
                     string filePathWithoutExt = String.Format(@"{0}\{1}",
@@ -182,7 +182,7 @@ namespace WFTP.Pages
                             filePathWithoutExt,
                             i,
                             filePathExt);
-                        if (File.Exists(localFilePath) || File.Exists(localFilePath + ".wftp"))
+                        if (File.Exists(localFilePath) || File.Exists(localFilePath + GlobalHelper.TempFileExt))
                         {
                             i++;
                             continue;
@@ -195,7 +195,7 @@ namespace WFTP.Pages
                 }
                 else
                 {
-                    localFilePath += ".wftp";
+                    localFilePath += GlobalHelper.TempFileExt;
                 }
             }
             else
@@ -209,27 +209,52 @@ namespace WFTP.Pages
                     from customer in db.Lv2Customers
                     from branch in db.Lv3CustomerBranches
                     from line in db.Lv4Lines
-                    from catalog in db.Lv5FileCategorys
+                    from category in db.Lv5FileCategorys
                     from file in db.Lv6Files
                     where classify.ClassName == splitPath[0] &&
                           customer.CompanyName == splitPath[1] && customer.ClassifyId == classify.ClassifyId &&
                           branch.BranchName == splitPath[2] && branch.CompanyId == customer.CompanyId &&
                           line.LineName == splitPath[3] && line.BranchId == branch.BranchId &&
-                          catalog.ClassName == splitPath[4] &&
-                          file.FileCategoryId == catalog.FileCategoryId && file.LineId == line.LineId
+                          category.ClassName == splitPath[4] &&
+                          file.FileCategoryId == category.FileCategoryId && file.LineId == line.LineId
                     select new
                     {
                         checksum = file.FileHash
                     };
-                
-                foreach (var file in files)
+                int existFileCount = files.Where(file => file.checksum == checksum).Count();
+                if(existFileCount >0)
                 {
-                    if (file.checksum.Equals(checksum))
-                    {
-                        MessageBox.Show("相同檔案已存在!!");
+                        MessageBox.Show(String.Format("檔案 {0} 已存在!!", System.IO.Path.GetFileName(localFilePath)));
                         return;
-                    }
                 }
+
+                // 命名規則：公司名稱_產線編號_檔案分類編號_時間戳記.副檔名
+                var info = 
+                    (from classify in db.Lv1Classifications
+                    from customer in db.Lv2Customers
+                    from branch in db.Lv3CustomerBranches
+                    from line in db.Lv4Lines
+                    from category in db.Lv5FileCategorys
+                    where classify.ClassName == splitPath[0] &&
+                          customer.CompanyName == splitPath[1] && customer.ClassifyId == classify.ClassifyId &&
+                          branch.BranchName == splitPath[2] && branch.CompanyId == customer.CompanyId &&
+                          line.LineName == splitPath[3] && line.BranchId == branch.BranchId &&
+                          category.ClassName == splitPath[4]
+                    select new
+                    {
+                        CompanyName = customer.CompanyName,
+                        LineId = line.LineId,
+                        CategoryId = category.FileCategoryId
+                    }).First();
+                
+                remoteFilePath = String.Format("{0}/{1}_{2}_{3}_{4}{5}{6}",
+                    remoteFilePath.Substring(0, remoteFilePath.LastIndexOf('/')),
+                    info.CompanyName,
+                    info.LineId.ToString(),
+                    info.CategoryId.ToString(),
+                    System.DateTime.Now.ToString("yyyyMMddHHmmssffff"),
+                    System.IO.Path.GetExtension(remoteFilePath),
+                    GlobalHelper.TempFileExt);
             }
 
             // Create new progress info
@@ -255,7 +280,7 @@ namespace WFTP.Pages
                 // Add file to download list
                 Switcher.progress._dataDownloadFiles.Add(new FileProgressItem
                 {
-                    Name = System.IO.Path.GetFileName(localFilePath).Replace(".wftp", String.Empty),
+                    Name = System.IO.Path.GetFileName(localFilePath).Replace(GlobalHelper.TempFileExt, String.Empty),
                     Progress = 0,
                     FileId = fileId
                 });
@@ -275,7 +300,7 @@ namespace WFTP.Pages
                 // Add file to upload list
                 Switcher.progress._dataUploadFiles.Add(new FileProgressItem
                 {
-                    Name = System.IO.Path.GetFileName(remoteFilePath),
+                    Name = System.IO.Path.GetFileName(localFilePath),
                     Progress = 0,
                     FileId = fileId
                 });
@@ -394,7 +419,7 @@ namespace WFTP.Pages
 
             if (downloadSuccess)
             {
-                File.Move(localFilename, localFilename.Replace(".wftp", String.Empty));
+                File.Move(localFilename, localFilename.Replace(GlobalHelper.TempFileExt, String.Empty));
             }
 
             e.Result = asyncResult;
@@ -536,6 +561,10 @@ namespace WFTP.Pages
             if (uploadSuccess)
             {
                 // Move local file to Recycle bin
+
+                // Remove temp extension from remote file
+                api.Rename(remoteFilename,
+                    System.IO.Path.GetFileName(remoteFilename).Replace(GlobalHelper.TempFileExt, String.Empty));
             }
             
             e.Result = asyncResult;
@@ -577,7 +606,6 @@ namespace WFTP.Pages
 
         private static string GetChecksum(string file)
         {
-            //using (FileStream stream = File.OpenRead(file))
             using(var stream = new BufferedStream(File.OpenRead(file), 1200000))
             {
                 SHA256Managed sha = new SHA256Managed();
