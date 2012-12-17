@@ -110,11 +110,14 @@ namespace WFTP.Pages
                 // ShowDialog
                 Create getinput = new Create(400, 200, pathServer.ToString());
                 getinput.ShowDialog();
-                string newFileName = getinput.SystemName;
-                string newNickName = getinput.NickName;
-                pathServer.Append(newFileName);
-                // 產生目錄寫入db
-                CreateFolder(pathServer.ToString(), pathId.ToString(), newNickName);
+                if (getinput.IsDone)
+                {
+                    string newFileName = getinput.SystemName;
+                    string newNickName = getinput.NickName;
+                    pathServer.Append(newFileName);
+                    // 產生目錄寫入db
+                    CreateFolder(pathServer.ToString(), pathId.ToString(), newNickName);
+                }
             }
             // 在下一層新增
             else if (_isTileView) 
@@ -175,8 +178,39 @@ namespace WFTP.Pages
             lvwClassify.UnselectAll();
         }
         private void rmenuEdit_Click(object sender, RoutedEventArgs e)
-        { 
-        
+        {
+            if (lvwClassify.SelectedItems.Count != 1)
+            {
+                return;
+            }
+            // 在下一層新增
+            else if (_isTileView)
+            {
+                // UNDONE: UnTest all condition.
+                StringBuilder pathServer = new StringBuilder();
+                StringBuilder pathId = new StringBuilder();
+                pathServer.Append(_ftpPath);
+                pathId.Append(_idPath);
+                Tile item = lvwClassify.SelectedItem as Tile;
+                Dictionary<string, string> tag = item.Tag as Dictionary<string, string>;
+                pathServer.Append(tag["Name"]);
+                pathId.Append(tag["Id"]);
+                Update getInput = new Update(400, 200, pathServer.ToString(),item.Title);
+                getInput.ShowDialog();
+                if (getInput.IsDone)
+                {
+                    string newNickName = getInput.NickName;
+                    string rebuildPath = getInput.Path;
+                    string rebuildPathId = pathId.ToString();
+                    if (getInput.ClassifyId > 0)
+                    {
+                        rebuildPathId = pathId.ToString().Substring(0, pathId.ToString().LastIndexOf('/') + 1) + getInput.ClassifyId;
+                    }
+                    
+                    // 編輯更新欄位
+                    RenameFolder(rebuildPath, rebuildPathId, newNickName);
+                }
+            }
         }
         
         #endregion
@@ -957,38 +991,48 @@ namespace WFTP.Pages
             // ID Path 會少一層用來寫入db用
             string[] ids = idPath.Split(new char[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
             int level = paths.Count();
-            int stayLevel = ids.Count();
             ApiHelper api = new ApiHelper();
             switch (level)
             { 
                 case 1:
-                    CLv1Classify.InsertOrUpdate(null, paths[0], folderName);
-                    api.CreateDirectory(path);
-                    GetBreadcrumbBarPath();
-                    GetCatalog(stayLevel);
+                    if (api.CreateDirectory(path))
+                    {
+                        CLv1Classify.InsertOrUpdate(null, paths[0], folderName);
+                        GetBreadcrumbBarPath();
+                        navBar.Path = path;
+                    }
                     break;
                 case 2:
                     int classfyId = Convert.ToInt32(ids[0]);
-                    CLv2Customer.InsertOrUpdate(null, paths[1], folderName, classfyId);
-                    api.CreateDirectory(path);
-                    GetCatalog(stayLevel);
+                    if (api.CreateDirectory(path))
+                    {
+                        CLv2Customer.InsertOrUpdate(null, paths[1], folderName, classfyId);
+                        navBar.Path = path;
+                    }
                     break;
                 case 3:
                     int companyId = Convert.ToInt32(ids[1]);
-                    CLv3CustomerBranch.InsertOrUpdate(null, paths[2], folderName, companyId);
-                    api.CreateDirectory(path);
-                    GetCatalog(stayLevel);
+                    if (api.CreateDirectory(path))
+                    {
+                        CLv3CustomerBranch.InsertOrUpdate(null, paths[2], folderName, companyId);
+                        navBar.Path = path;
+                    }
                     break;
                 case 4:
                     int branchId =  Convert.ToInt32(ids[2]);
-                    CLv4Line.InsertOrUpdate(null, paths[3], folderName, branchId);
-                    api.CreateDirectory(path);
-                    GetCatalog(stayLevel);
+                    if (api.CreateDirectory(path))
+                    {
+                        CLv4Line.InsertOrUpdate(null, paths[3], folderName, branchId);
+                        navBar.Path = path;
+                    }
                     break;
                 case 5:
-                    CFileCategory.InsertOrUpdate(null, paths[4], folderName);
-                    api.CreateDirectory(path);
-                    GetCatalog(stayLevel);
+                    if (api.CreateDirectory(path))
+                    {
+                        // UNDONE: Lv5 API Not fixed yet
+                        CFileCategory.InsertOrUpdate(null, paths[4], folderName);
+                        navBar.Path = path;
+                    }
                     break;
             };
             return true;
@@ -1086,7 +1130,6 @@ namespace WFTP.Pages
                             // UNDONE: 缺刪除第五層Lv5 API
                             if(api.RemoveDirectory(path)) // 這邊需要移除所有公司的FileCategory ex BOM,Documents
                             {
-
                                 CFileCategory.Delete(id, GlobalHelper.LoginUserID);
                                 GetCatalog(level);
                             }
@@ -1120,9 +1163,95 @@ namespace WFTP.Pages
         }
         // UNDONE : Edit folder name
         // Query of Manage: 編輯名稱
-        private void RenameFolder()
-        { 
-            
+        private void RenameFolder(string path, string idPath, string folderName)
+        {
+            string[] paths = path.Split(new char[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
+            string[] ids = idPath.Split(new char[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
+            int level = paths.Count();
+            int stayLevel = ids.Count();
+            int id = 0;
+            ApiHelper api = new ApiHelper();
+            switch (level)
+            {
+                case 1:
+                    id = Convert.ToInt32(ids[0]);
+                    if (api.Rename(path,folderName))
+                    {
+                        try
+                        {
+                            CLv1Classify.InsertOrUpdate(id, paths[0], folderName);
+                            GetBreadcrumbBarPath();
+                            GetCatalog(stayLevel);
+                        }
+                        catch (Exception ex)
+                        {
+                            throw ex;
+                        }
+                    }
+                    break;
+                case 2:
+                    id = Convert.ToInt32(ids[1]);
+                    int classfyId = Convert.ToInt32(ids[0]);
+                    if (api.Rename(path,folderName))
+                    {
+                        try
+                        {
+                            CLv2Customer.InsertOrUpdate(id, paths[1], folderName, classfyId);
+                            GetCatalog(stayLevel);
+                        }
+                        catch (Exception ex)
+                        {
+                            throw ex;
+                        }
+                    }
+                    break;
+                case 3:
+                    id = Convert.ToInt32(ids[2]);
+                    if (api.Rename(path, folderName))
+                    {
+                        try
+                        {
+                            CLv3CustomerBranch.InsertOrUpdate(id, paths[2], folderName, 0);
+                            GetCatalog(stayLevel);
+                        }
+                        catch (Exception ex)
+                        {
+                            throw ex;
+                        }
+                    }
+                    break;
+                case 4:
+                    id = Convert.ToInt32(ids[3]);
+                    if (api.Rename(path, folderName))
+                    {
+                        try
+                        {
+                            CLv4Line.InsertOrUpdate(id, paths[3], folderName, 0);
+                            GetCatalog(stayLevel);
+                        }
+                        catch (Exception ex)
+                        {
+                            throw ex;
+                        }
+                    }
+                    break;
+                case 5:
+                    id = Convert.ToInt32(ids[4]);
+                    // UNDONE: 缺改名稱第五層Lv5 API 所有目錄都要改
+                    if (api.Rename(path, folderName))
+                    {
+                        try
+                        {
+                            CFileCategory.InsertOrUpdate(null, paths[4], folderName);
+                            GetCatalog(stayLevel);
+                        }
+                        catch (Exception ex)
+                        {
+                            throw ex;
+                        }
+                    }
+                    break;
+            };
         }
         // Advance:從資料庫取得檔案分類名稱(階層 1) 
         private dynamic GetOnlyFileCatalog()
