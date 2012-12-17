@@ -132,11 +132,11 @@ namespace WFTP.Helper
         /// 重新命名
         /// </summary>
         /// <param name="path">舊名稱(完整路徑)</param>
-        /// <param name="newPath">新名稱(完整路徑)</param>
+        /// <param name="newName">新名稱(僅檔案名稱)</param>
         /// <returns>重新命名是否成功</returns>
-        public bool Rename(string path, string newPath)
+        public bool Rename(string path, string newName)
         {
-            HttpWebRequest req = (HttpWebRequest)HttpWebRequest.Create(String.Format(GlobalHelper.ApiRename, path, newPath));
+            HttpWebRequest req = (HttpWebRequest)HttpWebRequest.Create(String.Format(GlobalHelper.ApiRename, path, newName));
             req.Method = "GET";
             using (WebResponse wr = req.GetResponse())
             {

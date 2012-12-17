@@ -117,21 +117,21 @@
             <TabItem Header="一般查詢">
                 <DockPanel Margin="5">
                     <WrapPanel DockPanel.Dock="Top">
-                        <Rectangle Width="20" Height="20">
-                            <Rectangle.Resources>
-                                <SolidColorBrush x:Key="BlackBrush" Color="#FF41BEE1" />
-                            </Rectangle.Resources>
-                            <Rectangle.Fill>
-                                <VisualBrush Stretch="Fill" Visual="{StaticResource appbar_arrow_right}" />
-                            </Rectangle.Fill>
-                        </Rectangle>
+                        <Button Name="btnPrevLv"
+                                Width="50" 
+                                Height="50"
+                                Content="{StaticResource appbar_arrow_left}" 
+                                Style="{DynamicResource MetroCircleButtonStyle}" 
+                                FontFamily="Microsoft JhengHei" 
+                                />
                         <Rectangle Width="5" Height="20"/>
                         <odc:BreadcrumbBar x:Name="navBar"
                                            TraceBinding="{Binding XPath=@title}"
                                            Root="{StaticResource dataProvider}"
                                            HorizontalAlignment="Stretch"
                                            VerticalAlignment="Stretch"
-                                           Width="755"
+                                           Width="680"
+                                           Height="30"
                                            PathChanged="navBar_PathChanged" />
                     </WrapPanel>
                     <Grid DockPanel.Dock="Top" Width="Auto" Height="50">
