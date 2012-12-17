@@ -23,6 +23,7 @@ namespace WFTP
         public string SystemName { set; get; }
         public string NickName { set; get; }
         public string PrePath { set; get; }
+        public bool IsDone { set; get; }
         #endregion
         public Create(int x, int y, string path)
         {
@@ -31,12 +32,14 @@ namespace WFTP
             this.Left = x;
             this.Top = y;
             this.PrePath = path;
+            this.IsDone = false;
         }
 
         private void btnCancel_Click(object sender, RoutedEventArgs e)
         {
             this.SystemName = null;
             this.NickName = null;
+            this.IsDone = false;
             this.Close();
         }
 
@@ -51,6 +54,7 @@ namespace WFTP
             {
                 txtName.Foreground = Brushes.Black;
                 lbMessage.Content = "";
+                this.IsDone = true;
                 this.Close();
             }
             else

@@ -91,6 +91,8 @@
     <Compile Include="Helper\ApiHelper.cs" />
     <Compile Include="Helper\ExtensionHelper.cs" />
     <Compile Include="Helper\GlobalHelper.cs" />
+    <Compile Include="Lib\Editbox.cs" />
+    <Compile Include="Lib\Editboxadorner.cs" />
     <Compile Include="Lib\PredicateBuilder.cs" />
     <Compile Include="Pages\BoolToVisibilityConverter.cs" />
     <Compile Include="Pages\NotifyProperty.cs" />
@@ -110,6 +112,9 @@
       <DependentUpon>SetPath.xaml</DependentUpon>
     </Compile>
     <Compile Include="Switcher.cs" />
+    <Compile Include="Update.xaml.cs">
+      <DependentUpon>Update.xaml</DependentUpon>
+    </Compile>
     <Page Include="Create.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -152,6 +157,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="SetPath.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Update.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
