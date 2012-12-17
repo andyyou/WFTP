@@ -40,29 +40,12 @@
                         </ControlTemplate>
                     </Setter.Value>
                 </Setter>
-                
             </Style>
             
             <GridView x:Key="ListView">
                 <GridViewColumn Header="FileName"
                                 DisplayMemberBinding="{Binding FileName}"
                                 Width="390" />
-                <GridViewColumn Header="Action" 
-                                Width="{Binding Path=IsAdmin, 
-                                         Converter={StaticResource converter},
-                                         Mode=TwoWay, 
-                                         UpdateSourceTrigger=PropertyChanged}" >
-                    <GridViewColumn.CellTemplate>
-                        <DataTemplate>
-                            <Button Content="刪除"
-                                    Tag="{Binding FilePath}"
-                                    FontSize="12"
-                                    FontFamily="Microsoft JhengHei"
-                                    Click="lstDelete_Click"
-                                    />
-                        </DataTemplate>
-                    </GridViewColumn.CellTemplate>
-                </GridViewColumn>
                 <GridViewColumn Header="FilePath" Width="60">
                     <GridViewColumn.CellTemplate>
                         <DataTemplate>
@@ -187,7 +170,7 @@
                                             <Image Source="/WFTP;component/Images/icon_plus.png" />
                                         </MenuItem.Icon>
                                     </MenuItem>
-                                    <MenuItem Header="編輯" Click="rmenuAdd_Click" Name="rmiEdit">
+                                    <MenuItem Header="編輯" Click="rmenuEdit_Click" Name="rmiEdit">
                                         <MenuItem.Icon>
                                             <Image Source="/WFTP;component/Images/icon_edit.gif" />
                                         </MenuItem.Icon>

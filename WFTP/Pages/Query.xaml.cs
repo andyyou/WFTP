@@ -22,6 +22,7 @@ using System.Data.Linq.SqlClient;
 using System.Threading;
 using System.Windows.Threading;
 
+
 namespace WFTP.Pages
 {
     /// <summary>
@@ -143,31 +144,40 @@ namespace WFTP.Pages
             {
                 return;
             }
-            else
+            else if (_isTileView) // Delete Folder or File on Tile Mode
             {
                 StringBuilder pathServer = new StringBuilder();
                 StringBuilder pathId = new StringBuilder();
                 pathServer.Append(_ftpPath);
                 pathId.Append(_idPath);
+
                 Tile item = lvwClassify.SelectedItem as Tile;
                 Dictionary<string, string> tag = item.Tag as Dictionary<string, string>;
                 pathServer.Append(tag["Name"]);
                 pathId.Append(tag["Id"]);
-                Create getInput = new Create(400, 200, pathServer.ToString());
-                getInput.ShowDialog();
-                string newFileName = "/" + getInput.SystemName;
-                string newNickName = getInput.NickName;
-                pathServer.Append(newFileName);
 
-                // 產生目錄寫入db
-                //DeleteFolderOrFile();
+                // 刪除
+                DeleteFolderOrFile(pathServer.ToString(), pathId.ToString());
+            }
+            else
+            {
+                StringBuilder pathId = new StringBuilder();
+                pathId.Append(_idPath);
+                FileInfo item = lvwClassify.SelectedItem as FileInfo;
+                pathId.Append(item.FileId);
+
+                // 刪除
+                DeleteFolderOrFile(item.FilePath, pathId.ToString());
             }
         }
         private void rmenuCancelSelected_Click(object sender, RoutedEventArgs e)
         {
             lvwClassify.UnselectAll();
         }
-     
+        private void rmenuEdit_Click(object sender, RoutedEventArgs e)
+        { 
+        
+        }
         
         #endregion
 
@@ -743,8 +753,8 @@ namespace WFTP.Pages
 
                         if (level == 6)
                         {
-                            tile.Tag = remoteFileList[classifyItem.Name];
-
+                            // tile.Tag = remoteFileList[classifyItem.Name];
+                            tile.Tag = dicInfo;
                             ToolTip tip = new ToolTip();
                             tip.Content = title;
                             tile.ToolTip = tip;
@@ -776,7 +786,8 @@ namespace WFTP.Pages
 
                         fileCollection.Add(new FileInfo{
                             FileName = classifyItem.Name,
-                            FilePath = remoteFileList[classifyItem.Name]
+                            FilePath = remoteFileList[classifyItem.Name],
+                            FileId = classifyItem.Id
                         });
                     }
                 }
@@ -984,24 +995,134 @@ namespace WFTP.Pages
         }
         // UNDONE : Delete Folder or Files by path
         // Query of Manage: 刪除目錄或檔案
-        private bool DeleteFolderOrFile(string path)
+        private void DeleteFolderOrFile(string path, string idPath)
         {
             string[] paths = path.Split(new char[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
+            string[] ids = idPath.Split(new char[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
+            int id = 0;
             int level = paths.Count();
+            ApiHelper api = new ApiHelper();
             switch (level)
             {
                 case 1:
+                    id = Convert.ToInt32(ids[0]);
+                    if (System.Windows.MessageBox.Show("是否刪除?", "警告", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+                    {
+                        try
+                        {
+                            if(api.RemoveDirectory(path))
+                            {
+                                CLv1Classify.Delete(id, GlobalHelper.LoginUserID);
+                                GetBreadcrumbBarPath();
+                                GetCatalog(level);
+                            }
+                        }
+                        catch(Exception ex)
+                        {
+                            throw ex;
+                        }
+                    }
                     break;
                 case 2:
+                    id = Convert.ToInt32(ids[1]);
+                    if (System.Windows.MessageBox.Show("是否刪除?", "警告", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+                    {
+                        try
+                        {
+                            if( api.RemoveDirectory(path))
+                            {
+                                CLv2Customer.Delete(id, GlobalHelper.LoginUserID);
+                                GetCatalog(level);
+                            }
+                        }
+                        catch(Exception ex)
+                        {
+                            throw ex;
+                        }
+                    }
                     break;
                 case 3:
+                    id = Convert.ToInt32(ids[2]);
+                    if (System.Windows.MessageBox.Show("是否刪除?", "警告", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+                    {
+                        try
+                        {
+                            if(api.RemoveDirectory(path))
+                            {
+                                CLv3CustomerBranch.Delete(id, GlobalHelper.LoginUserID);
+                                GetCatalog(level);
+                            }
+                        }
+                         catch(Exception ex)
+                        {
+                            throw ex;
+                        }
+                    }
                     break;
                 case 4:
+                    id = Convert.ToInt32(ids[3]);
+                    if (System.Windows.MessageBox.Show("是否刪除?", "警告", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+                    {
+                        try
+                        {
+                            if(api.RemoveDirectory(path))
+                            {
+                                CLv4Line.Delete(id, GlobalHelper.LoginUserID);
+                                GetCatalog(level);
+                            }
+                        }
+                        catch(Exception ex)
+                        {
+                            throw ex;
+                        }
+                    }
                     break;
                 case 5:
+                    id = Convert.ToInt32(ids[4]);
+                    if (System.Windows.MessageBox.Show("是否刪除?", "警告", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+                    {
+                        try
+                        {
+                            // UNDONE: 缺刪除第五層Lv5 API
+                            if(api.RemoveDirectory(path)) // 這邊需要移除所有公司的FileCategory ex BOM,Documents
+                            {
+
+                                CFileCategory.Delete(id, GlobalHelper.LoginUserID);
+                                GetCatalog(level);
+                            }
+                        }
+                        catch(Exception ex)
+                        {
+                            throw ex;
+                        }
+                    }
+                    break;
+                case 6:
+                    id = Convert.ToInt32(ids[5]);
+                    if (System.Windows.MessageBox.Show("是否刪除?", "警告", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+                    {
+                        try
+                        {
+                            path = DBHelper.GenerateFileFullPath(id);
+                            if (api.RemoveDirectory(path))
+                            {
+                                CFile.Delete(id, GlobalHelper.LoginUserID);
+                                GetCatalog(level);
+                            }
+                        }
+                        catch(Exception ex)
+                        {
+                            throw ex;
+                        }
+                    }
                     break;
             };
-            return true;
+        }
+        // UNDONE : Edit folder name
+        // Query of Manage: 編輯名稱
+        private void RenameFolder()
+        { 
+            
         }
         // Advance:從資料庫取得檔案分類名稱(階層 1) 
         private dynamic GetOnlyFileCatalog()
@@ -1157,7 +1278,7 @@ namespace WFTP.Pages
              System.Collections.ObjectModel.ObservableCollection<FileInfo> fileCollection =
                  new System.Collections.ObjectModel.ObservableCollection<FileInfo>();
 
-             ApiHelper api = new ApiHelper();
+            ApiHelper api = new ApiHelper();
             foreach (var file in files)
             {
                 if (_isAdvanceTileView)
@@ -1232,7 +1353,8 @@ namespace WFTP.Pages
                          fileCollection.Add(new FileInfo
                          {
                              FileName = file.Name,
-                             FilePath = DBHelper.GenerateFileFullPath(file.Id)
+                             FilePath = DBHelper.GenerateFileFullPath(file.Id),
+                             FileId = file.FileId
                          });
                      }
                 }
@@ -1353,7 +1475,6 @@ namespace WFTP.Pages
                 //MessageBox.Show(filePath + "\n" + fileName + "\n" + fileExt);
             }
         }
-
         // Image Lazy Loading
         public static Lazy<ImageDrawing> LoadImage(string fileName)
         {
@@ -1385,6 +1506,7 @@ namespace WFTP.Pages
         {
             public string FileName { get; set; }
             public string FilePath { get; set; }
+            public int FileId { set; get; }
         }
         // For ComboboxItem of advance query
         public class CompanyItem : INotifyPropertyChanged

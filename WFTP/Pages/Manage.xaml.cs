@@ -70,7 +70,7 @@ namespace WFTP.Pages
 
         private void btnDeleteLv1_Click(object sender, RoutedEventArgs e)
         {
-            CLv1Classify.Delete(12, GlobalHelper.LoginUserID);
+            CLv1Classify.Delete(24, GlobalHelper.LoginUserID);
         }
 
         private void btnDeleteLv2_Click(object sender, RoutedEventArgs e)
