@@ -18,6 +18,8 @@ using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
 using System.IO;
 using WFTP.Helper;
+using System.Security.Cryptography;
+using DataProvider;
 
 namespace WFTP.Pages
 {
@@ -116,7 +118,7 @@ namespace WFTP.Pages
                             int percentage = Convert.ToInt32(((double)localFileSize / (double)info.FileSize) * 100);
                             _dataDownloadFiles.Add(new FileProgressItem
                             {
-                                Name = System.IO.Path.GetFileName(info.LocalFilePath),
+                                Name = System.IO.Path.GetFileName(info.LocalFilePath).Replace(".wftp", String.Empty),
                                 Progress = percentage,
                                 FileId = info.FileId
                             });
@@ -145,7 +147,7 @@ namespace WFTP.Pages
         {
             // Create fileId
             string fileId = String.Format("{0}_{1}",
-                type, Guid.NewGuid().ToString().Replace('-', '_'));
+                type, Guid.NewGuid().ToString().Replace("-", String.Empty));
 
             // Get remote file size
             ApiHelper api = new ApiHelper();
@@ -162,17 +164,6 @@ namespace WFTP.Pages
             // Read progress list
             List<ProgressInfo> progressList = JsonConvert.DeserializeObject<List<ProgressInfo>>(
                 File.ReadAllText(GlobalHelper.ProgressList)).Select(c => (ProgressInfo)c).ToList();
-
-            //var existFile = progressList.Where(o =>
-            //    o.Type == "Download"
-            //    && o.RemoteFilePath == remoteFilePath
-            //    && o.LocalFilePath == localFilePath).FirstOrDefault();
-            //int indexOfFile = progressList.IndexOf(existFile);
-
-            //if (indexOfFile != -1)
-            //{
-            //    progressList.RemoveAt(indexOfFile);
-            //}
 
             // Check file is duplicated
             if (type.Equals("Download"))
@@ -202,6 +193,43 @@ namespace WFTP.Pages
                         }
                     }
                 }
+                else
+                {
+                    localFilePath += ".wftp";
+                }
+            }
+            else
+            {
+                string[] splitPath = remoteFilePath.Split(new char[] { '/' },StringSplitOptions.RemoveEmptyEntries);
+                string checksum = GetChecksum(localFilePath);
+                
+                WFTPDbContext db = new WFTPDbContext();
+                var files = 
+                    from classify in db.Lv1Classifications
+                    from customer in db.Lv2Customers
+                    from branch in db.Lv3CustomerBranches
+                    from line in db.Lv4Lines
+                    from catalog in db.Lv5FileCategorys
+                    from file in db.Lv6Files
+                    where classify.ClassName == splitPath[0] &&
+                          customer.CompanyName == splitPath[1] && customer.ClassifyId == classify.ClassifyId &&
+                          branch.BranchName == splitPath[2] && branch.CompanyId == customer.CompanyId &&
+                          line.LineName == splitPath[3] && line.BranchId == branch.BranchId &&
+                          catalog.ClassName == splitPath[4] &&
+                          file.FileCategoryId == catalog.FileCategoryId && file.LineId == line.LineId
+                    select new
+                    {
+                        checksum = file.FileHash
+                    };
+                
+                foreach (var file in files)
+                {
+                    if (file.checksum.Equals(checksum))
+                    {
+                        MessageBox.Show("相同檔案已存在!!");
+                        return;
+                    }
+                }
             }
 
             // Create new progress info
@@ -227,7 +255,7 @@ namespace WFTP.Pages
                 // Add file to download list
                 Switcher.progress._dataDownloadFiles.Add(new FileProgressItem
                 {
-                    Name = System.IO.Path.GetFileName(localFilePath),
+                    Name = System.IO.Path.GetFileName(localFilePath).Replace(".wftp", String.Empty),
                     Progress = 0,
                     FileId = fileId
                 });
@@ -247,7 +275,7 @@ namespace WFTP.Pages
                 // Add file to upload list
                 Switcher.progress._dataUploadFiles.Add(new FileProgressItem
                 {
-                    Name = System.IO.Path.GetFileName(localFilePath),
+                    Name = System.IO.Path.GetFileName(remoteFilePath),
                     Progress = 0,
                     FileId = fileId
                 });
@@ -318,7 +346,6 @@ namespace WFTP.Pages
             }
             
             string localFilename = String.Format(@"{0}\{1}",fileInfo["LocalFilePath"], fileInfo["LocalFileName"]);
-            localFilename += ".wftp";
             asyncResult["LocalFilePath"] = localFilename;
             string remoteFilename = fileInfo["RemoteFilePath"];
             long remoteFilesize = Convert.ToInt64(fileInfo["RemoteFileSize"]);
@@ -367,7 +394,7 @@ namespace WFTP.Pages
 
             if (downloadSuccess)
             {
-                File.Move(localFilename, localFilename.Replace(".wftp", ""));
+                File.Move(localFilename, localFilename.Replace(".wftp", String.Empty));
             }
 
             e.Result = asyncResult;
@@ -433,7 +460,7 @@ namespace WFTP.Pages
             asyncResult.Add("IsCompleted", "false");
             asyncResult.Add("FileId", fileInfo["FileId"]);
             asyncResult.Add("RemoteFilePath", fileInfo["RemoteFilePath"]);
-            /*
+            
             // Asynchronous FTP Upload
             Chilkat.Ftp2 ftp = new Chilkat.Ftp2();
 
@@ -510,7 +537,7 @@ namespace WFTP.Pages
             {
                 // Move local file to Recycle bin
             }
-            */
+            
             e.Result = asyncResult;
         }
 
@@ -548,7 +575,16 @@ namespace WFTP.Pages
             }
         }
 
-
+        private static string GetChecksum(string file)
+        {
+            //using (FileStream stream = File.OpenRead(file))
+            using(var stream = new BufferedStream(File.OpenRead(file), 1200000))
+            {
+                SHA256Managed sha = new SHA256Managed();
+                byte[] checksum = sha.ComputeHash(stream);
+                return BitConverter.ToString(checksum).Replace("-", String.Empty).ToLower();
+            }
+        }
 
         #endregion
     }
