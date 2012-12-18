@@ -201,15 +201,15 @@ namespace WFTP.Pages
                 {
                     string newNickName = getInput.NickName;
                     string newSystemName = getInput.SystemName;
-                    string rebuildPath = getInput.Path;
+                    string rebuildPath = getInput.NewPath;
                     string rebuildPathId = pathId.ToString();
                     if (getInput.ClassifyId > 0)
                     {
-                        rebuildPathId = pathId.ToString().Substring(0, pathId.ToString().LastIndexOf('/') + 1) + getInput.ClassifyId;
+                        rebuildPathId ="/" + getInput.ClassifyId + pathId.ToString().Substring(pathId.ToString().LastIndexOf('/')) ;
                     }
                     
                     // 編輯更新欄位
-                    RenameFolder(pathServer.ToString(), rebuildPathId, newSystemName, newNickName);
+                    RenameFolder(pathServer.ToString(), rebuildPathId, rebuildPath, newNickName);
                 }
             }
         }
@@ -331,7 +331,24 @@ namespace WFTP.Pages
             }).Start();
             //GetCatalog(Convert.ToInt32(lvwClassify.Tag));
         }
-
+        private void btnPrevLv_Click(object sender, RoutedEventArgs e)
+        {
+            string[] paths = navBar.Path.Split(new char[]{'\\'},StringSplitOptions.RemoveEmptyEntries);
+            if (paths.Length == 1)
+            {
+                navBar.Path = "分類";
+            }
+            else
+            {
+                string path = navBar.Path.Substring(0, navBar.Path.LastIndexOf("\\"));
+                navBar.Path = path;
+            }
+            
+        }
+        private void btnQueryHome_Click(object sender, RoutedEventArgs e)
+        {
+            navBar.Path = "分類";
+        }
         #endregion
 
         #region Advance Query Event
@@ -1164,9 +1181,10 @@ namespace WFTP.Pages
         }
         // UNDONE : Edit folder name
         // Query of Manage: 編輯名稱
-        private void RenameFolder(string path, string idPath, string newSystemName, string newNickName)
+        private void RenameFolder(string path, string idPath, string newPath, string newNickName)
         {
             string[] paths = path.Split(new char[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
+            string[] newPaths = newPath.Split(new char[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
             string[] ids = idPath.Split(new char[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
             int level = paths.Count();
             int id = 0;
@@ -1175,11 +1193,11 @@ namespace WFTP.Pages
             {
                 case 1:
                     id = Convert.ToInt32(ids[0]);
-                    if (api.Rename(path, newSystemName))
+                    if (api.Rename(path, newPath))
                     {
                         try
                         {
-                            CLv1Classify.InsertOrUpdate(id, newSystemName, newNickName);
+                            CLv1Classify.InsertOrUpdate(id, newPaths[0], newNickName);
                             GetBreadcrumbBarPath();
                             navBar.Path = path;
                         }
@@ -1192,11 +1210,11 @@ namespace WFTP.Pages
                 case 2:
                     id = Convert.ToInt32(ids[1]);
                     int classfyId = Convert.ToInt32(ids[0]);
-                    if (api.Rename(path, newSystemName))
+                    if (api.Rename(path, newPath))
                     {
                         try
                         {
-                            CLv2Customer.InsertOrUpdate(id, newSystemName, newNickName, classfyId);
+                            CLv2Customer.InsertOrUpdate(id, newPaths[1], newNickName, classfyId);
                             navBar.Path = path;
                         }
                         catch (Exception ex)
@@ -1207,11 +1225,11 @@ namespace WFTP.Pages
                     break;
                 case 3:
                     id = Convert.ToInt32(ids[2]);
-                    if (api.Rename(path, newSystemName))
+                    if (api.Rename(path, newPath))
                     {
                         try
                         {
-                            CLv3CustomerBranch.InsertOrUpdate(id, newSystemName, newNickName, 0);
+                            CLv3CustomerBranch.InsertOrUpdate(id, newPaths[2], newNickName, 0);
                             navBar.Path = path;
                         }
                         catch (Exception ex)
@@ -1222,11 +1240,11 @@ namespace WFTP.Pages
                     break;
                 case 4:
                     id = Convert.ToInt32(ids[3]);
-                    if (api.Rename(path, newSystemName))
+                    if (api.Rename(path, newPath))
                     {
                         try
                         {
-                            CLv4Line.InsertOrUpdate(id, newSystemName, newNickName, 0);
+                            CLv4Line.InsertOrUpdate(id, newPaths[3], newNickName, 0);
                             navBar.Path = path;
                         }
                         catch (Exception ex)
@@ -1238,11 +1256,11 @@ namespace WFTP.Pages
                 case 5:
                     id = Convert.ToInt32(ids[4]);
                     // UNDONE: 缺改名稱第五層Lv5 API 所有目錄都要改
-                    if (api.Rename(path, newSystemName))
+                    if (api.Rename(path, newPath))
                     {
                         try
                         {
-                            CFileCategory.InsertOrUpdate(null, newSystemName, newNickName);
+                            CFileCategory.InsertOrUpdate(null, newPaths[4], newNickName);
                             navBar.Path = path;
                         }
                         catch (Exception ex)
@@ -1742,6 +1760,10 @@ namespace WFTP.Pages
         }
 
         #endregion
+
+        
+
+        
 
       
 
