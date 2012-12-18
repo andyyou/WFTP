@@ -24,7 +24,8 @@ namespace WFTP
         #region Properties
         public string SystemName { set; get; }
         public string NickName { set; get; }
-        public string Path { set; get; }
+        public string OldPath { set; get; }
+        public string NewPath { set; get; }
         public int ClassifyId { set; get; }
         public bool IsDone { set; get; }
         private BindingList<PrevIdItem> _dataPrevItem = new BindingList<PrevIdItem>();
@@ -35,7 +36,8 @@ namespace WFTP
             this.WindowStartupLocation = WindowStartupLocation.Manual;
             this.Left = x;
             this.Top = y;
-            this.Path = path.Substring(0, path.LastIndexOf('/')+1);
+            this.OldPath = path;
+            this.NewPath = path.Substring(0, path.LastIndexOf('/') + 1);
             txtNickName.Text = oldNickName;
             txtName.Text = path.Substring(path.LastIndexOf('/')+1);
             string[] level = path.Split(new char[]{'/'},StringSplitOptions.RemoveEmptyEntries);
@@ -80,16 +82,16 @@ namespace WFTP
             PrevIdItem item = cmbPrevId.SelectedItem as PrevIdItem;
             if (item == null)
             {
-                this.Path = this.Path.Substring(0, this.Path.LastIndexOf('/') + 1) + this.SystemName;
+                this.NewPath = this.NewPath.Substring(0, this.NewPath.LastIndexOf('/') + 1) + this.SystemName;
             }
             else
             {
                 this.ClassifyId = item.Id;
-                this.Path = String.Format("/{0}/{1}", item.Name, this.SystemName);
+                this.NewPath = String.Format("/{0}/{1}", item.Name, this.SystemName);
             }
             // 判斷如果有這個名稱則提醒
             ApiHelper api = new ApiHelper();
-            if (!api.CheckPath(this.Path))
+            if (api.CheckRenamePath(this.OldPath,this.NewPath))
             {
                 txtName.Foreground = Brushes.Black;
                 lbMessage.Content = "";

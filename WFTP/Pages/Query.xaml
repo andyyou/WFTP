@@ -122,15 +122,20 @@
                                 Height="50"
                                 Content="{StaticResource appbar_arrow_left}" 
                                 Style="{DynamicResource MetroCircleButtonStyle}" 
-                                FontFamily="Microsoft JhengHei" 
-                                />
+                                FontFamily="Microsoft JhengHei" Click="btnPrevLv_Click" />
+                        <Button Name="btnQueryHome"
+                                Width="50" 
+                                Height="50"
+                                Content="{StaticResource appbar_home}" 
+                                Style="{DynamicResource MetroCircleButtonStyle}" 
+                                FontFamily="Microsoft JhengHei" Click="btnQueryHome_Click" />
                         <Rectangle Width="5" Height="20"/>
                         <odc:BreadcrumbBar x:Name="navBar"
                                            TraceBinding="{Binding XPath=@title}"
                                            Root="{StaticResource dataProvider}"
                                            HorizontalAlignment="Stretch"
                                            VerticalAlignment="Stretch"
-                                           Width="680"
+                                           Width="620"
                                            Height="30"
                                            PathChanged="navBar_PathChanged" />
                     </WrapPanel>
