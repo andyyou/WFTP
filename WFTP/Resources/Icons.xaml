@@ -104,6 +104,9 @@ Special Thanks
     <Canvas Width="48" Height="48" Clip="F1 M 0,0L 48,0L 48,48L 0,48L 0,0" UseLayoutRounding="False" x:Key="appbar_arrow_left">
         <Path Width="25" Height="18" Canvas.Left="11" Canvas.Top="15" Stretch="Fill" Fill="{DynamicResource BlackBrush}" Data="F1 M 36,22L 36,26L 19.75,26L 27,33L 20.5,33L 11,24L 20.5,15L 27,15L 19.75,22L 36,22 Z " />
     </Canvas>
+    <Canvas Width="48" Height="48" Clip="F1 M 0,0L 48,0L 48,48L 0,48L 0,0" UseLayoutRounding="False" x:Key="appbar_arrow_left_b">
+        <Path Width="25" Height="18" Canvas.Left="11" Canvas.Top="15" Stretch="Fill" Fill="{DynamicResource BlackBrush}" Data="F1 M 36,22L 36,26L 19.75,26L 27,33L 20.5,33L 11,24L 20.5,15L 27,15L 19.75,22L 36,22 Z " />
+    </Canvas>
     <Canvas Width="48" Height="48" Clip="F1 M 0,0L 48,0L 48,48L 0,48L 0,0" UseLayoutRounding="False" x:Key="appbar_arrow_right_left">
         <Path Width="25" Height="14" Canvas.Left="14" Canvas.Top="11" Stretch="Fill" Fill="{DynamicResource BlackBrush}" Data="F1 M 14,16L 14,20L 30.75,20L 25,25L 31.5,25L 39,18L 31.5,11L 25,11L 30.75,16L 14,16 Z " />
         <Path Width="25" Height="14" Canvas.Left="9" Canvas.Top="23" Stretch="Fill" Fill="{DynamicResource BlackBrush}" Data="F1 M 34,28L 34,32L 17.25,32L 23,37L 16.5,37L 9,30L 16.5,23L 23,23L 17.25,28L 34,28 Z " />
