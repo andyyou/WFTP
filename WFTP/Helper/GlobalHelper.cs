@@ -24,6 +24,8 @@ namespace WFTP.Helper
         public static string ApiThumb = String.Format("http://192.168.100.177:2121/thumb?key={0}&p={1}", ApiKey, "{0}");
         // Return true if file exist, otherwise return false
         public static string ApiCheck = String.Format("http://192.168.100.177:2121/check?key={0}&p={1}", ApiKey, "{0}");
+        // Return true if file/path can be rename, otherwise return false
+        public static string ApiCheckRename = String.Format("http://192.168.100.177:2121/checkrename?key={0}&p={1}&n={2}", ApiKey, "{0}", "{1}");
         // Return files list if path exist
         public static string ApiDir = String.Format("http://192.168.100.177:2121/dir?key={0}&p={1}", ApiKey, "{0}");
         // Return file size if file exist

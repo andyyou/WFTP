@@ -75,6 +75,34 @@ namespace WFTP.Helper
         }
 
         /// <summary>
+        /// 確認指定路徑是否可重新命名(檔案及目錄皆可)
+        /// </summary>
+        /// <param name="path">舊名稱(完整路徑)</param>
+        /// <param name="newName">新名稱(僅檔名或目錄名稱)</param>
+        /// <returns></returns>
+        public bool CheckRenamePath(string path, string newName)
+        {
+            HttpWebRequest req = (HttpWebRequest)HttpWebRequest.Create(String.Format(GlobalHelper.ApiCheckRename, path, newName));
+            req.Method = "GET";
+            using (WebResponse wr = req.GetResponse())
+            {
+                Stream responseStream = wr.GetResponseStream();
+                StreamReader reader = new StreamReader(responseStream, encoding);
+
+                string result = reader.ReadToEnd();
+
+                if (result.Equals("true"))
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+        }
+
+        /// <summary>
         /// 建立遠端目錄
         /// </summary>
         /// <param name="path">欲建立的遠端路徑</param>
