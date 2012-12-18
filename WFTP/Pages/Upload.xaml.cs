@@ -121,9 +121,9 @@ namespace WFTP.Pages
         private void btnUpload_Click(object sender, RoutedEventArgs e)
         {
             //For Debug use -- start
-            FileInfo info = new FileInfo("C:\\test.jpg");
-            //_dataTo.Add(new FileItem() { File = info, TargetPath = @"PP\台光\台灣廠\台光一號線\電氣圖", TargetRealPath = "/PP/EMC/Taiwan/1/Electric Layout/", IsReplace = true });
-            _dataTo.Add(new FileItem() { File = info, TargetPath = @"PP\台光\台灣廠\台光一號線\安裝照片", TargetRealPath = "/PP/EMC/Taiwan/1/Installation Gallery/", IsReplace = true });
+            FileInfo info = new FileInfo("C:\\ElectronicGraph1.gif");
+            _dataTo.Add(new FileItem() { File = info, TargetPath = @"PP\台光\台灣廠\台光一號線\電氣圖", TargetRealPath = "/PP/EMC/Taiwan/1/Electric Layout/", IsReplace = true });
+            //_dataTo.Add(new FileItem() { File = info, TargetPath = @"PP\台光\台灣廠\台光一號線\安裝照片", TargetRealPath = "/PP/EMC/Taiwan/1/Installation Gallery/", IsReplace = true });
             //For Debug use -- end
 
             foreach (FileItem item in _dataTo)
