@@ -54,8 +54,14 @@ namespace WFTP.Pages
 
         private void btnSettingFolder_Click(object sender, RoutedEventArgs e)
         {
+            _dataTmp.Clear();
+
             lbPath.Width = 500;
             var dialog = new System.Windows.Forms.FolderBrowserDialog();
+            if (lbPath.Content.ToString() != "")
+            {
+                dialog.SelectedPath = lbPath.Content.ToString();
+            }
             System.Windows.Forms.DialogResult result = dialog.ShowDialog();
             if (result.ToString() == "OK")
             {
@@ -64,7 +70,8 @@ namespace WFTP.Pages
             }
 
             DirectoryInfo dirInfo = new DirectoryInfo(lbPath.Content.ToString());
-            FileInfo[] files = dirInfo.GetFiles("*");
+            IEnumerable<FileInfo> files = dirInfo.GetFiles("*").Where(
+                p => System.IO.Path.GetExtension(p.Extension) != GlobalHelper.TempUploadFileExt);
 
             foreach (FileInfo file in files)
             {
@@ -133,7 +140,7 @@ namespace WFTP.Pages
             {
                 string remoteFilePath = item.TargetRealPath + System.IO.Path.GetFileName(item.File.FullName);
                 string localFilePath = item.File.FullName;
-
+                
                 // Check if the file already exists
                 string[] splitPath = remoteFilePath.Split(new char[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
                 string checksum = GetChecksum(localFilePath);
