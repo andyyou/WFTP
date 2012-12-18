@@ -70,7 +70,14 @@ namespace WFTP.Pages
                     }
                     else
                     {
+                        // Upload file to FTP server
+                        Dictionary<string, string> fileInfo = new Dictionary<string, string>();
+                        fileInfo.Add("FileId", info.FileId);
+                        fileInfo.Add("RemoteFilePath", info.RemoteFilePath);
+                        fileInfo.Add("LocalFilePath", info.LocalFilePath);
+                        fileInfo.Add("LocalFileSize", Convert.ToString(info.FileSize));
 
+                        StartUpload(fileInfo);
                     }
                 }
             }
@@ -85,10 +92,9 @@ namespace WFTP.Pages
 
         private void lstCancelUpload_Click(object sender, RoutedEventArgs e)
         {
-            //Button btn = (Button)sender;
-            //_cancelList.Add(btn.Tag.ToString());
-            //btn.IsEnabled = false;
-            MessageBox.Show("Download Cancelled!!");
+            Button btn = (Button)sender;
+            _cancelList.Add(btn.Tag.ToString());
+            btn.IsEnabled = false;
         }
 
         #endregion
@@ -106,32 +112,39 @@ namespace WFTP.Pages
 
             if (progressList.Count > 0)
             {
+                ApiHelper api = new ApiHelper();
                 foreach (ProgressInfo info in progressList)
                 {
-                    if (info.Type.Equals("Download"))
+                    // 如果本地端未完成檔案存在才顯示於進度清單中，否則就將該筆進度刪除
+                    if (File.Exists(info.LocalFilePath) && api.CheckPath(info.RemoteFilePath))
                     {
-                        // 如果本地端未完成檔案存在才顯示於進度清單中，否則就將該筆進度刪除
-                        if (File.Exists(info.LocalFilePath))
+                        if (info.Type.Equals("Download"))
                         {
-                            FileInfo localFileInfo = new FileInfo(info.LocalFilePath);
-                            long localFileSize = localFileInfo.Length;
+                            long localFileSize = new FileInfo(info.LocalFilePath).Length;
                             int percentage = Convert.ToInt32(((double)localFileSize / (double)info.FileSize) * 100);
                             _dataDownloadFiles.Add(new FileProgressItem
                             {
-                                Name = System.IO.Path.GetFileName(info.LocalFilePath).Replace(GlobalHelper.TempFileExt, String.Empty),
+                                Name = System.IO.Path.GetFileName(info.LocalFilePath).Replace(GlobalHelper.TempDownloadFileExt, String.Empty),
                                 Progress = percentage,
                                 FileId = info.FileId
                             });
                         }
                         else
                         {
-                            int indexOfFile = tmpProgressList.IndexOf(info);
-                            tmpProgressList.RemoveAt(indexOfFile);
+                            long remoteFileSize = api.GetFileSize(info.RemoteFilePath);
+                            int percentage = Convert.ToInt32(((double)remoteFileSize / (double)info.FileSize) * 100);
+                            _dataUploadFiles.Add(new FileProgressItem
+                            {
+                                Name = System.IO.Path.GetFileName(info.LocalFilePath).Replace(GlobalHelper.TempUploadFileExt, String.Empty),
+                                Progress = percentage,
+                                FileId = info.FileId
+                            });
                         }
                     }
                     else
                     {
-
+                        int indexOfFile = tmpProgressList.IndexOf(info);
+                        tmpProgressList.RemoveAt(indexOfFile);
                     }
                 }
 
@@ -168,7 +181,7 @@ namespace WFTP.Pages
             // Check file is duplicated
             if (type.Equals("Download"))
             {
-                if (File.Exists(localFilePath) || File.Exists(localFilePath + GlobalHelper.TempFileExt))
+                if (File.Exists(localFilePath) || File.Exists(localFilePath + GlobalHelper.TempDownloadFileExt))
                 {
                     int i = 1;
                     string filePathWithoutExt = String.Format(@"{0}\{1}",
@@ -182,7 +195,7 @@ namespace WFTP.Pages
                             filePathWithoutExt,
                             i,
                             filePathExt);
-                        if (File.Exists(localFilePath) || File.Exists(localFilePath + GlobalHelper.TempFileExt))
+                        if (File.Exists(localFilePath) || File.Exists(localFilePath + GlobalHelper.TempDownloadFileExt))
                         {
                             i++;
                             continue;
@@ -195,40 +208,15 @@ namespace WFTP.Pages
                 }
                 else
                 {
-                    localFilePath += GlobalHelper.TempFileExt;
+                    localFilePath += GlobalHelper.TempDownloadFileExt;
                 }
             }
             else
             {
-                string[] splitPath = remoteFilePath.Split(new char[] { '/' },StringSplitOptions.RemoveEmptyEntries);
-                string checksum = GetChecksum(localFilePath);
-                
-                WFTPDbContext db = new WFTPDbContext();
-                var files = 
-                    from classify in db.Lv1Classifications
-                    from customer in db.Lv2Customers
-                    from branch in db.Lv3CustomerBranches
-                    from line in db.Lv4Lines
-                    from category in db.Lv5FileCategorys
-                    from file in db.Lv6Files
-                    where classify.ClassName == splitPath[0] &&
-                          customer.CompanyName == splitPath[1] && customer.ClassifyId == classify.ClassifyId &&
-                          branch.BranchName == splitPath[2] && branch.CompanyId == customer.CompanyId &&
-                          line.LineName == splitPath[3] && line.BranchId == branch.BranchId &&
-                          category.ClassName == splitPath[4] &&
-                          file.FileCategoryId == category.FileCategoryId && file.LineId == line.LineId
-                    select new
-                    {
-                        checksum = file.FileHash
-                    };
-                int existFileCount = files.Where(file => file.checksum == checksum).Count();
-                if(existFileCount >0)
-                {
-                        MessageBox.Show(String.Format("檔案 {0} 已存在!!", System.IO.Path.GetFileName(localFilePath)));
-                        return;
-                }
+                string[] splitPath = remoteFilePath.Split(new char[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
 
                 // 命名規則：公司名稱_產線編號_檔案分類編號_時間戳記.副檔名
+                WFTPDbContext db = new WFTPDbContext();
                 var info = 
                     (from classify in db.Lv1Classifications
                     from customer in db.Lv2Customers
@@ -254,7 +242,7 @@ namespace WFTP.Pages
                     info.CategoryId.ToString(),
                     System.DateTime.Now.ToString("yyyyMMddHHmmssffff"),
                     System.IO.Path.GetExtension(remoteFilePath),
-                    GlobalHelper.TempFileExt);
+                    GlobalHelper.TempUploadFileExt);
             }
 
             // Create new progress info
@@ -280,7 +268,7 @@ namespace WFTP.Pages
                 // Add file to download list
                 Switcher.progress._dataDownloadFiles.Add(new FileProgressItem
                 {
-                    Name = System.IO.Path.GetFileName(localFilePath).Replace(GlobalHelper.TempFileExt, String.Empty),
+                    Name = System.IO.Path.GetFileName(localFilePath).Replace(GlobalHelper.TempDownloadFileExt, String.Empty),
                     Progress = 0,
                     FileId = fileId
                 });
@@ -300,7 +288,7 @@ namespace WFTP.Pages
                 // Add file to upload list
                 Switcher.progress._dataUploadFiles.Add(new FileProgressItem
                 {
-                    Name = System.IO.Path.GetFileName(localFilePath),
+                    Name = System.IO.Path.GetFileName(localFilePath).Replace(GlobalHelper.TempUploadFileExt, String.Empty),
                     Progress = 0,
                     FileId = fileId
                 });
@@ -419,7 +407,7 @@ namespace WFTP.Pages
 
             if (downloadSuccess)
             {
-                File.Move(localFilename, localFilename.Replace(GlobalHelper.TempFileExt, String.Empty));
+                File.Move(localFilename, localFilename.Replace(GlobalHelper.TempDownloadFileExt, String.Empty));
             }
 
             e.Result = asyncResult;
@@ -563,8 +551,8 @@ namespace WFTP.Pages
                 // Move local file to Recycle bin
 
                 // Remove temp extension from remote file
-                api.Rename(remoteFilename,
-                    System.IO.Path.GetFileName(remoteFilename).Replace(GlobalHelper.TempFileExt, String.Empty));
+                string newName = remoteFilename.Replace(GlobalHelper.TempUploadFileExt, String.Empty);
+                api.Rename(remoteFilename, newName);
             }
             
             e.Result = asyncResult;
@@ -601,16 +589,6 @@ namespace WFTP.Pages
                     api.DeleteFile(asyncResult["RemoteFilePath"]);
                     _cancelList.Remove(fileId);
                 }
-            }
-        }
-
-        private static string GetChecksum(string file)
-        {
-            using(var stream = new BufferedStream(File.OpenRead(file), 1200000))
-            {
-                SHA256Managed sha = new SHA256Managed();
-                byte[] checksum = sha.ComputeHash(stream);
-                return BitConverter.ToString(checksum).Replace("-", String.Empty).ToLower();
             }
         }
 
