@@ -164,7 +164,7 @@
                                   Height="390"
                                   Margin="0,10,0,0"
                                   SelectionMode="Single" 
-                                  ContextMenuOpening="lvwClassify_ContextMenuOpening">
+                                  ContextMenuOpening="lvwClassify_ContextMenuOpening" MouseDown="lvwClassify_MouseDown">
                             
                         </ListView>
                     </WrapPanel>

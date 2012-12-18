@@ -447,14 +447,14 @@ namespace WFTP.Pages
                 itemEdit.Click += rmenuEdit_Click;
                 Image imgEdit = new Image();
                 imgEdit.Source = new BitmapImage(new Uri("/WFTP;component/Images/icon_edit.gif", UriKind.Relative));
-                itemCancel.Icon = imgEdit;
+                itemEdit.Icon = imgEdit;
                 // Delete
                 MenuItem itemDelete = new MenuItem();
                 itemDelete.Header = "刪除";
-                itemEdit.Click += rmenuDelete_Click;
+                itemDelete.Click += rmenuDelete_Click;
                 Image imgDelete = new Image();
                 imgDelete.Source = new BitmapImage(new Uri("/WFTP;component/Images/icon_remove.png", UriKind.Relative));
-                itemCancel.Icon = imgDelete;
+                itemDelete.Icon = imgDelete;
 
                 switch (mode)
                 {
@@ -480,6 +480,33 @@ namespace WFTP.Pages
                         yield return itemCancel;
                         break;
                 }
+            }
+        }
+        private bool IsFindListViewItem(MouseEventArgs e)
+        {
+            var visualHitTest = VisualTreeHelper.HitTest(lvwClassify, e.GetPosition(lvwClassify)).VisualHit;
+
+            while (visualHitTest != null)
+            {
+                if (visualHitTest is ListViewItem)
+                {
+                    return true;
+                }
+                else if (visualHitTest == lvwClassify)
+                {
+                    return false ;
+                }
+
+                visualHitTest = VisualTreeHelper.GetParent(visualHitTest);
+            }
+
+            return false;
+        }
+        private void lvwClassify_MouseDown(object sender, MouseEventArgs e)
+        {
+            if (!IsFindListViewItem(e))
+            {
+                lvwClassify.UnselectAll();
             }
         }
         #endregion
@@ -1893,6 +1920,8 @@ namespace WFTP.Pages
         }
 
         #endregion
+
+       
 
        
 
