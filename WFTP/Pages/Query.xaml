@@ -121,7 +121,7 @@
                         <Button Name="btnPrevLv"
                                 Width="50" 
                                 Height="50"
-                                Content="{StaticResource appbar_arrow_left}" 
+                                Content="{StaticResource appbar_arrow_left_b}" 
                                 Style="{DynamicResource MetroCircleButtonStyle}" 
                                 FontFamily="Microsoft JhengHei" Click="btnPrevLv_Click" />
                         <Button Name="btnQueryHome"
