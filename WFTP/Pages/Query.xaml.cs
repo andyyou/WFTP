@@ -349,6 +349,139 @@ namespace WFTP.Pages
         {
             navBar.Path = "分類";
         }
+        // 只綁給 lvwClassify Item
+        private void Row_ContextMenuOpening(object sender, ContextMenuEventArgs e)
+        {
+           
+        }
+        private void lvwClassify_ContextMenuOpening(object sender, ContextMenuEventArgs e)
+        {
+            #region 備註
+            /*
+            * M1: 1 => Add, Cancel
+            * M2: 2 => Add, Edit, Delete, Cancel
+            * M3: 3 => Edit, Delete, Cancel
+            * M4: 4 => Cancel
+            */
+            #endregion
+            int level = Convert.ToInt32(lvwClassify.Tag);
+
+            if (lvwClassify.SelectedItems.Count > 0)
+            {
+                // Tile Right Click 
+                lvwClassify.ContextMenu = new ContextMenu();
+
+                if (level < 5)
+                {
+                    lvwClassify.ContextMenu.ItemsSource = GetMenuItems(2);
+                }
+                else
+                {
+                    lvwClassify.ContextMenu.ItemsSource = GetMenuItems(3);
+                }
+
+                if (lvwClassify.ContextMenu.Items.Count > 0)
+                {
+                    lvwClassify.ContextMenu.PlacementTarget = this;
+                    lvwClassify.ContextMenu.IsOpen = true;
+                }
+                else
+                {
+                    lvwClassify.ContextMenu = null;
+                }
+            }
+            else
+            {
+                // ListView Right Click 
+                lvwClassify.ContextMenu = new ContextMenu();
+                if (level <= 5)
+                {
+                    lvwClassify.ContextMenu.ItemsSource = GetMenuItems(1);
+                }
+                else
+                {
+                    lvwClassify.ContextMenu.ItemsSource = GetMenuItems(4);
+                }
+
+                if (lvwClassify.ContextMenu.Items.Count > 0)
+                {
+                    lvwClassify.ContextMenu.PlacementTarget = this;
+                    lvwClassify.ContextMenu.IsOpen = true;
+                }
+                else
+                {
+                    lvwClassify.ContextMenu = null;
+                }
+
+            }
+        }
+        #region 備註
+        /*
+         * M1: 1 => Add, Cancel
+         * M2: 2 => Add, Edit, Delete, Cancel
+         * M3: 3 => Edit, Delete, Cancel
+         * M4: 4 => Cancel
+        */
+        #endregion
+        private IEnumerable<object> GetMenuItems(int mode)
+        {
+            if (GlobalHelper.AdminItem.IsAdmin)
+            {
+                // Add
+                MenuItem itemAdd = new MenuItem();
+                itemAdd.Header = "新增";
+                itemAdd.Click += rmenuAdd_Click;
+                Image imgAdd = new Image();
+                imgAdd.Source = new BitmapImage(new Uri("/WFTP;component/Images/icon_plus.png", UriKind.Relative));
+                itemAdd.Icon = imgAdd;
+                // Cancel
+                MenuItem itemCancel = new MenuItem();
+                itemCancel.Header = "取消選取";
+                itemCancel.Click += rmenuCancelSelected_Click;
+                Image imgCancel = new Image();
+                imgCancel.Source = new BitmapImage(new Uri("/WFTP;component/Images/icon_cancel.png", UriKind.Relative));
+                itemCancel.Icon = imgCancel;
+                // Edit
+                MenuItem itemEdit = new MenuItem();
+                itemEdit.Header = "編輯";
+                itemEdit.Click += rmenuEdit_Click;
+                Image imgEdit = new Image();
+                imgEdit.Source = new BitmapImage(new Uri("/WFTP;component/Images/icon_edit.gif", UriKind.Relative));
+                itemCancel.Icon = imgEdit;
+                // Delete
+                MenuItem itemDelete = new MenuItem();
+                itemDelete.Header = "刪除";
+                itemEdit.Click += rmenuDelete_Click;
+                Image imgDelete = new Image();
+                imgDelete.Source = new BitmapImage(new Uri("/WFTP;component/Images/icon_remove.png", UriKind.Relative));
+                itemCancel.Icon = imgDelete;
+
+                switch (mode)
+                {
+                    case 1:
+                        yield return itemAdd;
+                        yield return new Separator();
+                        yield return itemCancel;
+                        break;
+                    case 2:
+                        yield return itemAdd;
+                        yield return itemEdit;
+                        yield return itemDelete;
+                        yield return new Separator();
+                        yield return itemCancel;
+                        break;
+                    case 3:
+                        yield return itemEdit;
+                        yield return itemDelete;
+                        yield return new Separator();
+                        yield return itemCancel;
+                        break;
+                    case 4:
+                        yield return itemCancel;
+                        break;
+                }
+            }
+        }
         #endregion
 
         #region Advance Query Event
@@ -676,13 +809,13 @@ namespace WFTP.Pages
                 btnListView.Visibility = Visibility.Visible;
                 btnTileView.Visibility = Visibility.Visible;
                 // disable add of right click menu
-                rmiAdd.Visibility = System.Windows.Visibility.Collapsed;
+                // rmiAdd.Visibility = System.Windows.Visibility.Collapsed;
             }
             else
             {
                 btnListView.Visibility = Visibility.Hidden;
                 btnTileView.Visibility = Visibility.Hidden;
-                rmiAdd.Visibility = System.Windows.Visibility.Visible;
+                // rmiAdd.Visibility = System.Windows.Visibility.Visible;
             }
 
             dynamic classify = null;
@@ -1760,6 +1893,8 @@ namespace WFTP.Pages
         }
 
         #endregion
+
+       
 
         
 
