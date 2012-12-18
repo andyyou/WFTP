@@ -234,7 +234,8 @@ namespace WFTP.Pages
             else
             {
                 // download chosen file here
-                DownloadFile(tile.Tag.ToString());
+                Dictionary<string, string> info = (Dictionary<string, string>)tile.Tag;
+                DownloadFile(DBHelper.GenerateFileFullPath(Convert.ToInt32(info["Id"])));
             }
         }
         private void lstDown_Click(object sender, RoutedEventArgs e)
@@ -253,7 +254,8 @@ namespace WFTP.Pages
             else
             {
                 // download chosen file here
-                DownloadFile(btn.Tag.ToString());
+                Dictionary<string, string> info = (Dictionary<string, string>)btn.Tag;
+                DownloadFile(DBHelper.GenerateFileFullPath(Convert.ToInt32(info["Id"])));
             }
         }
         private void lstDelete_Click(object sender, RoutedEventArgs e)
