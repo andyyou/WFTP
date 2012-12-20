@@ -64,7 +64,7 @@ namespace WFTP.Pages
 
         private void btnFile_Click(object sender, RoutedEventArgs e)
         {
-            CFile.InsertOrUpdate(null,2,2,"OriginFileName","RenameFileName",false,GlobalHelper.LoginUserID);
+            CFile.InsertOrUpdate(null,2,2,"OriginFileName","RenameFileName",false,GlobalHelper.LoginUserID,"hash example");
 
         }
 

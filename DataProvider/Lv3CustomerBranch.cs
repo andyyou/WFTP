@@ -19,7 +19,7 @@ namespace DataProvider
         private EntitySet<CLv4Line> _CLv4Line;
 
         #region Properties
-        [Column(IsDbGenerated = true, IsPrimaryKey = true, Storage = "_BranchId", DbType = "INT NOT NULL IDENTITY")]
+        [Column(IsDbGenerated = true, IsPrimaryKey = true, Storage = "_BranchId", DbType = "INT NOT NULL IDENTITY", AutoSync = AutoSync.OnInsert)]
         public Int32 BranchId
         {
             get { return _BranchId; }

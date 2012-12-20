@@ -19,7 +19,7 @@ namespace DataProvider
         private EntitySet<CFile> _CFile;
 
         #region Properties
-        [Column(Storage = "_LineId", IsDbGenerated = true, IsPrimaryKey = true, DbType = "INT NOT NULL IDENTITY")]
+        [Column(Storage = "_LineId", IsDbGenerated = true, IsPrimaryKey = true, DbType = "INT NOT NULL IDENTITY", AutoSync = AutoSync.OnInsert)]
         public Int32 LineId
         {
             get { return _LineId; }

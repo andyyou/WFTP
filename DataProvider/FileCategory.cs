@@ -17,7 +17,7 @@ namespace DataProvider
         private EntitySet<CFile> _CFile;
 
         #region Properties
-        [Column(Storage = "_FileCategoryId", IsDbGenerated = true, IsPrimaryKey = true, DbType = "INT NOT NULL IDENTITY")]
+        [Column(Storage = "_FileCategoryId", IsDbGenerated = true, IsPrimaryKey = true, DbType = "INT NOT NULL IDENTITY", AutoSync = AutoSync.OnInsert)]
         public Int32 FileCategoryId
         {
             get { return _FileCategoryId; }

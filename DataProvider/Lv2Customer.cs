@@ -19,7 +19,7 @@ namespace DataProvider
        private EntitySet<CLv3CustomerBranch> _CLv3CustomerBranch;
 
        #region Properties
-       [Column(IsDbGenerated = true, IsPrimaryKey = true, Storage = "_CompanyId", DbType = "INT NOT NULL IDENTITY")]
+       [Column(IsDbGenerated = true, IsPrimaryKey = true, Storage = "_CompanyId", DbType = "INT NOT NULL IDENTITY", AutoSync = AutoSync.OnInsert)]
        public Int32 CompanyId
        {
            get

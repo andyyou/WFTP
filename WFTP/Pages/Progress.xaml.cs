@@ -156,7 +156,7 @@ namespace WFTP.Pages
             }
         }
 
-        public void UpdateProgressList(string type, string remoteFilePath, string localFilePath)
+        public void UpdateProgressList(string type, string remoteFilePath, string localFilePath, string fileHash="")
         {
             // Create fileId
             string fileId = String.Format("{0}_{1}",
@@ -174,6 +174,12 @@ namespace WFTP.Pages
                 fileSize = new FileInfo(localFilePath).Length;
             }
 
+            // Prepare CFile Object
+            CFile dbFile = new CFile();
+            dbFile.FileHash = fileHash;
+            dbFile.OriginFileName = remoteFilePath.Substring(remoteFilePath.LastIndexOf('/') + 1).Replace(GlobalHelper.TempUploadFileExt,"");
+           
+           
             // Read progress list
             List<ProgressInfo> progressList = JsonConvert.DeserializeObject<List<ProgressInfo>>(
                 File.ReadAllText(GlobalHelper.ProgressList)).Select(c => (ProgressInfo)c).ToList();
@@ -243,6 +249,13 @@ namespace WFTP.Pages
                     System.DateTime.Now.ToString("yyyyMMddHHmmssffff"),
                     System.IO.Path.GetExtension(remoteFilePath),
                     GlobalHelper.TempUploadFileExt);
+
+                // Fill complete CFile value
+                dbFile.FileCategoryId = info.CategoryId;
+                dbFile.FileName = remoteFilePath.Substring(remoteFilePath.LastIndexOf('/') + 1).Replace(GlobalHelper.TempUploadFileExt, "");
+                dbFile.LineId = info.LineId;
+                dbFile.Path = remoteFilePath.Replace(GlobalHelper.TempUploadFileExt, "");
+                
             }
 
             // Create new progress info
@@ -300,6 +313,14 @@ namespace WFTP.Pages
                 fileInfo.Add("LocalFilePath", localFilePath);
                 //fileInfo.Add("LocalFileName", System.IO.Path.GetFileName(localFilePath));
                 fileInfo.Add("LocalFileSize", Convert.ToString(fileSize));
+                fileInfo.Add("ModelCreateUser", dbFile.CreateUser);
+                fileInfo.Add("ModelFileCategoryId", dbFile.FileCategoryId.ToString());
+                fileInfo.Add("ModelFileHash", dbFile.FileHash);
+                fileInfo.Add("ModelFileName", dbFile.FileName);
+                fileInfo.Add("ModelLastEditUser", dbFile.LastEditUser);
+                fileInfo.Add("ModelLineId", dbFile.LineId.ToString());
+                fileInfo.Add("ModelOriginFileName", dbFile.OriginFileName);
+                fileInfo.Add("ModelPath", dbFile.Path);
 
                 StartUpload(fileInfo);
             }
@@ -553,6 +574,11 @@ namespace WFTP.Pages
                 // Remove temp extension from remote file
                 string newName = remoteFilename.Replace(GlobalHelper.TempUploadFileExt, String.Empty);
                 api.Rename(remoteFilename, newName);
+                // Insert record into db
+                int categoryId = Convert.ToInt32(fileInfo["ModelFileCategoryId"]);
+                int lineId = Convert.ToInt32(fileInfo["ModelLineId"]);
+                CFile.InsertOrUpdate(null, categoryId, lineId, fileInfo["ModelOriginFileName"],
+                                           fileInfo["ModelFileName"], false, GlobalHelper.LoginUserID, fileInfo["ModelFileHash"]);
             }
             
             e.Result = asyncResult;
