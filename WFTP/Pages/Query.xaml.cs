@@ -143,39 +143,75 @@ namespace WFTP.Pages
         }
         private void rmenuDelete_Click(object sender, RoutedEventArgs e)
         {
-            if (lvwClassify.SelectedItems.Count != 1)
+            if (tabMain.SelectedIndex == 0)
             {
-                return;
+                if (lvwClassify.SelectedItems.Count != 1)
+                {
+                    return;
+                }
+                else if (_isTileView) // Delete Folder or File on Tile Mode
+                {
+                    StringBuilder pathServer = new StringBuilder();
+                    StringBuilder pathId = new StringBuilder();
+                    pathServer.Append(_ftpPath);
+                    pathId.Append(_idPath);
+
+                    Tile item = lvwClassify.SelectedItem as Tile;
+                    Dictionary<string, string> tag = item.Tag as Dictionary<string, string>;
+                    pathServer.Append(tag["Name"]);
+                    pathId.Append(tag["Id"]);
+
+                    // 刪除
+                    DeleteFolderOrFile(pathServer.ToString(), pathId.ToString());
+                }
+                else
+                {
+                    StringBuilder pathId = new StringBuilder();
+                    pathId.Append(_idPath);
+                    FileInfo item = lvwClassify.SelectedItem as FileInfo;
+                    pathId.Append(item.FileId);
+
+                    // 刪除
+                    DeleteFolderOrFile(item.FilePath, pathId.ToString());
+                }
             }
-            else if (_isTileView) // Delete Folder or File on Tile Mode
+            else if (tabMain.SelectedIndex == 1)
             {
-                StringBuilder pathServer = new StringBuilder();
-                StringBuilder pathId = new StringBuilder();
-                pathServer.Append(_ftpPath);
-                pathId.Append(_idPath);
+                if (lvwAdvanceClassify.SelectedItems.Count != 1)
+                {
+                    return;
+                }
+                else if (_isTileView) // Delete Folder or File on Tile Mode
+                {
+                    StringBuilder pathServer = new StringBuilder();
+                    StringBuilder pathId = new StringBuilder();
+                    pathServer.Append(_ftpPath);
+                    pathId.Append(_idPath);
 
-                Tile item = lvwClassify.SelectedItem as Tile;
-                Dictionary<string, string> tag = item.Tag as Dictionary<string, string>;
-                pathServer.Append(tag["Name"]);
-                pathId.Append(tag["Id"]);
+                    Tile item = lvwClassify.SelectedItem as Tile;
+                    Dictionary<string, string> tag = item.Tag as Dictionary<string, string>;
+                    pathServer.Append(tag["Name"]);
+                    pathId.Append(tag["Id"]);
 
-                // 刪除
-                DeleteFolderOrFile(pathServer.ToString(), pathId.ToString());
-            }
-            else
-            {
-                StringBuilder pathId = new StringBuilder();
-                pathId.Append(_idPath);
-                FileInfo item = lvwClassify.SelectedItem as FileInfo;
-                pathId.Append(item.FileId);
+                    // 刪除
+                    DeleteFolderOrFile(pathServer.ToString(), pathId.ToString());
+                }
+                else
+                {
+                    StringBuilder pathId = new StringBuilder();
+                    pathId.Append(_idPath);
+                    FileInfo item = lvwAdvanceClassify.SelectedItem as FileInfo;
+                    pathId.Append(item.FileId);
 
-                // 刪除
-                DeleteFolderOrFile(item.FilePath, pathId.ToString());
+                    // 刪除
+                    DeleteFolderOrFile(item.FilePath, pathId.ToString());
+                }
             }
         }
         private void rmenuCancelSelected_Click(object sender, RoutedEventArgs e)
         {
             lvwClassify.UnselectAll();
+            lvwAdvanceClassify.UnselectAll();
         }
         private void rmenuEdit_Click(object sender, RoutedEventArgs e)
         {
@@ -213,7 +249,6 @@ namespace WFTP.Pages
                 }
             }
         }
-        
         #endregion
 
         #region Query Events
@@ -267,10 +302,7 @@ namespace WFTP.Pages
             Button btn = (Button)sender;
             DownloadFile(btn.Tag.ToString());
         }
-        private void lstAdvanceDelete_Click(object sender, RoutedEventArgs e)
-        {
-            
-        }
+       
         private void navBar_PathChanged(object sender, RoutedPropertyChangedEventArgs<string> e)
         {
             string displayPath = navBar.GetDisplayPath();
@@ -351,11 +383,6 @@ namespace WFTP.Pages
         {
             navBar.Path = "分類";
         }
-        // 只綁給 lvwClassify Item
-        private void Row_ContextMenuOpening(object sender, ContextMenuEventArgs e)
-        {
-           
-        }
         private void lvwClassify_ContextMenuOpening(object sender, ContextMenuEventArgs e)
         {
             #region 備註
@@ -427,6 +454,7 @@ namespace WFTP.Pages
          * M2: 2 => Add, Edit, Delete, Cancel
          * M3: 3 => Edit, Delete, Cancel
          * M4: 4 => Cancel
+         * M5: 5 => Delete, Cancel
         */
         #endregion
         private IEnumerable<object> GetMenuItems(int mode)
@@ -694,6 +722,49 @@ namespace WFTP.Pages
                          GenerateListviewItem(_advCurrentPage);
                      }));
                 }).Start();
+            }
+        }
+        private void lvwAdvanceClassify_ContextMenuOpening(object sender, ContextMenuEventArgs e)
+        {
+            int level = Convert.ToInt32(lvwAdvanceClassify.Tag);
+            if (lvwAdvanceClassify.SelectedItems.Count > 0)
+            {
+                // Tile Right Click 
+                lvwAdvanceClassify.ContextMenu = new ContextMenu();
+                if (level == 1)
+                {
+                    lvwAdvanceClassify.ContextMenu.ItemsSource = GetMenuItems(5);
+                }
+                
+                if (lvwAdvanceClassify.ContextMenu.Items.Count > 0)
+                {
+                    lvwAdvanceClassify.ContextMenu.PlacementTarget = this;
+                    lvwAdvanceClassify.ContextMenu.IsOpen = true;
+                }
+                else
+                {
+                    lvwAdvanceClassify.ContextMenu = null;
+                }
+            }
+            else
+            {
+                lvwAdvanceClassify.ContextMenu = new ContextMenu();
+                if (lvwAdvanceClassify.ContextMenu.Items.Count > 0)
+                {
+                    lvwAdvanceClassify.ContextMenu.PlacementTarget = this;
+                    lvwAdvanceClassify.ContextMenu.IsOpen = true;
+                }
+                else
+                {
+                    lvwAdvanceClassify.ContextMenu = null;
+                }
+            }
+        }
+        private void lvwAdvanceClassify_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (!IsFindListViewItem(e))
+            {
+                lvwAdvanceClassify.UnselectAll();
             }
         }
         #endregion
@@ -1931,6 +2002,10 @@ namespace WFTP.Pages
         }
 
         #endregion
+
+        
+
+        
 
        
 

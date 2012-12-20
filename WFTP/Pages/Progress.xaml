@@ -5,6 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
              mc:Ignorable="d" 
+             xmlns:l="clr-namespace:WFTP.Pages"
              d:DesignHeight="561"
              d:DesignWidth="778"
              FontFamily="Microsoft JhengHei">
@@ -18,7 +19,9 @@
                 <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/Blue.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/BaseLight.xaml" />
             </ResourceDictionary.MergedDictionaries>
+            <l:CancelToVisibilityConverter x:Key="converter" />
         </ResourceDictionary>
+        
     </Control.Resources>
     
     <Grid>
@@ -48,14 +51,19 @@
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
-                    <GridViewColumn Header="取消下載" Width="55">
+                    <GridViewColumn Header="取消下載" 
+                                    >
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
                                 <Button Content="取消"
                                     Tag="{Binding FileId}"
                                     FontSize="12"
                                     FontFamily="Microsoft JhengHei"
-                                    Click="lstCancelDownload_Click" />
+                                    Click="lstCancelDownload_Click"
+                                        Width="{Binding Path=Progress, 
+                                         Converter={StaticResource converter},
+                                         Mode=TwoWay, 
+                                         UpdateSourceTrigger=PropertyChanged}"/>
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
@@ -80,14 +88,19 @@
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
-                    <GridViewColumn Header="取消上傳" Width="55">
+                    <GridViewColumn Header="取消上傳"
+                                    >
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
                                 <Button Content="取消"
                                     Tag="{Binding FileId}"
                                     FontSize="12"
                                     FontFamily="Microsoft JhengHei"
-                                    Click="lstCancelUpload_Click" />
+                                    Click="lstCancelUpload_Click" 
+                                        Width="{Binding Path=Progress, 
+                                         Converter={StaticResource converter},
+                                         Mode=TwoWay, 
+                                         UpdateSourceTrigger=PropertyChanged}"/>
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>

@@ -16,7 +16,7 @@ namespace DataProvider
         private EntitySet<CLv2Customer> _CLv2Customer;
       
         #region Properties
-        [Column(IsDbGenerated = true, IsPrimaryKey = true, Storage = "_ClassifyId", DbType="INT NOT NULL IDENTITY")]
+        [Column(IsDbGenerated = true, IsPrimaryKey = true, Storage = "_ClassifyId", DbType = "INT NOT NULL IDENTITY", AutoSync = AutoSync.OnInsert)]
         public Int32 ClassifyId{
             get {
                 return _ClassifyId;
