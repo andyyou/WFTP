@@ -27,7 +27,7 @@ namespace DataProvider
         private EntityRef<CFileCategory> _CFileCategory;
 
         #region Properties
-        [Column(Storage = "_FileId", IsDbGenerated = true, IsPrimaryKey = true, DbType = "INT NOT NULL IDENTITY")]
+        [Column(Storage = "_FileId", IsDbGenerated = true, IsPrimaryKey = true, DbType = "INT NOT NULL IDENTITY", AutoSync= AutoSync.OnInsert)]
         public Int32 FileId
         {
             get { return _FileId; }
@@ -134,7 +134,7 @@ namespace DataProvider
         }
 
         #region Methods
-        public static void InsertOrUpdate(int? fileId,int categoryId, int lineId, string originFileName, string fileName, bool? isDelete, string loginUserID)
+        public static void InsertOrUpdate(int? fileId,int categoryId, int lineId, string originFileName, string fileName, bool? isDelete, string loginUserID, string fileHash)
         {
             WFTPDbContext db = new WFTPDbContext();
             if (fileId == null) //Insert
@@ -146,6 +146,7 @@ namespace DataProvider
                     f.LineId = lineId;
                     f.OriginFileName = originFileName;
                     f.FileName = fileName;
+                    f.FileHash = fileHash;
                     f.IsDeleted = false;
                     f.CreateDate = DateTime.Now;
                     f.LastUploadDate = DateTime.Now;
@@ -153,11 +154,7 @@ namespace DataProvider
                     f.CreateUser = loginUserID;
                     db.Lv6Files.InsertOnSubmit(f);
                     db.SubmitChanges();
-                    var file = (from files in db.GetTable<CFile>()
-                                    where files.LineId == f.LineId && files.FileCategoryId == f.FileCategoryId
-                                    && files.CreateUser == f.CreateUser && files.OriginFileName == f.OriginFileName
-                                    select files).LastOrDefault();
-                    file.Path = DBHelper.GenerateFileFullPath(file.FileId);
+                    f.Path = DBHelper.GenerateFileFullPath(f.FileId);
                     db.SubmitChanges();
                 }
                 catch (Exception ex)

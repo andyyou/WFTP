@@ -180,7 +180,7 @@ namespace WFTP.Pages
                     {
                         string tmpFilePath = localFilePath + GlobalHelper.TempUploadFileExt;
                         File.Move(localFilePath, tmpFilePath);
-                        Switcher.progress.UpdateProgressList("Upload", remoteFilePath, tmpFilePath);
+                        Switcher.progress.UpdateProgressList("Upload", remoteFilePath, tmpFilePath,checksum);
                     }
                 }
                 _dataTo.Clear();
