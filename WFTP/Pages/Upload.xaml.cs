@@ -27,8 +27,8 @@ namespace WFTP.Pages
     /// </summary>
     public partial class Upload : UserControl, ISwitchable
     {
-        private dynamic _dataTmp = new BindingList<FileInfo>();
-        private dynamic _dataTo = new BindingList<FileItem>();
+        private BindingList<FileInfo> _dataTmp = new BindingList<FileInfo>();
+        private BindingList<FileItem> _dataTo = new BindingList<FileItem>();
        
         public Upload()
         {
@@ -81,49 +81,55 @@ namespace WFTP.Pages
 
         private void btnUp_Click(object sender, RoutedEventArgs e)
         {
-            SetPath sp = new SetPath(400,500);
-            string target_path = "";
-            string target_real_path = "";
-            sp.ShowDialog();
-            target_path = sp.Path;
-            target_real_path = sp.RealPath;
-
-            if (!String.IsNullOrEmpty(target_path))
+            if (lvwTempList.SelectedItems.Count > 0)
             {
-                int pathLevel = target_path.Split(new char[] { '\\' }, StringSplitOptions.RemoveEmptyEntries).Count();
-                if (pathLevel == 5)
-                {
-                    List<FileInfo> removeItems = new List<FileInfo>();
-                    foreach (FileInfo i in lvwTempList.SelectedItems)
-                    {
-                        _dataTo.Add(new FileItem() { File = i, TargetPath = target_path, TargetRealPath = target_real_path, IsReplace = true });
-                        removeItems.Add(i);
-                    }
+                SetPath sp = new SetPath(400, 500);
+                string target_path = "";
+                string target_real_path = "";
+                sp.ShowDialog();
+                target_path = sp.Path;
+                target_real_path = sp.RealPath;
 
-                    foreach (FileInfo f in removeItems)
-                    {
-                        _dataTmp.Remove(f);
-                    }
-                }
-                else
+                if (!String.IsNullOrEmpty(target_path))
                 {
-                    return;
+                    int pathLevel = target_path.Split(new char[] { '\\' }, StringSplitOptions.RemoveEmptyEntries).Count();
+                    if (pathLevel == 5)
+                    {
+                        List<FileInfo> removeItems = new List<FileInfo>();
+                        foreach (FileInfo i in lvwTempList.SelectedItems)
+                        {
+                            _dataTo.Add(new FileItem() { File = i, TargetPath = target_path, TargetRealPath = target_real_path, IsReplace = true });
+                            removeItems.Add(i);
+                        }
+
+                        foreach (FileInfo f in removeItems)
+                        {
+                            _dataTmp.Remove(f);
+                        }
+                    }
+                    else
+                    {
+                        return;
+                    }
                 }
             }
         }
 
         private void btnDown_Click(object sender, RoutedEventArgs e)
         {
-            List<FileItem> removeItems = new List<FileItem>();
-            foreach (FileItem i in lvwToUplpad.SelectedItems)
+            if (lvwToUplpad.SelectedItems.Count > 0)
             {
-                _dataTmp.Add(i.File);
-                removeItems.Add(i);
-            }
+                List<FileItem> removeItems = new List<FileItem>();
+                foreach (FileItem i in lvwToUplpad.SelectedItems)
+                {
+                    _dataTmp.Add(i.File);
+                    removeItems.Add(i);
+                }
 
-            foreach (FileItem f in removeItems)
-            {
-                _dataTo.Remove(f);
+                foreach (FileItem f in removeItems)
+                {
+                    _dataTo.Remove(f);
+                }
             }
         }
 
@@ -135,58 +141,60 @@ namespace WFTP.Pages
             //_dataTo.Add(new FileItem() { File = info, TargetPath = @"PP\台光\台灣廠\台光一號線\電氣圖", TargetRealPath = "/PP/EMC/Taiwan/1/Electric Layout/", IsReplace = true });
             //_dataTo.Add(new FileItem() { File = info, TargetPath = @"PP\台光\台灣廠\台光一號線\安裝照片", TargetRealPath = "/PP/EMC/Taiwan/1/Installation Gallery/", IsReplace = true });
             //測試資料結尾
-
-            foreach (FileItem item in _dataTo)
+            if (_dataTo.Count() > 0)
             {
-                string remoteFilePath = item.TargetRealPath + System.IO.Path.GetFileName(item.File.FullName);
-                string localFilePath = item.File.FullName;
-                
-                // Check if the file already exists
-                string[] splitPath = remoteFilePath.Split(new char[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
-                string checksum = GetChecksum(localFilePath);
+                foreach (FileItem item in _dataTo)
+                {
+                    string remoteFilePath = item.TargetRealPath + System.IO.Path.GetFileName(item.File.FullName);
+                    string localFilePath = item.File.FullName;
 
-                WFTPDbContext db = new WFTPDbContext();
-                var fileHash =
-                    from classify in db.Lv1Classifications
-                    from customer in db.Lv2Customers
-                    from branch in db.Lv3CustomerBranches
-                    from line in db.Lv4Lines
-                    from category in db.Lv5FileCategorys
-                    from file in db.Lv6Files
-                    where classify.ClassName == splitPath[0] &&
-                          customer.CompanyName == splitPath[1] && customer.ClassifyId == classify.ClassifyId &&
-                          branch.BranchName == splitPath[2] && branch.CompanyId == customer.CompanyId &&
-                          line.LineName == splitPath[3] && line.BranchId == branch.BranchId &&
-                          category.ClassName == splitPath[4] &&
-                          file.FileCategoryId == category.FileCategoryId && file.LineId == line.LineId
-                    select new
+                    // Check if the file already exists
+                    string[] splitPath = remoteFilePath.Split(new char[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
+                    string checksum = GetChecksum(localFilePath);
+
+                    WFTPDbContext db = new WFTPDbContext();
+                    var fileHash =
+                        from classify in db.Lv1Classifications
+                        from customer in db.Lv2Customers
+                        from branch in db.Lv3CustomerBranches
+                        from line in db.Lv4Lines
+                        from category in db.Lv5FileCategorys
+                        from file in db.Lv6Files
+                        where classify.ClassName == splitPath[0] &&
+                              customer.CompanyName == splitPath[1] && customer.ClassifyId == classify.ClassifyId &&
+                              branch.BranchName == splitPath[2] && branch.CompanyId == customer.CompanyId &&
+                              line.LineName == splitPath[3] && line.BranchId == branch.BranchId &&
+                              category.ClassName == splitPath[4] &&
+                              file.FileCategoryId == category.FileCategoryId && file.LineId == line.LineId
+                        select new
+                        {
+                            checksum = file.FileHash
+                        };
+                    int existFileCount = fileHash.Where(file => file.checksum == checksum).Count();
+                    if (existFileCount > 0)
                     {
-                        checksum = file.FileHash
-                    };
-                int existFileCount = fileHash.Where(file => file.checksum == checksum).Count();
-                if (existFileCount > 0)
-                {
-                    MessageBox.Show(String.Format("檔案 {0} 已存在!!", System.IO.Path.GetFileName(localFilePath)));
-                    continue;
+                        MessageBox.Show(String.Format("檔案 {0} 已存在!!", System.IO.Path.GetFileName(localFilePath)));
+                        continue;
+                    }
+                    else
+                    {
+                        string tmpFilePath = localFilePath + GlobalHelper.TempUploadFileExt;
+                        File.Move(localFilePath, tmpFilePath);
+                        Switcher.progress.UpdateProgressList("Upload", remoteFilePath, tmpFilePath);
+                    }
                 }
-                else
+                _dataTo.Clear();
+
+                // Reload temp folder
+                DirectoryInfo dirInfo = new DirectoryInfo(lbPath.Content.ToString());
+                IEnumerable<FileInfo> files = dirInfo.GetFiles("*").Where(
+                    p => System.IO.Path.GetExtension(p.Extension) != GlobalHelper.TempUploadFileExt);
+
+                _dataTmp.Clear();
+                foreach (FileInfo file in files)
                 {
-                    string tmpFilePath = localFilePath + GlobalHelper.TempUploadFileExt;
-                    File.Move(localFilePath, tmpFilePath);
-                    Switcher.progress.UpdateProgressList("Upload", remoteFilePath, tmpFilePath);
+                    _dataTmp.Add(file);
                 }
-            }
-            _dataTo.Clear();
-
-            // Reload temp folder
-            DirectoryInfo dirInfo = new DirectoryInfo(lbPath.Content.ToString());
-            IEnumerable<FileInfo> files = dirInfo.GetFiles("*").Where(
-                p => System.IO.Path.GetExtension(p.Extension) != GlobalHelper.TempUploadFileExt);
-
-            _dataTmp.Clear();
-            foreach (FileInfo file in files)
-            {
-                _dataTmp.Add(file);
             }
         }
 
@@ -225,6 +233,36 @@ namespace WFTP.Pages
                 SHA256Managed sha = new SHA256Managed();
                 byte[] checksum = sha.ComputeHash(stream);
                 return BitConverter.ToString(checksum).Replace("-", String.Empty).ToLower();
+            }
+        }
+
+        private void lvwToUplpad_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            if (lvwToUplpad.SelectedItems.Count > 0)
+            {
+                SetPath sp = new SetPath(400, 500);
+                string target_path = "";
+                string target_real_path = "";
+                sp.ShowDialog();
+                target_path = sp.Path;
+                target_real_path = sp.RealPath;
+                if (!String.IsNullOrEmpty(target_path))
+                {
+                    int pathLevel = target_path.Split(new char[] { '\\' }, StringSplitOptions.RemoveEmptyEntries).Count();
+                    if (pathLevel == 5)
+                    {
+                        foreach (FileItem item in lvwToUplpad.SelectedItems)
+                        {
+                            item.TargetPath = target_path;
+                            item.TargetRealPath = target_real_path;
+                        }
+                        
+                    }
+                    else
+                    {
+                        return;
+                    }
+                }
             }
         }
       
