@@ -1038,7 +1038,14 @@ namespace WFTP.Pages
 
                         if (level < 6)
                         {
-                            tile.Count = classifyItem.Counts.ToString();
+                            if (level == 4)
+                            {
+                                tile.Count = classifyItem.Counts.ToString();
+                            }
+                            else
+                            {
+                                tile.Count = Convert.ToString(api.GetCount(_ftpPath + dicInfo["Name"]));
+                            }
                         }
                         else
                         {
