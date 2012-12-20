@@ -1255,43 +1255,77 @@ namespace WFTP.Pages
             switch (level)
             { 
                 case 1:
-                    if (api.CreateDirectory(path))
+                    try
                     {
-                        CLv1Classify.InsertOrUpdate(null, paths[0], folderName);
-                        GetBreadcrumbBarPath();
-                        navBar.Path = path;
+                        if (api.CreateDirectory(path))
+                        {
+                            CLv1Classify.InsertOrUpdate(null, paths[0], folderName);
+                            GetBreadcrumbBarPath();
+                            navBar.Path = path;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        throw ex;
                     }
                     break;
                 case 2:
                     int classfyId = Convert.ToInt32(ids[0]);
-                    if (api.CreateDirectory(path))
+                    try
                     {
-                        CLv2Customer.InsertOrUpdate(null, paths[1], folderName, classfyId);
-                        navBar.Path = path;
+                        if (api.CreateDirectory(path))
+                        {
+                            CLv2Customer.InsertOrUpdate(null, paths[1], folderName, classfyId);
+                            navBar.Path = path;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        throw ex;
                     }
                     break;
                 case 3:
                     int companyId = Convert.ToInt32(ids[1]);
-                    if (api.CreateDirectory(path))
+                    try
                     {
-                        CLv3CustomerBranch.InsertOrUpdate(null, paths[2], folderName, companyId);
-                        navBar.Path = path;
+                        if (api.CreateDirectory(path))
+                        {
+                            CLv3CustomerBranch.InsertOrUpdate(null, paths[2], folderName, companyId);
+                            navBar.Path = path;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        throw ex;
                     }
                     break;
                 case 4:
                     int branchId =  Convert.ToInt32(ids[2]);
-                    if (api.CreateDirectory(path))
+                    try
                     {
-                        CLv4Line.InsertOrUpdate(null, paths[3], folderName, branchId);
-                        navBar.Path = path;
+                        if (api.CreateDirectory(path) && api.CreateCategorys(path))
+                        {
+                            CLv4Line.InsertOrUpdate(null, paths[3], folderName, branchId);
+                            navBar.Path = path;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        throw ex;
                     }
                     break;
                 case 5:
-                    if (api.CreateDirectory(path))
+                    try
                     {
-                        // UNDONE: Lv5 API Not fixed yet
-                        CFileCategory.InsertOrUpdate(null, paths[4], folderName);
-                        navBar.Path = path;
+                        if (api.AddCategorys(folderName))
+                        {
+                            CFileCategory.InsertOrUpdate(null, paths[4], folderName);
+                            navBar.Path = path;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        throw ex;
                     }
                     break;
             };
@@ -1387,8 +1421,9 @@ namespace WFTP.Pages
                     {
                         try
                         {
-                            // UNDONE: 缺刪除第五層Lv5 API
-                            if(api.RemoveDirectory(path)) // 這邊需要移除所有公司的FileCategory ex BOM,Documents
+                            // CHECK:
+                            int result = api.RemoveCategorys(paths[4]);
+                            if (result > 0) // 這邊需要移除所有公司的FileCategory ex BOM,Documents
                             {
                                 CFileCategory.Delete(id, GlobalHelper.LoginUserID);
                                 navBar.Path = path;
@@ -1497,12 +1532,12 @@ namespace WFTP.Pages
                     break;
                 case 5:
                     id = Convert.ToInt32(ids[4]);
-                    // UNDONE: 缺改名稱第五層Lv5 API 所有目錄都要改
-                    if (api.Rename(path, newPath))
+                    int result = api.RenameCategorys(paths[4], newPaths[4]);
+                    if (result >= 0)
                     {
                         try
                         {
-                            CFileCategory.InsertOrUpdate(null, newPaths[4], newNickName);
+                            CFileCategory.InsertOrUpdate(id, newPaths[4], newNickName);
                             navBar.Path = path;
                         }
                         catch (Exception ex)
