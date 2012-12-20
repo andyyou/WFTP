@@ -40,7 +40,7 @@ namespace WFTP.Helper
         // Return true if delete file success(the file will be delete permanently)
         public static string ApiDeleteFile = String.Format("http://192.168.100.177:2121/deletefile?key={0}&p={1}", ApiKey, "{0}");
         // Return true if lv5 single category create success
-        public static string ApiAddCategorys = String.Format("http://192.168.100.177:2121/addcategory?key={0}&p={1}", ApiKey, "{0}");
+        public static string ApiAddCategorys = String.Format("http://192.168.100.177:2121/addcategory?key={0}&n={1}", ApiKey, "{0}");
         // Return true if lv5 category create success
         public static string ApiCreateCategorys = String.Format("http://192.168.100.177:2121/createcategorys?key={0}&p={1}", ApiKey, "{0}");
         // Return true if lv5 category rename success

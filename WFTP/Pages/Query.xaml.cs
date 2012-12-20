@@ -143,39 +143,75 @@ namespace WFTP.Pages
         }
         private void rmenuDelete_Click(object sender, RoutedEventArgs e)
         {
-            if (lvwClassify.SelectedItems.Count != 1)
+            if (tabMain.SelectedIndex == 0)
             {
-                return;
+                if (lvwClassify.SelectedItems.Count != 1)
+                {
+                    return;
+                }
+                else if (_isTileView) // Delete Folder or File on Tile Mode
+                {
+                    StringBuilder pathServer = new StringBuilder();
+                    StringBuilder pathId = new StringBuilder();
+                    pathServer.Append(_ftpPath);
+                    pathId.Append(_idPath);
+
+                    Tile item = lvwClassify.SelectedItem as Tile;
+                    Dictionary<string, string> tag = item.Tag as Dictionary<string, string>;
+                    pathServer.Append(tag["Name"]);
+                    pathId.Append(tag["Id"]);
+
+                    // 刪除
+                    DeleteFolderOrFile(pathServer.ToString(), pathId.ToString());
+                }
+                else
+                {
+                    StringBuilder pathId = new StringBuilder();
+                    pathId.Append(_idPath);
+                    FileInfo item = lvwClassify.SelectedItem as FileInfo;
+                    pathId.Append(item.FileId);
+
+                    // 刪除
+                    DeleteFolderOrFile(item.FilePath, pathId.ToString());
+                }
             }
-            else if (_isTileView) // Delete Folder or File on Tile Mode
+            else if (tabMain.SelectedIndex == 1)
             {
-                StringBuilder pathServer = new StringBuilder();
-                StringBuilder pathId = new StringBuilder();
-                pathServer.Append(_ftpPath);
-                pathId.Append(_idPath);
+                if (lvwAdvanceClassify.SelectedItems.Count != 1)
+                {
+                    return;
+                }
+                else if (_isTileView) // Delete Folder or File on Tile Mode
+                {
+                    StringBuilder pathServer = new StringBuilder();
+                    StringBuilder pathId = new StringBuilder();
+                    pathServer.Append(_ftpPath);
+                    pathId.Append(_idPath);
 
-                Tile item = lvwClassify.SelectedItem as Tile;
-                Dictionary<string, string> tag = item.Tag as Dictionary<string, string>;
-                pathServer.Append(tag["Name"]);
-                pathId.Append(tag["Id"]);
+                    Tile item = lvwClassify.SelectedItem as Tile;
+                    Dictionary<string, string> tag = item.Tag as Dictionary<string, string>;
+                    pathServer.Append(tag["Name"]);
+                    pathId.Append(tag["Id"]);
 
-                // 刪除
-                DeleteFolderOrFile(pathServer.ToString(), pathId.ToString());
-            }
-            else
-            {
-                StringBuilder pathId = new StringBuilder();
-                pathId.Append(_idPath);
-                FileInfo item = lvwClassify.SelectedItem as FileInfo;
-                pathId.Append(item.FileId);
+                    // 刪除
+                    DeleteFolderOrFile(pathServer.ToString(), pathId.ToString());
+                }
+                else
+                {
+                    StringBuilder pathId = new StringBuilder();
+                    pathId.Append(_idPath);
+                    FileInfo item = lvwAdvanceClassify.SelectedItem as FileInfo;
+                    pathId.Append(item.FileId);
 
-                // 刪除
-                DeleteFolderOrFile(item.FilePath, pathId.ToString());
+                    // 刪除
+                    DeleteFolderOrFile(item.FilePath, pathId.ToString());
+                }
             }
         }
         private void rmenuCancelSelected_Click(object sender, RoutedEventArgs e)
         {
             lvwClassify.UnselectAll();
+            lvwAdvanceClassify.UnselectAll();
         }
         private void rmenuEdit_Click(object sender, RoutedEventArgs e)
         {
@@ -213,7 +249,6 @@ namespace WFTP.Pages
                 }
             }
         }
-        
         #endregion
 
         #region Query Events
@@ -267,10 +302,7 @@ namespace WFTP.Pages
             Button btn = (Button)sender;
             DownloadFile(btn.Tag.ToString());
         }
-        private void lstAdvanceDelete_Click(object sender, RoutedEventArgs e)
-        {
-            
-        }
+       
         private void navBar_PathChanged(object sender, RoutedPropertyChangedEventArgs<string> e)
         {
             string displayPath = navBar.GetDisplayPath();
@@ -351,19 +383,15 @@ namespace WFTP.Pages
         {
             navBar.Path = "分類";
         }
-        // 只綁給 lvwClassify Item
-        private void Row_ContextMenuOpening(object sender, ContextMenuEventArgs e)
-        {
-           
-        }
         private void lvwClassify_ContextMenuOpening(object sender, ContextMenuEventArgs e)
         {
             #region 備註
             /*
             * M1: 1 => Add, Cancel
             * M2: 2 => Add, Edit, Delete, Cancel
-            * M3: 3 => Edit, Delete, Cancel
+            * M3: 3 => Eidt, Delete, Cancel
             * M4: 4 => Cancel
+            * M5: 5 => Delete, Cancel
             */
             #endregion
             int level = Convert.ToInt32(lvwClassify.Tag);
@@ -379,7 +407,10 @@ namespace WFTP.Pages
                 }
                 else
                 {
-                    lvwClassify.ContextMenu.ItemsSource = GetMenuItems(3);
+                    if(level == 6)
+                        lvwClassify.ContextMenu.ItemsSource = GetMenuItems(5);
+                    else
+                        lvwClassify.ContextMenu.ItemsSource = GetMenuItems(3);
                 }
 
                 if (lvwClassify.ContextMenu.Items.Count > 0)
@@ -423,6 +454,7 @@ namespace WFTP.Pages
          * M2: 2 => Add, Edit, Delete, Cancel
          * M3: 3 => Edit, Delete, Cancel
          * M4: 4 => Cancel
+         * M5: 5 => Delete, Cancel
         */
         #endregion
         private IEnumerable<object> GetMenuItems(int mode)
@@ -479,6 +511,11 @@ namespace WFTP.Pages
                         yield return itemCancel;
                         break;
                     case 4:
+                        yield return itemCancel;
+                        break;
+                    case 5:
+                        yield return itemDelete;
+                        yield return new Separator();
                         yield return itemCancel;
                         break;
                 }
@@ -685,6 +722,49 @@ namespace WFTP.Pages
                          GenerateListviewItem(_advCurrentPage);
                      }));
                 }).Start();
+            }
+        }
+        private void lvwAdvanceClassify_ContextMenuOpening(object sender, ContextMenuEventArgs e)
+        {
+            int level = Convert.ToInt32(lvwAdvanceClassify.Tag);
+            if (lvwAdvanceClassify.SelectedItems.Count > 0)
+            {
+                // Tile Right Click 
+                lvwAdvanceClassify.ContextMenu = new ContextMenu();
+                if (level == 1)
+                {
+                    lvwAdvanceClassify.ContextMenu.ItemsSource = GetMenuItems(5);
+                }
+                
+                if (lvwAdvanceClassify.ContextMenu.Items.Count > 0)
+                {
+                    lvwAdvanceClassify.ContextMenu.PlacementTarget = this;
+                    lvwAdvanceClassify.ContextMenu.IsOpen = true;
+                }
+                else
+                {
+                    lvwAdvanceClassify.ContextMenu = null;
+                }
+            }
+            else
+            {
+                lvwAdvanceClassify.ContextMenu = new ContextMenu();
+                if (lvwAdvanceClassify.ContextMenu.Items.Count > 0)
+                {
+                    lvwAdvanceClassify.ContextMenu.PlacementTarget = this;
+                    lvwAdvanceClassify.ContextMenu.IsOpen = true;
+                }
+                else
+                {
+                    lvwAdvanceClassify.ContextMenu = null;
+                }
+            }
+        }
+        private void lvwAdvanceClassify_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (!IsFindListViewItem(e))
+            {
+                lvwAdvanceClassify.UnselectAll();
             }
         }
         #endregion
@@ -1175,43 +1255,77 @@ namespace WFTP.Pages
             switch (level)
             { 
                 case 1:
-                    if (api.CreateDirectory(path))
+                    try
                     {
-                        CLv1Classify.InsertOrUpdate(null, paths[0], folderName);
-                        GetBreadcrumbBarPath();
-                        navBar.Path = path;
+                        if (api.CreateDirectory(path))
+                        {
+                            CLv1Classify.InsertOrUpdate(null, paths[0], folderName);
+                            GetBreadcrumbBarPath();
+                            navBar.Path = path;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        throw ex;
                     }
                     break;
                 case 2:
                     int classfyId = Convert.ToInt32(ids[0]);
-                    if (api.CreateDirectory(path))
+                    try
                     {
-                        CLv2Customer.InsertOrUpdate(null, paths[1], folderName, classfyId);
-                        navBar.Path = path;
+                        if (api.CreateDirectory(path))
+                        {
+                            CLv2Customer.InsertOrUpdate(null, paths[1], folderName, classfyId);
+                            navBar.Path = path;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        throw ex;
                     }
                     break;
                 case 3:
                     int companyId = Convert.ToInt32(ids[1]);
-                    if (api.CreateDirectory(path))
+                    try
                     {
-                        CLv3CustomerBranch.InsertOrUpdate(null, paths[2], folderName, companyId);
-                        navBar.Path = path;
+                        if (api.CreateDirectory(path))
+                        {
+                            CLv3CustomerBranch.InsertOrUpdate(null, paths[2], folderName, companyId);
+                            navBar.Path = path;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        throw ex;
                     }
                     break;
                 case 4:
                     int branchId =  Convert.ToInt32(ids[2]);
-                    if (api.CreateDirectory(path))
+                    try
                     {
-                        CLv4Line.InsertOrUpdate(null, paths[3], folderName, branchId);
-                        navBar.Path = path;
+                        if (api.CreateDirectory(path) && api.CreateCategorys(path))
+                        {
+                            CLv4Line.InsertOrUpdate(null, paths[3], folderName, branchId);
+                            navBar.Path = path;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        throw ex;
                     }
                     break;
                 case 5:
-                    if (api.CreateDirectory(path))
+                    try
                     {
-                        // UNDONE: Lv5 API Not fixed yet
-                        CFileCategory.InsertOrUpdate(null, paths[4], folderName);
-                        navBar.Path = path;
+                        if (api.AddCategorys(folderName))
+                        {
+                            CFileCategory.InsertOrUpdate(null, paths[4], folderName);
+                            navBar.Path = path;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        throw ex;
                     }
                     break;
             };
@@ -1307,8 +1421,9 @@ namespace WFTP.Pages
                     {
                         try
                         {
-                            // UNDONE: 缺刪除第五層Lv5 API
-                            if(api.RemoveDirectory(path)) // 這邊需要移除所有公司的FileCategory ex BOM,Documents
+                            // CHECK:
+                            int result = api.RemoveCategorys(paths[4]);
+                            if (result > 0) // 這邊需要移除所有公司的FileCategory ex BOM,Documents
                             {
                                 CFileCategory.Delete(id, GlobalHelper.LoginUserID);
                                 navBar.Path = path;
@@ -1417,12 +1532,12 @@ namespace WFTP.Pages
                     break;
                 case 5:
                     id = Convert.ToInt32(ids[4]);
-                    // UNDONE: 缺改名稱第五層Lv5 API 所有目錄都要改
-                    if (api.Rename(path, newPath))
+                    int result = api.RenameCategorys(paths[4], newPaths[4]);
+                    if (result >= 0)
                     {
                         try
                         {
-                            CFileCategory.InsertOrUpdate(null, newPaths[4], newNickName);
+                            CFileCategory.InsertOrUpdate(id, newPaths[4], newNickName);
                             navBar.Path = path;
                         }
                         catch (Exception ex)
@@ -1663,7 +1778,7 @@ namespace WFTP.Pages
                          {
                              FileName = file.Name,
                              FilePath = DBHelper.GenerateFileFullPath(file.Id),
-                             FileId = file.FileId
+                             FileId = file.Id
                          });
                      }
                 }
@@ -1922,6 +2037,10 @@ namespace WFTP.Pages
         }
 
         #endregion
+
+        
+
+        
 
        
 

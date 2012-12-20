@@ -49,4 +49,26 @@ namespace WFTP.Pages
             return null;
         }
     }
+
+    public class CancelToVisibilityConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType,
+            object parameter, CultureInfo culture)
+        {
+            try
+            {
+                if (value == null || ((int)value == 100)) return 0.0;
+
+                return 55;
+            }
+            catch (InvalidCastException) { }
+            return "<Unknown Value>";
+        }
+
+        public object ConvertBack(object value, Type targetType,
+            object parameter, CultureInfo culture)
+        {
+            return null;
+        }
+    }
 }

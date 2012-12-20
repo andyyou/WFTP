@@ -51,10 +51,10 @@ namespace WFTP.Pages
 
                 CEmployee user = (from employe in db.Employees
                            where employe.Account == account && employe.Password == pwd
-                           select employe).First();
+                           select employe).FirstOrDefault();
 
 
-                if (user.Activity)
+                if (user != null && user.Activity)
                 {
                     // 登入成功時儲存登入頁面相關欄位資料
                     Properties.Settings.Default.Id = account;
