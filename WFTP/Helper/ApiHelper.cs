@@ -313,5 +313,23 @@ namespace WFTP.Helper
                 return Convert.ToInt32(reader.ReadToEnd());
             }
         }
+
+        /// <summary>
+        /// 取得指定目錄之子目錄/檔案數量
+        /// </summary>
+        /// <param name="path">要計算子目錄/檔案數量路徑</param>
+        /// <returns>實際存在資料庫及 FTP 之數量</returns>
+        public int GetCount(string path)
+        {
+            HttpWebRequest req = (HttpWebRequest)HttpWebRequest.Create(String.Format(GlobalHelper.ApiGetCount, path));
+            req.Method = "GET";
+            using (WebResponse wr = req.GetResponse())
+            {
+                Stream responseStream = wr.GetResponseStream();
+                StreamReader reader = new StreamReader(responseStream, encoding);
+
+                return Convert.ToInt32(reader.ReadToEnd());
+            }
+        }
     }
 }

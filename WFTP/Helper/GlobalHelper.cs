@@ -47,6 +47,8 @@ namespace WFTP.Helper
         public static string ApiRenameCategorys = String.Format("http://192.168.100.177:2121/renamecategorys?key={0}&n={1}&nn={2}", ApiKey, "{0}", "{1}");
         // Return true if lv5 catefory remove success
         public static string ApiRemoveCategorys = String.Format("http://192.168.100.177:2121/removecategorys?key={0}&n={1}", ApiKey, "{0}");
+        // Return folder/file count(return 0 if there is no file or path not exist)
+        public static string ApiGetCount = String.Format("http://192.168.100.177:2121/getfoldercount?key={0}&p={1}", ApiKey, "{0}");
 
         #endregion
 
