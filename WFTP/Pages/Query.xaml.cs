@@ -362,8 +362,9 @@ namespace WFTP.Pages
             /*
             * M1: 1 => Add, Cancel
             * M2: 2 => Add, Edit, Delete, Cancel
-            * M3: 3 => Edit, Delete, Cancel
+            * M3: 3 => Eidt, Delete, Cancel
             * M4: 4 => Cancel
+            * M5: 5 => Delete, Cancel
             */
             #endregion
             int level = Convert.ToInt32(lvwClassify.Tag);
@@ -379,7 +380,10 @@ namespace WFTP.Pages
                 }
                 else
                 {
-                    lvwClassify.ContextMenu.ItemsSource = GetMenuItems(3);
+                    if(level == 6)
+                        lvwClassify.ContextMenu.ItemsSource = GetMenuItems(5);
+                    else
+                        lvwClassify.ContextMenu.ItemsSource = GetMenuItems(3);
                 }
 
                 if (lvwClassify.ContextMenu.Items.Count > 0)
@@ -479,6 +483,11 @@ namespace WFTP.Pages
                         yield return itemCancel;
                         break;
                     case 4:
+                        yield return itemCancel;
+                        break;
+                    case 5:
+                        yield return itemDelete;
+                        yield return new Separator();
                         yield return itemCancel;
                         break;
                 }
@@ -1663,7 +1672,7 @@ namespace WFTP.Pages
                          {
                              FileName = file.Name,
                              FilePath = DBHelper.GenerateFileFullPath(file.Id),
-                             FileId = file.FileId
+                             FileId = file.Id
                          });
                      }
                 }
