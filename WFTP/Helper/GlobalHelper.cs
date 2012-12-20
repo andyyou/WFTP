@@ -39,6 +39,14 @@ namespace WFTP.Helper
         public static string ApiRename = String.Format("http://192.168.100.177:2121/rename?key={0}&p={1}&n={2}", ApiKey, "{0}", "{1}");
         // Return true if delete file success(the file will be delete permanently)
         public static string ApiDeleteFile = String.Format("http://192.168.100.177:2121/deletefile?key={0}&p={1}", ApiKey, "{0}");
+        // Return true if lv5 single category create success
+        public static string ApiAddCategorys = String.Format("http://192.168.100.177:2121/addcategory?key={0}&p={1}", ApiKey, "{0}");
+        // Return true if lv5 category create success
+        public static string ApiCreateCategorys = String.Format("http://192.168.100.177:2121/createcategorys?key={0}&p={1}", ApiKey, "{0}");
+        // Return true if lv5 category rename success
+        public static string ApiRenameCategorys = String.Format("http://192.168.100.177:2121/renamecategorys?key={0}&n={1}&nn={2}", ApiKey, "{0}", "{1}");
+        // Return true if lv5 catefory remove success
+        public static string ApiRemoveCategorys = String.Format("http://192.168.100.177:2121/removecategorys?key={0}&n={1}", ApiKey, "{0}");
 
         #endregion
 
