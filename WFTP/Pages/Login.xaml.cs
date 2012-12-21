@@ -73,6 +73,7 @@ namespace WFTP.Pages
                     GlobalHelper.AdminItem.IsAdmin = (rank <= 2) ? true : false; // 管理權限定義
                     GlobalHelper.AdminItem.Rank = rank;
                     GlobalHelper.LoginUserID = account;
+
                     // 顯示可執行的頁面按鈕
                     Switcher.Switch(Switcher.query);
                     Switcher.main.btnQuery.Visibility = Visibility.Visible;
@@ -85,6 +86,30 @@ namespace WFTP.Pages
                     lblMessage.Content = "帳號或密碼有誤";
                 }
             }
+        }
+        /// <summary>
+        /// 記憶帳號
+        /// </summary>
+        private void togRememberId_Click(object sender, RoutedEventArgs e)
+        {
+            Properties.Settings.Default.RememberId = Convert.ToBoolean(togRememberId.IsChecked);
+            if (!Convert.ToBoolean(togRememberId.IsChecked))
+            {
+                Properties.Settings.Default.Id = "";
+            }
+            Properties.Settings.Default.Save();
+        }
+        /// <summary>
+        /// 記憶密碼
+        /// </summary>
+        private void togRememberPwd_Click(object sender, RoutedEventArgs e)
+        {
+            Properties.Settings.Default.RememberPwd = Convert.ToBoolean(togRememberPwd.IsChecked);
+            if (!Convert.ToBoolean(togRememberPwd.IsChecked))
+            {
+                Properties.Settings.Default.Pwd = "";
+            }
+            Properties.Settings.Default.Save();
         }
     }
 }
