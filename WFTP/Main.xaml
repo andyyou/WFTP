@@ -66,7 +66,7 @@
                 </StackPanel>
             </Button>
             <!--Button #3 Download process-->
-            <Button  Name="btnDownload" Click="btnDownload_Click">
+            <Button  Name="btnProgress" Click="btnProgress_Click">
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
                     <Rectangle Width="20" Height="20">
                         <Rectangle.Resources>

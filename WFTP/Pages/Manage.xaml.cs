@@ -19,21 +19,12 @@ namespace WFTP.Pages
     /// <summary>
     /// Manage.xaml 的互動邏輯
     /// </summary>
-    public partial class Manage : UserControl, ISwitchable
+    public partial class Manage : UserControl
     {
         public Manage()
         {
             InitializeComponent();
         }
-
-        #region ISwitchable Members
-
-        public void UtilizeState(object state)
-        {
-            throw new NotImplementedException();
-        }
-
-        #endregion
 
         // 如果該欄位不須更新就留 "" 或 -1  ID為null是新增 有ID就是update
         private void button1_Click(object sender, RoutedEventArgs e)
