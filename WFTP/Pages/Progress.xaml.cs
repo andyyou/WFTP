@@ -20,6 +20,7 @@ using System.IO;
 using WFTP.Helper;
 using System.Security.Cryptography;
 using DataProvider;
+using Microsoft.VisualBasic.FileIO;
 
 namespace WFTP.Pages
 {
@@ -463,6 +464,11 @@ namespace WFTP.Pages
                 {
                     File.Delete(asyncResult["LocalFilePath"]);
                     _cancelList.Remove(fileId);
+
+                    // Remove cancel file from download list
+                    _dataDownloadFiles.Remove(
+                        _dataDownloadFiles.Where(file => file.FileId == fileId).First()
+                    );
                 }
             }
         }
@@ -567,10 +573,14 @@ namespace WFTP.Pages
             ftp.Disconnect();
             ftp.Dispose();
 
+            // Change Local file name back to original
+            string originalFilePath = fileInfo["LocalFilePath"].Replace(GlobalHelper.TempUploadFileExt, String.Empty);
+            File.Move(fileInfo["LocalFilePath"], originalFilePath);
+
             if (uploadSuccess)
             {
                 // Move local file to Recycle bin
-
+                FileSystem.DeleteFile(originalFilePath, UIOption.OnlyErrorDialogs, RecycleOption.SendToRecycleBin);
                 // Remove temp extension from remote file
                 string newName = remoteFilename.Replace(GlobalHelper.TempUploadFileExt, String.Empty);
                 api.Rename(remoteFilename, newName);
@@ -614,6 +624,11 @@ namespace WFTP.Pages
                     ApiHelper api = new ApiHelper();
                     api.DeleteFile(asyncResult["RemoteFilePath"]);
                     _cancelList.Remove(fileId);
+
+                    // Remove cancel file from upload list
+                    _dataUploadFiles.Remove(
+                        _dataUploadFiles.Where(file => file.FileId == fileId).First()
+                    );
                 }
             }
         }
