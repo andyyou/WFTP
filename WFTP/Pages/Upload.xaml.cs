@@ -265,7 +265,23 @@ namespace WFTP.Pages
                 }
             }
         }
-      
-        
+
+        // Call by Main.btnUpload_Click
+        // When change page to upload, refresh temp list
+        public void RefreshTempList()
+        {
+            if (lbPath.Content.ToString() != "")
+            {
+                _dataTmp.Clear();
+                DirectoryInfo dirInfo = new DirectoryInfo(lbPath.Content.ToString());
+                IEnumerable<FileInfo> files = dirInfo.GetFiles("*").Where(
+                    p => System.IO.Path.GetExtension(p.Extension) != GlobalHelper.TempUploadFileExt);
+
+                foreach (FileInfo file in files)
+                {
+                    _dataTmp.Add(file);
+                }
+            }
+        }
     }
 }
