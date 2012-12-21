@@ -22,8 +22,8 @@
             <RowDefinition Height="64*" />
         </Grid.RowDefinitions>
         <WrapPanel Margin="0,0,0,40">
-            <Label Content="隸屬分類" Name="lbPrevId" Visibility="Collapsed"></Label>
-            <ComboBox Name="cmbPrevId" Width="208" Visibility="Collapsed" 
+            <Label Content="隸屬分類" Name="lbClassify" Visibility="Collapsed"></Label>
+            <ComboBox Name="cmbClassify" Width="208" Visibility="Collapsed" 
                       ItemsSource="{Binding}" 
                       DisplayMemberPath="NickName" 
                       SelectedValuePath="Id"

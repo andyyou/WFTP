@@ -7,6 +7,9 @@ using System.Globalization;
 
 namespace WFTP.Pages
 {
+    /// <summary>
+    /// Converter 給 xaml 轉換 Binding 資料 : Bool 轉 Width 60px
+    /// </summary>
     public class BoolToVisibilityConverter : IValueConverter
     {
         public object Convert(object value, Type targetType,
@@ -28,6 +31,9 @@ namespace WFTP.Pages
             return null;
         }
     }
+    /// <summary>
+    /// Converter 給 xaml 轉換 Binding 資料 : Bool 轉 Width 120px
+    /// </summary>
     public class BoolToBigVisibilityConverter : IValueConverter
     {
         public object Convert(object value, Type targetType,
@@ -49,7 +55,9 @@ namespace WFTP.Pages
             return null;
         }
     }
-
+    /// <summary>
+    /// Converter 給 xaml 轉換 Binding 資料 : Progress 使用 如果進度 100% 則隱藏掉.
+    /// </summary>
     public class CancelToVisibilityConverter : IValueConverter
     {
         public object Convert(object value, Type targetType,

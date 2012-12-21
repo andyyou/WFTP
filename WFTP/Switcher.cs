@@ -3,6 +3,9 @@ using WFTP.Pages;
 
 namespace WFTP
 {
+    /// <summary>
+    /// 載入 UserControl into Main.xml Controller
+    /// </summary>
     public static class Switcher
     {
         public static Main main;
@@ -14,11 +17,6 @@ namespace WFTP
         public static void Switch(UserControl newPage)
         {
             main.Navigate(newPage);
-        }
-
-        public static void Switch(UserControl newPage, object state)
-        {
-            main.Navigate(newPage, state);
         }
     }
 }

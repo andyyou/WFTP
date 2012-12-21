@@ -16,8 +16,9 @@ using System.IO;
 using System.ComponentModel;
 using System.Runtime.InteropServices;
 using System.Globalization;
-using WFTP.Helper;
 using System.Security.Cryptography;
+
+using WFTP.Helper;
 using DataProvider;
 
 namespace WFTP.Pages
@@ -25,7 +26,7 @@ namespace WFTP.Pages
     /// <summary>
     /// Upload.xaml 的互動邏輯
     /// </summary>
-    public partial class Upload : UserControl, ISwitchable
+    public partial class Upload : UserControl
     {
         private BindingList<FileInfo> _dataTmp = new BindingList<FileInfo>();
         private BindingList<FileItem> _dataTo = new BindingList<FileItem>();
@@ -34,15 +35,6 @@ namespace WFTP.Pages
         {
             InitializeComponent();
         }
-       
-        #region ISwitchable Members
-
-        public void UtilizeState(object state)
-        {
-            throw new NotImplementedException();
-        }
-
-        #endregion
 
         private void Grid_Loaded(object sender, RoutedEventArgs e)
         {
@@ -265,7 +257,6 @@ namespace WFTP.Pages
                 }
             }
         }
-
         // Call by Main.btnUpload_Click
         // When change page to upload, refresh temp list
         public void RefreshTempList()
@@ -283,5 +274,7 @@ namespace WFTP.Pages
                 }
             }
         }
+
+        
     }
 }

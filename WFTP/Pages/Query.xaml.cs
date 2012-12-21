@@ -26,30 +26,68 @@ using System.Windows.Threading;
 namespace WFTP.Pages
 {
     /// <summary>
-    /// Query.xaml 的互動邏輯
+    /// Query.xaml 的互動邏輯: 查詢頁面
     /// </summary>
-    public partial class Query : UserControl, ISwitchable
+    public partial class Query : UserControl
     {
-        #region DataMembers
-
-        private List<string> _remoteFolders = new List<string>();
-        private Dictionary<int, int> _catalogLevelId = new Dictionary<int, int>();
-        private Dictionary<int, string> _catalogLevelName = new Dictionary<int, string>();
-       
-        private Dictionary<string, string> _searchConditions = new Dictionary<string,string>();
+        #region Data Members
+        /// <summary>
+        /// 判斷 一般查詢 為 Tile Mode 或 List Mode
+        /// </summary>
         private bool _isTileView = true;
+        /// <summary>
+        /// 判斷 進階查詢 為 Tile Mode 或 List Mode
+        /// </summary>
         private bool _isAdvanceTileView = true;
+        /// <summary>
+        /// 累積組合當下的實體路徑 /PP/TUC/Taiwan/Line1
+        /// </summary>
         private string _ftpPath = "/";
+        /// <summary>
+        /// 累積組合當下的實體路徑對應的ID  /2/1/5/6
+        /// </summary>
         private string _idPath = "/";
+        /// <summary>
+        /// 儲存當下每一階層的ID
+        /// </summary>
+        private Dictionary<int, int> _catalogLevelId = new Dictionary<int, int>();
+        /// <summary>
+        /// 儲存當下每一階層Path Name
+        /// </summary>
+        private Dictionary<int, string> _catalogLevelName = new Dictionary<int, string>();
+        /// <summary>
+        /// 儲存搜尋條件 Key:db欄位, Value:搜尋值
+        /// </summary>
+        private Dictionary<string, string> _searchConditions = new Dictionary<string,string>();
+        /// <summary>
+        /// 提供麵包屑Bar資料來源
+        /// </summary>
         private XmlDocument _xdoc;
-        // For Advance Query
+        /// <summary>
+        /// 進階搜尋公司列表 Combobox 的資料來源
+        /// </summary>
         private BindingList<CompanyItem> _dataCompanys = new BindingList<CompanyItem>();
+        /// <summary>
+        /// 進階搜尋換頁 Combobox 的資料來源
+        /// </summary>
         private BindingList<int> _dataPager = new BindingList<int>();
+        /// <summary>
+        /// 進階搜尋 總頁數
+        /// </summary>
         private int _advTotalPage = 1;
+        /// <summary>
+        /// 進階搜尋 目前頁 Index
+        /// </summary>
         private int _advCurrentPage = 1;
+        /// <summary>
+        /// 進階搜尋 一頁筆數 Size
+        /// </summary>
         private const int _advPageSize = 12;
         #endregion
 
+        /// <summary>
+        /// 建構子
+        /// </summary>
         public Query()
         {
             InitializeComponent();
@@ -58,6 +96,7 @@ namespace WFTP.Pages
             InitAdvanceCatalog();
 
             lvwClassify.Tag = 1;
+            lvwAdvanceClassify.Tag = 0;
 
             // Initialize catalog level id
             _catalogLevelId.Add(1, 0);
@@ -90,14 +129,18 @@ namespace WFTP.Pages
             // string answer = DBHelper.GenerateFileFullPath(1);
 
         }
+
         #region User Control Event
+        /// <summary>
+        /// 載入時把管理資料 AdminItem Binding 至 xaml 以方便 Control 可以直接 Binding
+        /// </summary>
         private void query_Loaded(object sender, RoutedEventArgs e)
         {
             query.DataContext = GlobalHelper.AdminItem;
         }
-
-        // ContextMenu Events
-        // Query
+        /// <summary>
+        /// Context Menu 右鍵->新增
+        /// </summary>
         private void rmenuAdd_Click(object sender, RoutedEventArgs e)
         {
             // 在本層新增
@@ -135,12 +178,13 @@ namespace WFTP.Pages
                 string newFileName = "/" + getInput.SystemName;
                 string newNickName = getInput.NickName;
                 pathServer.Append(newFileName);
-               
                 // 產生目錄寫入db
                 CreateFolder(pathServer.ToString(), pathId.ToString(), newNickName);
             }
-           
         }
+        /// <summary>
+        /// Context Menu 右鍵->刪除
+        /// </summary>
         private void rmenuDelete_Click(object sender, RoutedEventArgs e)
         {
             if (tabMain.SelectedIndex == 0)
@@ -155,12 +199,10 @@ namespace WFTP.Pages
                     StringBuilder pathId = new StringBuilder();
                     pathServer.Append(_ftpPath);
                     pathId.Append(_idPath);
-
                     Tile item = lvwClassify.SelectedItem as Tile;
                     Dictionary<string, string> tag = item.Tag as Dictionary<string, string>;
                     pathServer.Append(tag["Name"]);
                     pathId.Append(tag["Id"]);
-
                     // 刪除
                     DeleteFolderOrFile(pathServer.ToString(), pathId.ToString());
                 }
@@ -170,7 +212,6 @@ namespace WFTP.Pages
                     pathId.Append(_idPath);
                     FileInfo item = lvwClassify.SelectedItem as FileInfo;
                     pathId.Append(item.FileId);
-
                     // 刪除
                     DeleteFolderOrFile(item.FilePath, pathId.ToString());
                 }
@@ -187,12 +228,10 @@ namespace WFTP.Pages
                     StringBuilder pathId = new StringBuilder();
                     pathServer.Append(_ftpPath);
                     pathId.Append(_idPath);
-
                     Tile item = lvwClassify.SelectedItem as Tile;
                     Dictionary<string, string> tag = item.Tag as Dictionary<string, string>;
                     pathServer.Append(tag["Name"]);
                     pathId.Append(tag["Id"]);
-
                     // 刪除
                     DeleteFolderOrFile(pathServer.ToString(), pathId.ToString());
                 }
@@ -202,27 +241,31 @@ namespace WFTP.Pages
                     pathId.Append(_idPath);
                     FileInfo item = lvwAdvanceClassify.SelectedItem as FileInfo;
                     pathId.Append(item.FileId);
-
                     // 刪除
                     DeleteFolderOrFile(item.FilePath, pathId.ToString());
                 }
             }
         }
+        /// <summary>
+        /// Context Menu 右鍵->取消
+        /// </summary>
         private void rmenuCancelSelected_Click(object sender, RoutedEventArgs e)
         {
             lvwClassify.UnselectAll();
             lvwAdvanceClassify.UnselectAll();
         }
+        /// <summary>
+        /// Context Menu 右鍵->編輯
+        /// </summary>
         private void rmenuEdit_Click(object sender, RoutedEventArgs e)
         {
             if (lvwClassify.SelectedItems.Count != 1)
             {
                 return;
             }
-            // 在下一層新增
+            // 只能選取才編輯, 因為最後一層 File 不能編輯所以不用處理 List Mode
             else if (_isTileView)
             {
-                // UNDONE: UnTest all condition.
                 StringBuilder pathServer = new StringBuilder();
                 StringBuilder pathId = new StringBuilder();
                 pathServer.Append(_ftpPath);
@@ -231,7 +274,7 @@ namespace WFTP.Pages
                 Dictionary<string, string> tag = item.Tag as Dictionary<string, string>;
                 pathServer.Append(tag["Name"]);
                 pathId.Append(tag["Id"]);
-                Update getInput = new Update(400, 200, pathServer.ToString(),item.Title);
+                Update getInput = new Update(400, 200, pathServer.ToString(), item.Title);
                 getInput.ShowDialog();
                 if (getInput.IsDone)
                 {
@@ -241,13 +284,13 @@ namespace WFTP.Pages
                     string rebuildPathId = pathId.ToString();
                     if (getInput.ClassifyId > 0)
                     {
-                        rebuildPathId ="/" + getInput.ClassifyId + pathId.ToString().Substring(pathId.ToString().LastIndexOf('/')) ;
+                        rebuildPathId = "/" + getInput.ClassifyId + pathId.ToString().Substring(pathId.ToString().LastIndexOf('/'));
                     }
-                    
                     // 編輯更新欄位
                     RenameFolder(pathServer.ToString(), rebuildPathId, rebuildPath, newNickName);
                 }
             }
+            
         }
         #endregion
 
@@ -770,6 +813,7 @@ namespace WFTP.Pages
         #endregion
 
         #region R Method
+
         /// <summary>
         /// Query:改善效能第一次載入只讀取第一層
         /// </summary>
@@ -922,17 +966,13 @@ namespace WFTP.Pages
             // display mode switch btn 
             if (level == 6)
             {
-                // display mode switch btn 
                 btnListView.Visibility = Visibility.Visible;
                 btnTileView.Visibility = Visibility.Visible;
-                // disable add of right click menu
-                // rmiAdd.Visibility = System.Windows.Visibility.Collapsed;
             }
             else
             {
                 btnListView.Visibility = Visibility.Hidden;
                 btnTileView.Visibility = Visibility.Hidden;
-                // rmiAdd.Visibility = System.Windows.Visibility.Visible;
             }
 
             dynamic classify = null;
@@ -970,22 +1010,9 @@ namespace WFTP.Pages
             System.Collections.ObjectModel.ObservableCollection<FileInfo> fileCollection =
                 new System.Collections.ObjectModel.ObservableCollection<FileInfo>();
 
-            // 刪除舊有暫存檔
-            //if (level == 6)
-            //{
-            //    string[] oldFiles = null;
-            //    oldFiles = System.IO.Directory.GetFiles(System.IO.Path.GetTempPath(),"WFTP*");
-
-            //    foreach (string file in oldFiles)
-            //    {
-            //        System.IO.File.Delete(file);
-            //    }
-            //}
-
             foreach (var classifyItem in classify)
             {
                 if (remoteFileList.ContainsKey(classifyItem.Name))
-                //if (true)
                 {
                     Dictionary<string, string> dicInfo = new Dictionary<string, string>();
                     dicInfo.Add("Id", classifyItem.Id.ToString());
@@ -1107,7 +1134,7 @@ namespace WFTP.Pages
             }
         }
         /// <summary>
-        /// Advance:初始化Advance Query第一層
+        /// Advance: 初始化 Advance Query 第一層
         /// </summary>
         private void InitAdvanceCatalog()
         {
@@ -1258,7 +1285,6 @@ namespace WFTP.Pages
 
             return fileList;
         }
-        // UNDONE : Create Folder by path
         // Query of Manage: 建立目錄
         private bool CreateFolder(string path, string idPath, string folderName)
         {
@@ -1332,7 +1358,7 @@ namespace WFTP.Pages
                 case 5:
                     try
                     {
-                        if (api.AddCategorys(folderName))
+                        if (api.AddCategorys(paths[4]))
                         {
                             CFileCategory.InsertOrUpdate(null, paths[4], folderName);
                             navBar.Path = path;
@@ -1346,7 +1372,6 @@ namespace WFTP.Pages
             };
             return true;
         }
-        // UNDONE : Delete Folder or Files by path
         // Query of Manage: 刪除目錄或檔案
         private void DeleteFolderOrFile(string path, string idPath)
         {
@@ -1471,7 +1496,6 @@ namespace WFTP.Pages
                     break;
             };
         }
-        // UNDONE : Edit folder name
         // Query of Manage: 編輯名稱
         private void RenameFolder(string path, string idPath, string newPath, string newNickName)
         {
@@ -1567,7 +1591,6 @@ namespace WFTP.Pages
         private dynamic GetOnlyFileCatalog()
         {
             WFTPDbContext db = new WFTPDbContext();
-
             var fileCatalogList = from fileCatalog in db.Lv5FileCategorys
                                   select new
                                   {
@@ -1660,7 +1683,6 @@ namespace WFTP.Pages
                     }
                 }
             }
-
             return tmp.Where(x => x.IsDeleted == false).Select(n => new { Id = n.FileId, Name = n.FileName, NickName = n.FileName, FullPath = n.Path }).Skip(skipNum).Take(recordNum);
         }
         // Advance:從資料庫取得所有公司分類
@@ -1815,7 +1837,6 @@ namespace WFTP.Pages
             }
            
         }
-
         // Query:取得階層名稱及 Id
         private void GetCatalogInfo(int level, string condition)
         {
@@ -1930,14 +1951,6 @@ namespace WFTP.Pages
 
         #endregion
 
-        #region ISwitchable Members
-
-        public void UtilizeState(object state)
-        {
-            throw new NotImplementedException();
-        }
-
-        #endregion
 
         #region Models
 

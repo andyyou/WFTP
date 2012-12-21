@@ -70,7 +70,7 @@
                                Header="記憶帳號" 
                                OnLabel="是" 
                                OffLabel="否" 
-                               FontFamily="Microsoft JhengHei" />
+                               FontFamily="Microsoft JhengHei" Click="togRememberId_Click" />
         <Controls:ToggleSwitch Name ="togRememberPwd" 
                                Width="100"
                                Height="70"
@@ -78,7 +78,7 @@
                                Header="記憶密碼" 
                                OnLabel="是" 
                                OffLabel="否" 
-                               FontFamily="Microsoft JhengHei" />
+                               FontFamily="Microsoft JhengHei" Click="togRememberPwd_Click" />
         <Label Name="lblMessage"
                Width="160"
                Height="28"

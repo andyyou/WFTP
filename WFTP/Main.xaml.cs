@@ -41,7 +41,7 @@ namespace WFTP
             btnQuery.Visibility = Visibility.Hidden;
             btnManage.Visibility = Visibility.Hidden;
             btnUpload.Visibility = Visibility.Hidden;
-            btnDownload.Visibility = Visibility.Hidden;
+            btnProgress.Visibility = Visibility.Hidden;
 
             // 初始化Switcher
             Switcher.main = this;
@@ -49,27 +49,37 @@ namespace WFTP
         }
 
         #region User Control Event
-
+        /// <summary>
+        /// 主視窗Bar -> 關閉程式
+        /// </summary>
         private void CloseButtonMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
             Close();
         }
-
+        /// <summary>
+        /// 主視窗Bar -> 最大化視窗
+        /// </summary>
         private void MaximizeButtonMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
             WindowState = WindowState.Maximized;
         }
-
+        /// <summary>
+        /// 主視窗Bar -> 回復正常大小
+        /// </summary>
         private void ChangeViewButtonMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
             WindowState = WindowState.Normal;
         }
-
+        /// <summary>
+        /// 主視窗Bar -> 最小化視窗
+        /// </summary>
         private void MinimizeButtonMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
             WindowState = WindowState.Minimized;
         }
-
+        /// <summary>
+        /// 主視窗拖移
+        /// </summary>
         private void DragableGridMouseDown(object sender, MouseButtonEventArgs e)
         {
             if (e.LeftButton == MouseButtonState.Pressed)
@@ -77,30 +87,34 @@ namespace WFTP
                 DragMove();
             }
         }
-
+        /// <summary>
+        /// 切換至查詢頁面(一般查詢,進階查詢,依據管理權限其他管理功能)
+        /// </summary>
         private void btnQuery_Click(object sender, RoutedEventArgs e)
         {
-            //Switcher.Switch(new Query());
             Switcher.Switch(Switcher.query); 
         }
-
+        /// <summary>
+        /// 切換至管理頁面(管理會員)
+        /// </summary>
         private void btnManage_Click(object sender, RoutedEventArgs e)
         {
-            //Switcher.Switch(new Manage());
             Switcher.Switch(Switcher.manage);
         }
-
+        /// <summary>
+        /// 切換至上傳頁面
+        /// </summary>
         private void btnUpload_Click(object sender, RoutedEventArgs e)
         {
-            //Switcher.Switch(new Upload());
             Switcher.Switch(Switcher.upload);
             // Refresh temp list
             Switcher.upload.RefreshTempList();
         }
-
-        private void btnDownload_Click(object sender, RoutedEventArgs e)
+        /// <summary>
+        /// 切換至進度處理頁面
+        /// </summary>
+        private void btnProgress_Click(object sender, RoutedEventArgs e)
         {
-            //Switcher.Switch(new Download());
             Switcher.Switch(Switcher.progress);
         }
 
@@ -111,22 +125,6 @@ namespace WFTP
         public void Navigate(UserControl nextPage)
         {
             this.transitioning.Content = nextPage;
-        }
-
-        public void Navigate(UserControl nextPage, object state)
-        {
-            this.Content = nextPage;
-            ISwitchable s = nextPage as ISwitchable;
-
-            if (s != null)
-            {
-                s.UtilizeState(state);
-            }
-            else
-            {
-                throw new ArgumentException("NextPage is not ISwitchable! "
-                  + nextPage.Name.ToString());
-            }
         }
 
         #endregion

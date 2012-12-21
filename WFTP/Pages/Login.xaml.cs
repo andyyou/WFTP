@@ -17,14 +17,17 @@ using WFTP.Helper;
 namespace WFTP.Pages
 {
     /// <summary>
-    /// Login.xaml 的互動邏輯
+    /// Login.xaml 的互動邏輯: 登入
     /// </summary>
     public partial class Login : UserControl
     {
+        /// <summary>
+        /// 建構子
+        /// </summary>
         public Login()
         {
             InitializeComponent();
-
+            // 檢查是否有記憶 帳號 密碼
             if (Properties.Settings.Default.RememberId)
             {
                 txtID.Text = Properties.Settings.Default.Id;
@@ -36,10 +39,12 @@ namespace WFTP.Pages
                 togRememberPwd.IsChecked = true;
             }
         }
-
+        /// <summary>
+        /// 執行登入
+        /// </summary>
         private void btnLogin_Click(object sender, RoutedEventArgs e)
         {
-            if (txtID.Text.Trim() == "" || txtPassword.Password == "")
+            if (String.IsNullOrEmpty(txtID.Text.Trim()) || String.IsNullOrEmpty(txtPassword.Password))
             {
                 lblMessage.Content = "帳號或密碼不得為空";
             }
@@ -53,7 +58,6 @@ namespace WFTP.Pages
                            where employe.Account == account && employe.Password == pwd
                            select employe).FirstOrDefault();
 
-
                 if (user != null && user.Activity)
                 {
                     // 登入成功時儲存登入頁面相關欄位資料
@@ -64,23 +68,48 @@ namespace WFTP.Pages
                     Properties.Settings.Default.Save();
                     int rank = Convert.ToInt32(user.Rank);
 
-                    // UNDONE: limit rules not check yet.
+                    // 儲存全域需要的帳號資訊
                     GlobalHelper.AdminItem = new AdminItem();
-                    GlobalHelper.AdminItem.IsAdmin = (rank <= 2) ? true : false;
+                    GlobalHelper.AdminItem.IsAdmin = (rank <= 2) ? true : false; // 管理權限定義
                     GlobalHelper.AdminItem.Rank = rank;
                     GlobalHelper.LoginUserID = account;
 
+                    // 顯示可執行的頁面按鈕
                     Switcher.Switch(Switcher.query);
                     Switcher.main.btnQuery.Visibility = Visibility.Visible;
-                    Switcher.main.btnManage.Visibility = (rank <= 2) ? Visibility.Visible : Visibility.Collapsed;
+                    Switcher.main.btnManage.Visibility = (GlobalHelper.AdminItem.IsAdmin) ? Visibility.Visible : Visibility.Collapsed;
                     Switcher.main.btnUpload.Visibility = Visibility.Visible;
-                    Switcher.main.btnDownload.Visibility = Visibility.Visible;
+                    Switcher.main.btnProgress.Visibility = Visibility.Visible;
                 }
                 else
                 {
                     lblMessage.Content = "帳號或密碼有誤";
                 }
             }
+        }
+        /// <summary>
+        /// 記憶帳號
+        /// </summary>
+        private void togRememberId_Click(object sender, RoutedEventArgs e)
+        {
+            Properties.Settings.Default.RememberId = Convert.ToBoolean(togRememberId.IsChecked);
+            if (!Convert.ToBoolean(togRememberId.IsChecked))
+            {
+                Properties.Settings.Default.Id = "";
+            }
+            Properties.Settings.Default.Save();
+        }
+        /// <summary>
+        /// 記憶密碼
+        /// </summary>
+        private void togRememberPwd_Click(object sender, RoutedEventArgs e)
+        {
+            Properties.Settings.Default.RememberPwd = Convert.ToBoolean(togRememberPwd.IsChecked);
+            if (!Convert.ToBoolean(togRememberPwd.IsChecked))
+            {
+                Properties.Settings.Default.Pwd = "";
+            }
+            Properties.Settings.Default.Save();
         }
     }
 }

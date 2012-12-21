@@ -7,8 +7,6 @@
              xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
              xmlns:l="clr-namespace:WFTP.Pages"
              mc:Ignorable="d" 
-             d:DesignHeight="561"
-             d:DesignWidth="778"
              FontFamily="Microsoft JhengHei"
              Name="query" Loaded="query_Loaded">
     <UserControl.Resources>
@@ -98,9 +96,15 @@
         </ResourceDictionary>
     </UserControl.Resources>
     <Grid>
-        <TabControl Name="tabMain">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />            
+        </Grid.ColumnDefinitions>
+        <TabControl Name="tabMain" Grid.Column="0" Grid.Row="0" Margin="0" HorizontalAlignment="Center">
             <TabItem Header="一般查詢">
-                <DockPanel Margin="5">
+                <DockPanel Margin="5" Width="Auto">
                     <WrapPanel DockPanel.Dock="Top">
                         <Button Name="btnPrevLv"
                                 Width="50" 

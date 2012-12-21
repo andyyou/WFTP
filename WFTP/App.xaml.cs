@@ -14,10 +14,6 @@ namespace WFTP
     {
         void App_Startup(object sender, StartupEventArgs e)
         {
-
-            SetPath sp = new SetPath();
-            sp.Show();
-            
         }
 
     }
