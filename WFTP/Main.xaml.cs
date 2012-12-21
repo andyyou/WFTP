@@ -27,9 +27,6 @@ namespace WFTP
     /// </summary>
     public partial class Main : MetroWindow
     {
-        public DataTable _progressList;
-        //public static string _LISTPATH = @"C:\test.json";
-
         public Main()
         {
             InitializeComponent();
@@ -45,14 +42,6 @@ namespace WFTP
             btnManage.Visibility = Visibility.Hidden;
             btnUpload.Visibility = Visibility.Hidden;
             btnDownload.Visibility = Visibility.Hidden;
-
-            // 初始化檔案處裡進度清單
-            _progressList = new DataTable("Progress");
-            _progressList.Columns.Add("Type", typeof(string));
-            _progressList.Columns.Add("RemoteFilePath", typeof(string));
-            _progressList.Columns.Add("LocalFilePath", typeof(string));
-            _progressList.Columns.Add("FileSize", typeof(long));
-            _progressList.Columns.Add("Percent", typeof(double));
 
             // 初始化Switcher
             Switcher.main = this;
@@ -105,6 +94,8 @@ namespace WFTP
         {
             //Switcher.Switch(new Upload());
             Switcher.Switch(Switcher.upload);
+            // Refresh temp list
+            Switcher.upload.RefreshTempList();
         }
 
         private void btnDownload_Click(object sender, RoutedEventArgs e)
