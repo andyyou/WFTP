@@ -121,6 +121,7 @@
                         <Rectangle Width="5" Height="20"/>
                         <odc:BreadcrumbBar x:Name="navBar"
                                            TraceBinding="{Binding XPath=@title}"
+                                           
                                            Root="{StaticResource dataProvider}"
                                            HorizontalAlignment="Stretch"
                                            VerticalAlignment="Stretch"
