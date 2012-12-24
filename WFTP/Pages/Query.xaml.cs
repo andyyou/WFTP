@@ -361,7 +361,10 @@ namespace WFTP.Pages
                 for (int i = 2; i <= level; i++)
                 {
                     if (String.IsNullOrEmpty(_catalogLevelName[i]))
+                    {
+                        MessageBox.Show("錯誤150:該目錄已被刪除或不存在.");
                         break;
+                    }
                     _ftpPath = String.Format("{0}{1}/", _ftpPath, _catalogLevelName[i]);
                     _idPath = String.Format("{0}{1}/", _idPath, _catalogLevelId[i-1]);
                 }
@@ -384,6 +387,10 @@ namespace WFTP.Pages
             if (level > 1)
             {
                 GetBreadcrumbBarPath(level);
+            }
+            else
+            {
+                GetBreadcrumbBarPath();
             }
         }
         private void btnTileView_Click(object sender, RoutedEventArgs e)
