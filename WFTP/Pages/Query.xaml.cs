@@ -369,31 +369,33 @@ namespace WFTP.Pages
                         break;
                     }
                     _ftpPath = String.Format("{0}{1}/", _ftpPath, _catalogLevelName[i]);
-                    _idPath = String.Format("{0}{1}/", _idPath, _catalogLevelId[i-1]);
+                    _idPath = String.Format("{0}{1}/", _idPath, _catalogLevelId[i - 1]);
                 }
-            
-            }
-           
-           
-            new Thread(() =>
-            {
-                Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Normal,
-                 new Action(() =>
-                 {
-                     GetCatalog(level);
-                 }));
-            }).Start();
-            //GetCatalog(level);
-            lvwClassify.Tag = level;
 
-            // Lazy loading for BreadcrumbBar
-            if (level > 1)
-            {
-                GetBreadcrumbBarPath(level);
+                new Thread(() =>
+                {
+                    Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Normal,
+                     new Action(() =>
+                     {
+                         GetCatalog(level);
+                     }));
+                }).Start();
+                //GetCatalog(level);
+                lvwClassify.Tag = level;
+
+                // Lazy loading for BreadcrumbBar
+                if (level > 1)
+                {
+                    GetBreadcrumbBarPath(level);
+                }
+                else
+                {
+                    GetBreadcrumbBarPath();
+                }
             }
-            else
+            else // 點選到最頂層分類時麵包屑已經正確，僅需更新 Listview
             {
-                GetBreadcrumbBarPath();
+                GetCatalog(1);
             }
         }
         private void btnTileView_Click(object sender, RoutedEventArgs e)
