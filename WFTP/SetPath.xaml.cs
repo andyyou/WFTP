@@ -163,6 +163,11 @@ namespace WFTP
         public void GetBreadcrumbBarPath(int level)
         {
             WFTPDbContext db = new WFTPDbContext();
+
+            // Get remote folder list
+            ApiHelper api = new ApiHelper();
+            List<string> remoteFolderList = api.Dir(_ftpPath, true).ToList();
+
             switch (level)
             {
                 case 2:
@@ -181,6 +186,7 @@ namespace WFTP
                     }
                     foreach (var company in lv2)
                     {
+                        if (!remoteFolderList.Contains(company.CompanyName)) continue;
                         XmlElement xelCompany = _xdoc.CreateElement("bc");
                         xelCompany.SetAttribute("title", company.CompanyNickName);
                         xelCompany.SetAttribute("id", company.CompanyId.ToString());
@@ -203,6 +209,7 @@ namespace WFTP
                     }
                     foreach (var branch in lv3)
                     {
+                        if (!remoteFolderList.Contains(branch.BranchName)) continue;
                         XmlElement xelBranch = _xdoc.CreateElement("bc");
                         xelBranch.SetAttribute("title", branch.BranchNickName);
                         xelBranch.SetAttribute("id", branch.BranchId.ToString());
@@ -225,6 +232,7 @@ namespace WFTP
                     }
                     foreach (var line in lv4)
                     {
+                        if (!remoteFolderList.Contains(line.LineName)) continue;
                         XmlElement xelLine = _xdoc.CreateElement("bc");
                         xelLine.SetAttribute("title", line.LineNickName);
                         xelLine.SetAttribute("id", line.LineId.ToString());

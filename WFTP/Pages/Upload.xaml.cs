@@ -46,8 +46,6 @@ namespace WFTP.Pages
 
         private void btnSettingFolder_Click(object sender, RoutedEventArgs e)
         {
-            _dataTmp.Clear();
-
             lbPath.Width = 500;
             var dialog = new System.Windows.Forms.FolderBrowserDialog();
             if (lbPath.Content.ToString() != "")
@@ -55,19 +53,21 @@ namespace WFTP.Pages
                 dialog.SelectedPath = lbPath.Content.ToString();
             }
             System.Windows.Forms.DialogResult result = dialog.ShowDialog();
-            if (result.ToString() == "OK")
+            if (result == System.Windows.Forms.DialogResult.OK)
             {
+                _dataTmp.Clear();
+
                 lbPath.Content = dialog.SelectedPath.ToString();
                 lbPath.ToolTip = dialog.SelectedPath.ToString();
-            }
 
-            DirectoryInfo dirInfo = new DirectoryInfo(lbPath.Content.ToString());
-            IEnumerable<FileInfo> files = dirInfo.GetFiles("*").Where(
-                p => System.IO.Path.GetExtension(p.Extension) != GlobalHelper.TempUploadFileExt);
+                DirectoryInfo dirInfo = new DirectoryInfo(lbPath.Content.ToString());
+                IEnumerable<FileInfo> files = dirInfo.GetFiles("*").Where(
+                    p => System.IO.Path.GetExtension(p.Extension) != GlobalHelper.TempUploadFileExt);
 
-            foreach (FileInfo file in files)
-            {
-                _dataTmp.Add(file);
+                foreach (FileInfo file in files)
+                {
+                    _dataTmp.Add(file);
+                }
             }
         }
 
