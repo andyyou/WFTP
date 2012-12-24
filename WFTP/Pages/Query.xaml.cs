@@ -351,20 +351,24 @@ namespace WFTP.Pages
             string displayPath = navBar.GetDisplayPath();
             string[] pathList = navBar.GetDisplayPath().Split('\\');
             int level = pathList.Count();
-
             _ftpPath = "/";
             _idPath = "/";
             if (!displayPath.Equals("分類"))
             {
-                GetCatalogInfo(level, pathList.Last());
+                level = GetCatalogInfo(level, pathList.Last());
                 level++;
-
+                // UNDONE:處理因為非同步目錄已不存在問題
                 for (int i = 2; i <= level; i++)
                 {
+                    if (String.IsNullOrEmpty(_catalogLevelName[i]))
+                        break;
                     _ftpPath = String.Format("{0}{1}/", _ftpPath, _catalogLevelName[i]);
                     _idPath = String.Format("{0}{1}/", _idPath, _catalogLevelId[i-1]);
                 }
+            
             }
+           
+           
             new Thread(() =>
             {
                 Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Normal,
@@ -975,6 +979,7 @@ namespace WFTP.Pages
                 btnTileView.Visibility = Visibility.Hidden;
             }
 
+            // 取得各階層資料
             dynamic classify = null;
 
             switch (level)
@@ -999,6 +1004,7 @@ namespace WFTP.Pages
                     break;
             }
 
+           
             ApiHelper api = new ApiHelper();
             List<string> remoteFolderFullPathList = api.Dir(_ftpPath).ToList();
             Dictionary<string, string> remoteFileList = new Dictionary<string, string>();
@@ -1167,69 +1173,65 @@ namespace WFTP.Pages
                 lvwAdvanceClassify.Items.Add(tile);
             }
         }
-        // Query:從資料庫取得分類名稱及其子項目數量(階層 1)
+        /// <summary>
+        /// Query:從資料庫取得分類名稱及其子項目數量(階層 1)
+        /// </summary>
+        /// <returns>Lv1 資料</returns>
         private dynamic GetLv1Catalog()
         {
             WFTPDbContext db = new WFTPDbContext();
-
             var lv1Catalog = from classify in db.Lv1Classifications
-                              let subCount =
-                                  (from customer in db.Lv2Customers
-                                   where customer.ClassifyId == classify.ClassifyId
-                                   select customer).Count()
                               select new
                               {
                                   Id = classify.ClassifyId,
                                   Name = classify.ClassName,
                                   NickName = classify.NickName,
-                                  Counts = subCount
                               };
 
             return lv1Catalog;
         }
-        // Query:從資料庫取得分類名稱及其子項目數量(階層 2)
+        /// <summary>
+        /// Query:從資料庫取得分類名稱及其子項目數量(階層 2)
+        /// </summary>
+        /// <returns>Lv2 資料</returns>
         private dynamic GetLv2Catalog()
         {
             WFTPDbContext db = new WFTPDbContext();
 
             var lv2Catalog = from customer in db.Lv2Customers
                               where customer.ClassifyId == _catalogLevelId[1]
-                              let subCount =
-                                  (from branch in db.Lv3CustomerBranches
-                                   where branch.CompanyId == customer.CompanyId
-                                   select branch).Count()
                               select new
                               {
                                   Id = customer.CompanyId,
                                   Name = customer.CompanyName,
                                   NickName = customer.CompanyNickName,
-                                  Counts = subCount
                               };
 
             return lv2Catalog;
         }
-        // Query:從資料庫取得分類名稱及其子項目數量(階層 3)
+        /// <summary>
+        /// Query:從資料庫取得分類名稱及其子項目數量(階層 3)
+        /// </summary>
+        /// <returns>Lv3 資料</returns>
         private dynamic GetLv3Catalog()
         {
             WFTPDbContext db = new WFTPDbContext();
-
             var lv3Catalog = from branch in db.Lv3CustomerBranches
                              where branch.CompanyId == _catalogLevelId[2]
-                              let subCount =
-                                  (from line in db.Lv4Lines
-                                   where line.BranchId == branch.BranchId
-                                   select line).Count()
                               select new
                               {
                                   Id = branch.BranchId,
                                   Name = branch.BranchName,
                                   NickName = branch.BranchNickName,
-                                  Counts = subCount
                               };
 
             return lv3Catalog;
         }
-        // Query:從資料庫取得分類名稱及其子項目數量(階層 4)
+        // 
+        /// <summary>
+        /// Query:從資料庫取得分類名稱及其子項目數量(階層 4)
+        /// </summary>
+        /// <returns>Lv4 資料</returns>
         private dynamic GetLv4Catalog()
         {
             WFTPDbContext db = new WFTPDbContext();
@@ -1249,31 +1251,29 @@ namespace WFTP.Pages
 
             return lv4Catalog;
         }
-        // Query:從資料庫取得分類名稱及其子項目數量(階層 5)
+        /// <summary>
+        /// Query:從資料庫取得分類名稱及其子項目數量(階層 5)
+        /// </summary>
+        /// <returns>Lv5 資料</returns>
         private dynamic GetFileCatalog()
         {
             WFTPDbContext db = new WFTPDbContext();
-
             var fileCatalogList = from fileCatalog in db.Lv5FileCategorys
-                             let subCount =
-                                 (from file in db.Lv6Files
-                                  where file.LineId == _catalogLevelId[4] && file.FileCategoryId == fileCatalog.FileCategoryId && file.IsDeleted == false
-                                  select file).Count()
                              select new
                              {
                                  Id = fileCatalog.FileCategoryId,
                                  Name = fileCatalog.ClassName,
                                  NickName = fileCatalog.ClassNickName,
-                                 Counts = subCount
                              };
-
             return fileCatalogList;
         }
-        // Query:從資料庫取得分類名稱及其子項目數量(階層 6)
+        /// <summary>
+        /// Query:從資料庫取得分類名稱及其子項目數量(階層 6)
+        /// </summary>
+        /// <returns>Lv6 資料</returns>
         private dynamic GetFileList()
         {
             WFTPDbContext db = new WFTPDbContext();
-
             var fileList = from file in db.Lv6Files
                            where file.LineId == _catalogLevelId[4] && file.FileCategoryId == _catalogLevelId[5] && file.IsDeleted == false
                            select new
@@ -1282,7 +1282,6 @@ namespace WFTP.Pages
                                Name = file.FileName,
                                NickName = file.FileName
                            };
-
             return fileList;
         }
         // Query of Manage: 建立目錄
@@ -1838,12 +1837,14 @@ namespace WFTP.Pages
            
         }
         // Query:取得階層名稱及 Id
-        private void GetCatalogInfo(int level, string condition)
+        private int GetCatalogInfo(int level, string condition)
         {
             WFTPDbContext db = new WFTPDbContext();
             int id = 0;
+            
             string name = "";
-
+            // UNDONE: condition 問題
+            WHEN_DATA_NULL:
             switch (level)
             {
                 case 1:
@@ -1854,8 +1855,16 @@ namespace WFTP.Pages
                                    classify.ClassifyId,
                                    classify.ClassName
                                };
-                    id = lv1.First().ClassifyId;
-                    name = lv1.First().ClassName;
+                    if (lv1.Count() > 0)
+                    {
+                        id = lv1.First().ClassifyId;
+                        name = lv1.First().ClassName;
+                    }
+                    else
+                    {
+                        level--;
+                        goto WHEN_DATA_NULL;
+                    }
                     break;
                 case 2:
                     var lv2 = from customer in db.Lv2Customers
@@ -1866,8 +1875,16 @@ namespace WFTP.Pages
                                    customer.CompanyId,
                                    customer.CompanyName
                                };
-                    id = lv2.First().CompanyId;
-                    name = lv2.First().CompanyName;
+                    if (lv2.Count() > 0)
+                    {
+                        id = lv2.First().CompanyId;
+                        name = lv2.First().CompanyName;
+                    }
+                    else
+                    {
+                        level--;
+                        goto WHEN_DATA_NULL;
+                    }
                     break;
                 case 3:
                     var lv3 = from branch in db.Lv3CustomerBranches
@@ -1878,8 +1895,16 @@ namespace WFTP.Pages
                                   branch.BranchId,
                                   branch.BranchName
                               };
-                    id = lv3.First().BranchId;
-                    name = lv3.First().BranchName;
+                    if (lv3.Count() > 0)
+                    {
+                        id = lv3.First().BranchId;
+                        name = lv3.First().BranchName;
+                    }
+                    else
+                    {
+                        level--;
+                        goto WHEN_DATA_NULL;
+                    }
                     break;
                 case 4:
                     var lv4 = from line in db.Lv4Lines
@@ -1890,8 +1915,16 @@ namespace WFTP.Pages
                                    line.LineId,
                                    line.LineName
                                };
-                    id = lv4.First().LineId;
-                    name = lv4.First().LineName;
+                    if (lv4.Count() > 0)
+                    {
+                        id = lv4.First().LineId;
+                        name = lv4.First().LineName;
+                    }
+                    else
+                    {
+                        level--;
+                        goto WHEN_DATA_NULL;
+                    }
                     break;
                 case 5:
                     var lv5 = from catalog in db.Lv5FileCategorys
@@ -1901,12 +1934,21 @@ namespace WFTP.Pages
                                   catalog.FileCategoryId,
                                   catalog.ClassName
                               };
-                    id = lv5.First().FileCategoryId;
-                    name = lv5.First().ClassName;
+                    if (lv5.Count() > 0)
+                    {
+                        id = lv5.First().FileCategoryId;
+                        name = lv5.First().ClassName;
+                    }
+                    else
+                    {
+                        level--;
+                        goto WHEN_DATA_NULL;
+                    }
                     break;
             }
             _catalogLevelId[level] = id;
             _catalogLevelName[level+1] = name;
+            return level;
         }
         // FTP:下載
         private void DownloadFile(string filePath)
