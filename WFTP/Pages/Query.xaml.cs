@@ -348,20 +348,26 @@ namespace WFTP.Pages
        
         private void navBar_PathChanged(object sender, RoutedPropertyChangedEventArgs<string> e)
         {
+            // UNDONE: Change use ID
             string displayPath = navBar.GetDisplayPath();
             string[] pathList = navBar.GetDisplayPath().Split('\\');
+            // XmlElement xelSelected = (XmlElement)navBar.SelectedItem;
+            // string pathId = xelSelected.GetAttribute("id");
+            // string x = navBar.SeparatorString;
             int level = pathList.Count();
             _ftpPath = "/";
             _idPath = "/";
             if (!displayPath.Equals("分類"))
             {
-                level = GetCatalogInfo(level, pathList.Last());
+                level = GetCatalogInfo(level, pathList);
                 level++;
                 // UNDONE:處理因為非同步目錄已不存在問題
                 for (int i = 2; i <= level; i++)
                 {
                     if (String.IsNullOrEmpty(_catalogLevelName[i]))
+                    {
                         break;
+                    }
                     _ftpPath = String.Format("{0}{1}/", _ftpPath, _catalogLevelName[i]);
                     _idPath = String.Format("{0}{1}/", _idPath, _catalogLevelId[i-1]);
                 }
@@ -384,6 +390,10 @@ namespace WFTP.Pages
             if (level > 1)
             {
                 GetBreadcrumbBarPath(level);
+            }
+            else
+            {
+                GetBreadcrumbBarPath();
             }
         }
         private void btnTileView_Click(object sender, RoutedEventArgs e)
@@ -1837,11 +1847,11 @@ namespace WFTP.Pages
            
         }
         // Query:取得階層名稱及 Id
-        private int GetCatalogInfo(int level, string condition)
+        private int GetCatalogInfo(int level, string[] condition)
         {
             WFTPDbContext db = new WFTPDbContext();
             int id = 0;
-            
+            int tmpLevel = level;
             string name = "";
             // UNDONE: condition 問題
             WHEN_DATA_NULL:
@@ -1849,7 +1859,7 @@ namespace WFTP.Pages
             {
                 case 1:
                     var lv1 = from classify in db.Lv1Classifications
-                               where classify.NickName == condition
+                               where classify.NickName == condition[0]
                                select new
                                {
                                    classify.ClassifyId,
@@ -1868,7 +1878,7 @@ namespace WFTP.Pages
                     break;
                 case 2:
                     var lv2 = from customer in db.Lv2Customers
-                              where customer.CompanyNickName == condition
+                              where customer.CompanyNickName == condition[1]
                                     && customer.ClassifyId == _catalogLevelId[level - 1]
                                select new
                                {
@@ -1888,7 +1898,7 @@ namespace WFTP.Pages
                     break;
                 case 3:
                     var lv3 = from branch in db.Lv3CustomerBranches
-                              where branch.BranchNickName == condition
+                              where branch.BranchNickName == condition[2]
                                     && branch.CompanyId == _catalogLevelId[level - 1]
                               select new
                               {
@@ -1908,7 +1918,7 @@ namespace WFTP.Pages
                     break;
                 case 4:
                     var lv4 = from line in db.Lv4Lines
-                              where line.LineNickName == condition
+                              where line.LineNickName == condition[3]
                                     && line.BranchId == _catalogLevelId[level - 1]
                                select new
                                {
@@ -1928,7 +1938,7 @@ namespace WFTP.Pages
                     break;
                 case 5:
                     var lv5 = from catalog in db.Lv5FileCategorys
-                              where catalog.ClassNickName == condition
+                              where catalog.ClassNickName == condition[4]
                               select new
                               {
                                   catalog.FileCategoryId,
@@ -1948,6 +1958,10 @@ namespace WFTP.Pages
             }
             _catalogLevelId[level] = id;
             _catalogLevelName[level+1] = name;
+            if ((tmpLevel - level) > 0)
+            {
+                MessageBox.Show("錯誤150:該目錄已被刪除或不存在.");
+            }
             return level;
         }
         // FTP:下載
