@@ -15,8 +15,9 @@ namespace WFTP.Helper
         /// 取得遠端路徑檔案清單
         /// </summary>
         /// <param name="path">遠端路徑</param>
+        /// <param name="nameOnly">是否僅回傳名稱</param>
         /// <returns>檔案清單</returns>
-        public string[] Dir(string path)
+        public string[] Dir(string path, bool nameOnly = false)
         {
             HttpWebRequest req = (HttpWebRequest)HttpWebRequest.Create(String.Format(GlobalHelper.ApiDir, path));
             req.Method = "GET";
@@ -25,7 +26,14 @@ namespace WFTP.Helper
                 Stream responseStream = wr.GetResponseStream();
                 StreamReader reader = new StreamReader(responseStream, encoding);
 
-                return reader.ReadToEnd().Split(',');
+                if (nameOnly)
+                {
+                    return reader.ReadToEnd().Replace(path, String.Empty).Split(',');
+                }
+                else
+                {
+                    return reader.ReadToEnd().Split(',');
+                }
             }
         }
 

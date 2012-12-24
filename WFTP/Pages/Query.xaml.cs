@@ -369,31 +369,33 @@ namespace WFTP.Pages
                         break;
                     }
                     _ftpPath = String.Format("{0}{1}/", _ftpPath, _catalogLevelName[i]);
-                    _idPath = String.Format("{0}{1}/", _idPath, _catalogLevelId[i-1]);
+                    _idPath = String.Format("{0}{1}/", _idPath, _catalogLevelId[i - 1]);
                 }
-            
-            }
-           
-           
-            new Thread(() =>
-            {
-                Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Normal,
-                 new Action(() =>
-                 {
-                     GetCatalog(level);
-                 }));
-            }).Start();
-            //GetCatalog(level);
-            lvwClassify.Tag = level;
 
-            // Lazy loading for BreadcrumbBar
-            if (level > 1)
-            {
-                GetBreadcrumbBarPath(level);
+                new Thread(() =>
+                {
+                    Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Normal,
+                     new Action(() =>
+                     {
+                         GetCatalog(level);
+                     }));
+                }).Start();
+                //GetCatalog(level);
+                lvwClassify.Tag = level;
+
+                // Lazy loading for BreadcrumbBar
+                if (level > 1)
+                {
+                    GetBreadcrumbBarPath(level);
+                }
+                else
+                {
+                    GetBreadcrumbBarPath();
+                }
             }
-            else
+            else // 點選到最頂層分類時麵包屑已經正確，僅需更新 Listview
             {
-                GetBreadcrumbBarPath();
+                GetCatalog(1);
             }
         }
         private void btnTileView_Click(object sender, RoutedEventArgs e)
@@ -870,6 +872,11 @@ namespace WFTP.Pages
         public void GetBreadcrumbBarPath(int level)
         {
             WFTPDbContext db = new WFTPDbContext();
+
+            // Get remote folder list
+            ApiHelper api = new ApiHelper();
+            List<string> remoteFolderList = api.Dir(_ftpPath, true).ToList();
+
             switch (level)
             { 
                 case 2:
@@ -888,6 +895,7 @@ namespace WFTP.Pages
                     }
                     foreach (var company in lv2)
                     {
+                        if (!remoteFolderList.Contains(company.CompanyName)) continue;
                         XmlElement xelCompany = _xdoc.CreateElement("bc");
                         xelCompany.SetAttribute("title", company.CompanyNickName);
                         xelCompany.SetAttribute("id", company.CompanyId.ToString());
@@ -910,6 +918,7 @@ namespace WFTP.Pages
                     }
                     foreach (var branch in lv3)
                     {
+                        if (!remoteFolderList.Contains(branch.BranchName)) continue;
                         XmlElement xelBranch = _xdoc.CreateElement("bc");
                         xelBranch.SetAttribute("title", branch.BranchNickName);
                         xelBranch.SetAttribute("id", branch.BranchId.ToString());
@@ -932,6 +941,7 @@ namespace WFTP.Pages
                     }
                     foreach (var line in lv4)
                     {
+                        if (!remoteFolderList.Contains(line.LineName)) continue;
                         XmlElement xelLine = _xdoc.CreateElement("bc");
                         xelLine.SetAttribute("title", line.LineNickName);
                         xelLine.SetAttribute("id", line.LineId.ToString());
