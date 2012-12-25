@@ -454,6 +454,7 @@ namespace WFTP.Pages
             navBar.Path = "分類";
             lvwClassify.Tag = 1;
             GetBreadcrumbBarPath();
+
         }
         private void lvwClassify_ContextMenuOpening(object sender, ContextMenuEventArgs e)
         {
