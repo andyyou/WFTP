@@ -126,7 +126,7 @@
                                            VerticalAlignment="Stretch"
                                            Width="620"
                                            Height="30"
-                                           PathChanged="navBar_PathChanged" PathConversion="navBar_PathConversion" SelectedBreadcrumbChanged="navBar_SelectedBreadcrumbChanged" />
+                                           PathChanged="navBar_PathChanged" />
                     </WrapPanel>
                     <Grid DockPanel.Dock="Top" Width="Auto" Height="50">
                         <Button  Name="btnTileView" 

@@ -87,6 +87,11 @@ namespace WFTP.Pages
         /// 暫存變更的Paht For 處理同一個Paht 選擇2次 Issue
         /// </summary>
         private string _CheckPath;
+        /// <summary>
+        /// 暫存變更的Paht For 處理同一個Paht 選擇2次 Issue
+        /// </summary>
+        private int _SelectedSameOne = 0;
+
         #endregion
 
         /// <summary>
@@ -353,13 +358,14 @@ namespace WFTP.Pages
         private void navBar_PathChanged(object sender, RoutedPropertyChangedEventArgs<string> e)
         {
             // UNDONE: Change use ID
+            
             string displayPath = navBar.GetDisplayPath();
             string[] pathList = navBar.GetDisplayPath().Split('\\');
             XmlElement x = e.Source as XmlElement;
             int level = pathList.Count();
             _ftpPath = "/";
             _idPath = "/";
-            if (!displayPath.Equals("分類") && _CheckPath == displayPath)
+            if (!displayPath.Equals("分類"))
             {
                 level = GetCatalogInfo(level, pathList);
                 level++;
@@ -390,15 +396,16 @@ namespace WFTP.Pages
                 {
                     GetBreadcrumbBarPath(level);
                 }
-                else
-                {
-                    GetBreadcrumbBarPath();
-                }
+               
+               
             }
-            //else // 點選到最頂層分類時麵包屑已經正確，僅需更新 Listview
-            //{
-            //    GetCatalog(1);
-            //}
+            else // 點選到最頂層分類時麵包屑已經正確，僅需更新 Listview
+            {
+                GetCatalog(1);
+            }
+
+           
+            
         }
         private void btnTileView_Click(object sender, RoutedEventArgs e)
         {
@@ -889,11 +896,10 @@ namespace WFTP.Pages
                     XmlNode xndClassify = _xdoc.SelectSingleNode(expr);
                     if (xndClassify.ChildNodes.Count > 0)
                     {
-                        XPathNavigator navigator = _xdoc.CreateNavigator();
-                        XPathNavigator first = navigator.SelectSingleNode(expr + "/bc[1]");
-                        XPathNavigator last = navigator.SelectSingleNode(expr + "/bc[last()]");
-                        navigator.MoveTo(first);
-                        navigator.DeleteRange(last);
+                        foreach (XmlNode node in xndClassify.ChildNodes)
+                        {
+                            xndClassify.RemoveChild(node);
+                        }
                     }
                     foreach (var company in lv2)
                     {
@@ -912,11 +918,10 @@ namespace WFTP.Pages
                     XmlNode xndCompany = _xdoc.SelectSingleNode(expr);
                     if (xndCompany.ChildNodes.Count > 0)
                     {
-                        XPathNavigator navigator = _xdoc.CreateNavigator();
-                        XPathNavigator first = navigator.SelectSingleNode(expr + "/bc[1]");
-                        XPathNavigator last = navigator.SelectSingleNode(expr + "/bc[last()]");
-                        navigator.MoveTo(first);
-                        navigator.DeleteRange(last);
+                        foreach (XmlNode node in xndCompany.ChildNodes)
+                        {
+                            xndCompany.RemoveChild(node);
+                        }
                     }
                     foreach (var branch in lv3)
                     {
@@ -935,11 +940,10 @@ namespace WFTP.Pages
                     XmlNode xndBranch = _xdoc.SelectSingleNode(expr);
                     if (xndBranch.ChildNodes.Count > 0)
                     {
-                        XPathNavigator navigator = _xdoc.CreateNavigator();
-                        XPathNavigator first = navigator.SelectSingleNode(expr + "/bc[1]");
-                        XPathNavigator last = navigator.SelectSingleNode(expr + "/bc[last()]");
-                        navigator.MoveTo(first);
-                        navigator.DeleteRange(last);
+                        foreach (XmlNode node in xndBranch.ChildNodes)
+                        {
+                            xndBranch.RemoveChild(node);
+                        }
                     }
                     foreach (var line in lv4)
                     {
@@ -2126,16 +2130,7 @@ namespace WFTP.Pages
 
         #endregion
 
-        private void navBar_PathConversion(object sender, PathConversionEventArgs e)
-        {
-            string x = "";
-        }
-
-        private void navBar_SelectedBreadcrumbChanged(object sender, RoutedEventArgs e)
-        {
-            BreadcrumbBar bar = e.Source as BreadcrumbBar;
-            _CheckPath = bar.Path;
-        }
+       
 
         
 
