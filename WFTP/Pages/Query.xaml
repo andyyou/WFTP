@@ -121,13 +121,12 @@
                         <Rectangle Width="5" Height="20"/>
                         <odc:BreadcrumbBar x:Name="navBar"
                                            TraceBinding="{Binding XPath=@title}"
-                                           
                                            Root="{StaticResource dataProvider}"
                                            HorizontalAlignment="Stretch"
                                            VerticalAlignment="Stretch"
                                            Width="620"
                                            Height="30"
-                                           PathChanged="navBar_PathChanged" />
+                                           PathChanged="navBar_PathChanged" PathConversion="navBar_PathConversion" SelectedBreadcrumbChanged="navBar_SelectedBreadcrumbChanged" />
                     </WrapPanel>
                     <Grid DockPanel.Dock="Top" Width="Auto" Height="50">
                         <Button  Name="btnTileView" 
