@@ -83,6 +83,10 @@ namespace WFTP.Pages
         /// 進階搜尋 一頁筆數 Size
         /// </summary>
         private const int _advPageSize = 12;
+        /// <summary>
+        /// 暫存變更的Paht For 處理同一個Paht 選擇2次 Issue
+        /// </summary>
+        private string _CheckPath;
         #endregion
 
         /// <summary>
@@ -351,13 +355,11 @@ namespace WFTP.Pages
             // UNDONE: Change use ID
             string displayPath = navBar.GetDisplayPath();
             string[] pathList = navBar.GetDisplayPath().Split('\\');
-            // XmlElement xelSelected = (XmlElement)navBar.SelectedItem;
-            // string pathId = xelSelected.GetAttribute("id");
-            // string x = navBar.SeparatorString;
+            XmlElement x = e.Source as XmlElement;
             int level = pathList.Count();
             _ftpPath = "/";
             _idPath = "/";
-            if (!displayPath.Equals("分類"))
+            if (!displayPath.Equals("分類") && _CheckPath == displayPath)
             {
                 level = GetCatalogInfo(level, pathList);
                 level++;
@@ -380,7 +382,7 @@ namespace WFTP.Pages
                          GetCatalog(level);
                      }));
                 }).Start();
-                //GetCatalog(level);
+                // GetCatalog(level);
                 lvwClassify.Tag = level;
 
                 // Lazy loading for BreadcrumbBar
@@ -393,10 +395,10 @@ namespace WFTP.Pages
                     GetBreadcrumbBarPath();
                 }
             }
-            else // 點選到最頂層分類時麵包屑已經正確，僅需更新 Listview
-            {
-                GetCatalog(1);
-            }
+            //else // 點選到最頂層分類時麵包屑已經正確，僅需更新 Listview
+            //{
+            //    GetCatalog(1);
+            //}
         }
         private void btnTileView_Click(object sender, RoutedEventArgs e)
         {
@@ -2123,6 +2125,17 @@ namespace WFTP.Pages
         }
 
         #endregion
+
+        private void navBar_PathConversion(object sender, PathConversionEventArgs e)
+        {
+            string x = "";
+        }
+
+        private void navBar_SelectedBreadcrumbChanged(object sender, RoutedEventArgs e)
+        {
+            BreadcrumbBar bar = e.Source as BreadcrumbBar;
+            _CheckPath = bar.Path;
+        }
 
         
 
