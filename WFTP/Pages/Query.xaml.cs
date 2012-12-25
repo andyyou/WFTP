@@ -450,6 +450,7 @@ namespace WFTP.Pages
         private void btnQueryHome_Click(object sender, RoutedEventArgs e)
         {
             navBar.Path = "分類";
+            lvwClassify.Tag = 1;
         }
         private void lvwClassify_ContextMenuOpening(object sender, ContextMenuEventArgs e)
         {
