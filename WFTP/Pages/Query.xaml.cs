@@ -439,6 +439,8 @@ namespace WFTP.Pages
             if (paths.Length == 1)
             {
                 navBar.Path = "分類";
+                lvwClassify.Tag = 1;
+                GetBreadcrumbBarPath();
             }
             else
             {
@@ -451,6 +453,8 @@ namespace WFTP.Pages
         {
             navBar.Path = "分類";
             lvwClassify.Tag = 1;
+            GetBreadcrumbBarPath();
+
         }
         private void lvwClassify_ContextMenuOpening(object sender, ContextMenuEventArgs e)
         {
@@ -888,19 +892,20 @@ namespace WFTP.Pages
             List<string> remoteFolderList = api.Dir(_ftpPath, true).ToList();
 
             switch (level)
-            { 
+            {
                 case 2:
                     var lv2 = from company in db.Lv2Customers
-                              where company.ClassifyId == _catalogLevelId[1] 
+                              where company.ClassifyId == _catalogLevelId[1]
                               select company;
                     string expr = String.Format("/bc/bc[@id={0}]", _catalogLevelId[1]);
                     XmlNode xndClassify = _xdoc.SelectSingleNode(expr);
                     if (xndClassify.ChildNodes.Count > 0)
                     {
-                        foreach (XmlNode node in xndClassify.ChildNodes)
-                        {
-                            xndClassify.RemoveChild(node);
-                        }
+                        XPathNavigator navigator = _xdoc.CreateNavigator();
+                        XPathNavigator first = navigator.SelectSingleNode(expr + "/bc[1]");
+                        XPathNavigator last = navigator.SelectSingleNode(expr + "/bc[last()]");
+                        navigator.MoveTo(first);
+                        navigator.DeleteRange(last);
                     }
                     foreach (var company in lv2)
                     {
@@ -913,16 +918,17 @@ namespace WFTP.Pages
                     break;
                 case 3:
                     var lv3 = from branch in db.Lv3CustomerBranches
-                              where branch.CompanyId == _catalogLevelId[2] 
+                              where branch.CompanyId == _catalogLevelId[2]
                               select branch;
                     expr = String.Format("/bc/bc[@id={0}]/bc[@id={1}]", _catalogLevelId[1], _catalogLevelId[2]);
                     XmlNode xndCompany = _xdoc.SelectSingleNode(expr);
                     if (xndCompany.ChildNodes.Count > 0)
                     {
-                        foreach (XmlNode node in xndCompany.ChildNodes)
-                        {
-                            xndCompany.RemoveChild(node);
-                        }
+                        XPathNavigator navigator = _xdoc.CreateNavigator();
+                        XPathNavigator first = navigator.SelectSingleNode(expr + "/bc[1]");
+                        XPathNavigator last = navigator.SelectSingleNode(expr + "/bc[last()]");
+                        navigator.MoveTo(first);
+                        navigator.DeleteRange(last);
                     }
                     foreach (var branch in lv3)
                     {
@@ -941,10 +947,11 @@ namespace WFTP.Pages
                     XmlNode xndBranch = _xdoc.SelectSingleNode(expr);
                     if (xndBranch.ChildNodes.Count > 0)
                     {
-                        foreach (XmlNode node in xndBranch.ChildNodes)
-                        {
-                            xndBranch.RemoveChild(node);
-                        }
+                        XPathNavigator navigator = _xdoc.CreateNavigator();
+                        XPathNavigator first = navigator.SelectSingleNode(expr + "/bc[1]");
+                        XPathNavigator last = navigator.SelectSingleNode(expr + "/bc[last()]");
+                        navigator.MoveTo(first);
+                        navigator.DeleteRange(last);
                     }
                     foreach (var line in lv4)
                     {
