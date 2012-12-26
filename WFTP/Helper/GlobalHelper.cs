@@ -20,45 +20,66 @@ namespace WFTP.Helper
         #region API Path
 
         // API Key, prevent unauthorized connection
-        private static string ApiKey = "15eb7a42cce1ab9822caa1f8aaa65a494d38d19654886e67c0a6b15edcdcfde7";
+        public static string ApiKey { get; set; }
+        // API Host and Port
+        public static string ApiHost { get; set; }
+        public static int ApiPort { get; set; }
         // Return thumbnail if image exist and format supported
-        public static string ApiThumb = String.Format("http://192.168.100.177:2121/thumb?key={0}&p={1}", ApiKey, "{0}");
+        public static string ApiThumb { get; set; }
         // Return true if file exist, otherwise return false
-        public static string ApiCheck = String.Format("http://192.168.100.177:2121/check?key={0}&p={1}", ApiKey, "{0}");
+        public static string ApiCheck { get; set; }
         // Return true if file/path can be rename, otherwise return false
-        public static string ApiCheckRename = String.Format("http://192.168.100.177:2121/checkrename?key={0}&p={1}&n={2}", ApiKey, "{0}", "{1}");
+        public static string ApiCheckRename { get; set; }
         // Return files list if path exist
-        public static string ApiDir = String.Format("http://192.168.100.177:2121/dir?key={0}&p={1}", ApiKey, "{0}");
+        public static string ApiDir { get; set; }
         // Return file size if file exist
-        public static string ApiGetSize = String.Format("http://192.168.100.177:2121/getsize?key={0}&p={1}", ApiKey, "{0}");
+        public static string ApiGetSize { get; set; }
         // Return true if mkdir success
-        public static string ApiMkdir = String.Format("http://192.168.100.177:2121/mkdir?key={0}&p={1}", ApiKey, "{0}");
+        public static string ApiMkdir { get; set; }
         // Return true if rmdir success(the file will be move to Trash folder)
-        public static string ApiRmdir = String.Format("http://192.168.100.177:2121/rmdir?key={0}&p={1}", ApiKey, "{0}");
+        public static string ApiRmdir { get; set; }
         // Return true if rename success(if new file already exist, return false)
-        public static string ApiRename = String.Format("http://192.168.100.177:2121/rename?key={0}&p={1}&n={2}", ApiKey, "{0}", "{1}");
+        public static string ApiRename { get; set; }
         // Return true if delete file success(the file will be delete permanently)
-        public static string ApiDeleteFile = String.Format("http://192.168.100.177:2121/deletefile?key={0}&p={1}", ApiKey, "{0}");
+        public static string ApiDeleteFile { get; set; }
         // Return true if lv5 single category create success
-        public static string ApiAddCategorys = String.Format("http://192.168.100.177:2121/addcategory?key={0}&n={1}", ApiKey, "{0}");
+        public static string ApiAddCategorys { get; set; }
         // Return true if lv5 category create success
-        public static string ApiCreateCategorys = String.Format("http://192.168.100.177:2121/createcategorys?key={0}&p={1}", ApiKey, "{0}");
+        public static string ApiCreateCategorys { get; set; }
         // Return true if lv5 category rename success
-        public static string ApiRenameCategorys = String.Format("http://192.168.100.177:2121/renamecategorys?key={0}&n={1}&nn={2}", ApiKey, "{0}", "{1}");
+        public static string ApiRenameCategorys { get; set; }
         // Return true if lv5 catefory remove success
-        public static string ApiRemoveCategorys = String.Format("http://192.168.100.177:2121/removecategorys?key={0}&n={1}", ApiKey, "{0}");
+        public static string ApiRemoveCategorys { get; set; }
         // Return folder/file count(return 0 if there is no file or path not exist)
-        public static string ApiGetCount = String.Format("http://192.168.100.177:2121/getfoldercount?key={0}&p={1}", ApiKey, "{0}");
+        public static string ApiGetCount { get; set; }
 
         #endregion
 
         #region FTP Information
 
-        public static string ComponentCode = "FTP287654321_04B9029AoH2F";
-        public static string FtpHost = "192.168.100.177";
-        public static string FtpUsername = "wftp";
-        public static string FtpPasswrod = "engineer53007214";
+        public static string ComponentCode { get; set; }
+        public static string FtpHost { get; set; }
+        public static string FtpUsername { get; set; }
+        public static string FtpPasswrod { get; set; }
 
         #endregion
+
+        public static void SetApiPath()
+        {
+            ApiThumb = String.Format("http://{0}:{1}/thumb?key={2}&p={3}", ApiHost, ApiPort, ApiKey, "{0}");
+            ApiCheck = String.Format("http://{0}:{1}/check?key={2}&p={3}", ApiHost, ApiPort, ApiKey, "{0}");
+            ApiCheckRename = String.Format("http://{0}:{1}/checkrename?key={2}&p={3}&n={4}", ApiHost, ApiPort, ApiKey, "{0}", "{1}");
+            ApiDir = String.Format("http://{0}:{1}/dir?key={2}&p={3}", ApiHost, ApiPort, ApiKey, "{0}");
+            ApiGetSize = String.Format("http://{0}:{1}/getsize?key={2}&p={3}", ApiHost, ApiPort, ApiKey, "{0}");
+            ApiMkdir = String.Format("http://{0}:{1}/mkdir?key={2}&p={3}", ApiHost, ApiPort, ApiKey, "{0}");
+            ApiRmdir = String.Format("http://{0}:{1}/rmdir?key={2}&p={3}", ApiHost, ApiPort, ApiKey, "{0}");
+            ApiRename = String.Format("http://{0}:{1}/rename?key={2}&p={3}&n={4}", ApiHost, ApiPort, ApiKey, "{0}", "{1}");
+            ApiDeleteFile = String.Format("http://{0}:{1}/deletefile?key={2}&p={3}", ApiHost, ApiPort, ApiKey, "{0}");
+            ApiAddCategorys = String.Format("http://{0}:{1}/addcategory?key={2}&n={3}", ApiHost, ApiPort, ApiKey, "{0}");
+            ApiCreateCategorys = String.Format("http://{0}:{1}/createcategorys?key={2}&p={3}", ApiHost, ApiPort, ApiKey, "{0}");
+            ApiRenameCategorys = String.Format("http://{0}:{1}/renamecategorys?key={2}&n={3}&nn={4}", ApiHost, ApiPort, ApiKey, "{0}", "{1}");
+            ApiRemoveCategorys = String.Format("http://{0}:{1}/removecategorys?key={2}&n={3}", ApiHost, ApiPort, ApiKey, "{0}");
+            ApiGetCount = String.Format("http://{0}:{1}/getfoldercount?key={2}&p={3}", ApiHost, ApiPort, ApiKey, "{0}");
+        }
     }
 }
