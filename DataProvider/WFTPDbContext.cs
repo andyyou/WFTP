@@ -24,6 +24,7 @@ namespace DataProvider
         public Table<CFileCategory> Lv5FileCategorys;
         public Table<CFile> Lv6Files;
         public Table<DeleteLog> DeleteLogs;
+        public Table<SystemConfig> SystemConfigs;
         
     }
 }

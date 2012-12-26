@@ -52,6 +52,7 @@
     <Compile Include="Lv3CustomerBranch.cs" />
     <Compile Include="Lv4Line.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SystemConfig.cs" />
     <Compile Include="WFTPDbContext.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

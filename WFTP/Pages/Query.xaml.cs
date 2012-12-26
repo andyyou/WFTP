@@ -86,11 +86,11 @@ namespace WFTP.Pages
         /// <summary>
         /// 暫存變更的Paht For 處理同一個Paht 選擇2次 Issue
         /// </summary>
-        private string _CheckPath;
+        private bool _IsTwoTimesPath = false;
         /// <summary>
         /// 暫存變更的Paht For 處理同一個Paht 選擇2次 Issue
         /// </summary>
-        private int _SelectedSameOne = 0;
+        private int _BreadcrumItemsSelectedTimes = 0;
 
         #endregion
 
@@ -304,7 +304,9 @@ namespace WFTP.Pages
         #endregion
 
         #region Query Events
-
+        /// <summary>
+        /// Tile模式 一般查詢的 Click Event
+        /// </summary>
         private void tile_Click(object sender, RoutedEventArgs e)
         {
             int level = Convert.ToInt32(lvwClassify.Tag) + 1;
@@ -326,6 +328,9 @@ namespace WFTP.Pages
                 DownloadFile(DBHelper.GenerateFileFullPath(Convert.ToInt32(info["Id"])));
             }
         }
+        /// <summary>
+        /// List 模式下載
+        /// </summary>
         private void lstDown_Click(object sender, RoutedEventArgs e)
         {
             int level = Convert.ToInt32(lvwClassify.Tag) + 1;
@@ -346,9 +351,7 @@ namespace WFTP.Pages
                 DownloadFile(DBHelper.GenerateFileFullPath(Convert.ToInt32(info["Id"])));
             }
         }
-        private void lstDelete_Click(object sender, RoutedEventArgs e)
-        { 
-        }
+        
         private void lstAdvanceDown_Click(object sender, RoutedEventArgs e)
         {
             Button btn = (Button)sender;
@@ -367,9 +370,10 @@ namespace WFTP.Pages
             _idPath = "/";
             if (!displayPath.Equals("分類"))
             {
+                // 處理因為非同步目錄已不存在問題,如果找不到該層則往上一層找
                 level = GetCatalogInfo(level, pathList);
                 level++;
-                // UNDONE:處理因為非同步目錄已不存在問題
+                
                 for (int i = 2; i <= level; i++)
                 {
                     if (String.IsNullOrEmpty(_catalogLevelName[i]))
@@ -392,7 +396,7 @@ namespace WFTP.Pages
                 lvwClassify.Tag = level;
 
                 // Lazy loading for BreadcrumbBar
-                if (level > 1)
+                if (level > 1 && _IsTwoTimesPath)
                 {
                     GetBreadcrumbBarPath(level);
                 }
@@ -619,6 +623,35 @@ namespace WFTP.Pages
             if (!IsFindListViewItem(e))
             {
                 lvwClassify.UnselectAll();
+            }
+        }
+        /// <summary>
+        /// 處理因為點擊同一個選項時 navbar_PathChange 會跑兩次 Issue
+        /// </summary>
+        private void navBar_SelectedBreadcrumbChanged(object sender, RoutedEventArgs e)
+        {
+            if (_BreadcrumItemsSelectedTimes >= 2)
+            {
+                _BreadcrumItemsSelectedTimes = 0;
+            }
+            else
+            {
+                _BreadcrumItemsSelectedTimes++;
+            }
+        }
+        /// <summary>
+        /// 處理因為點擊同一個選項時 navbar_PathChange 會跑兩次 Issue
+        /// </summary>
+        private void navBar_PathConversion(object sender, PathConversionEventArgs e)
+        {
+            _BreadcrumItemsSelectedTimes++;
+            if (_BreadcrumItemsSelectedTimes == 1)
+            {
+                _IsTwoTimesPath = true;
+            }
+            else
+            {
+                _IsTwoTimesPath = false;
             }
         }
         #endregion
@@ -1862,14 +1895,18 @@ namespace WFTP.Pages
             }
            
         }
-        // Query:取得階層名稱及 Id
+        /// <summary>
+        /// 處理 _catalogLevelId , _catalogLevelName 全域物件
+        /// </summary>
+        /// <param name="level">更新該階層資料</param>
+        /// <param name="condition">所有階層過濾的條件</param>
+        /// <returns></returns>
         private int GetCatalogInfo(int level, string[] condition)
         {
             WFTPDbContext db = new WFTPDbContext();
             int id = 0;
             int tmpLevel = level;
             string name = "";
-            // UNDONE: condition 問題
             WHEN_DATA_NULL:
             switch (level)
             {
@@ -1976,7 +2013,7 @@ namespace WFTP.Pages
             _catalogLevelName[level+1] = name;
             if ((tmpLevel - level) > 0)
             {
-                MessageBox.Show("錯誤150:該目錄已被刪除或不存在.");
+                MessageBox.Show("警告:該目錄已被刪除或不存在.");
             }
             return level;
         }
@@ -2137,6 +2174,7 @@ namespace WFTP.Pages
         }
 
         #endregion
+       
 
        
 
