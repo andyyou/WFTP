@@ -48,7 +48,7 @@
                     <GridViewColumn.CellTemplate>
                         <DataTemplate>
                             <Button Content="下載"
-                                    Tag="{Binding FilePath}"
+                                    Tag="{Binding FileId}"
                                     FontSize="12"
                                     FontFamily="Microsoft JhengHei"
                                     Click="lstDown_Click" />

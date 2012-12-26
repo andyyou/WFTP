@@ -347,8 +347,7 @@ namespace WFTP.Pages
             else
             {
                 // download chosen file here
-                Dictionary<string, string> info = (Dictionary<string, string>)btn.Tag;
-                DownloadFile(DBHelper.GenerateFileFullPath(Convert.ToInt32(info["Id"])));
+                DownloadFile(DBHelper.GenerateFileFullPath(Convert.ToInt32(btn.Tag)));
             }
         }
         
