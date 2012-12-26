@@ -90,6 +90,10 @@ namespace WFTP.Pages
         /// <summary>
         /// 暫存變更的Paht For 處理同一個Paht 選擇2次 Issue
         /// </summary>
+        private bool _IsPathChangeAutoTrigger = false;
+        /// <summary>
+        /// 暫存變更的Paht For 處理同一個Paht 選擇2次 Issue
+        /// </summary>
         private int _BreadcrumItemsSelectedTimes = 0;
 
         #endregion
@@ -360,7 +364,7 @@ namespace WFTP.Pages
         private void navBar_PathChanged(object sender, RoutedPropertyChangedEventArgs<string> e)
         {
             // UNDONE: Change use ID
-            
+            _IsPathChangeAutoTrigger = !_IsPathChangeAutoTrigger;
             string displayPath = navBar.GetDisplayPath();
             string[] pathList = navBar.GetDisplayPath().Split('\\');
             XmlElement x = e.Source as XmlElement;
@@ -372,7 +376,7 @@ namespace WFTP.Pages
                 // 處理因為非同步目錄已不存在問題,如果找不到該層則往上一層找
                 level = GetCatalogInfo(level, pathList);
                 level++;
-                
+
                 for (int i = 2; i <= level; i++)
                 {
                     if (String.IsNullOrEmpty(_catalogLevelName[i]))
@@ -399,16 +403,14 @@ namespace WFTP.Pages
                 {
                     GetBreadcrumbBarPath(level);
                 }
-               
-               
             }
             else // 點選到最頂層分類時麵包屑已經正確，僅需更新 Listview
             {
+
+                lvwClassify.Tag = 1;
                 GetCatalog(1);
             }
 
-           
-            
         }
         private void btnTileView_Click(object sender, RoutedEventArgs e)
         {
@@ -629,29 +631,25 @@ namespace WFTP.Pages
         /// </summary>
         private void navBar_SelectedBreadcrumbChanged(object sender, RoutedEventArgs e)
         {
-            if (_BreadcrumItemsSelectedTimes >= 2)
-            {
-                _BreadcrumItemsSelectedTimes = 0;
-            }
-            else
-            {
-                _BreadcrumItemsSelectedTimes++;
-            }
+            System.Windows.RoutedPropertyChangedEventArgs<Odyssey.Controls.BreadcrumbItem> i = e as System.Windows.RoutedPropertyChangedEventArgs<Odyssey.Controls.BreadcrumbItem>;
+            string x = i.NewValue.TraceValue;
         }
         /// <summary>
         /// 處理因為點擊同一個選項時 navbar_PathChange 會跑兩次 Issue
         /// </summary>
         private void navBar_PathConversion(object sender, PathConversionEventArgs e)
         {
-            _BreadcrumItemsSelectedTimes++;
-            if (_BreadcrumItemsSelectedTimes == 1)
-            {
-                _IsTwoTimesPath = true;
-            }
-            else
-            {
-                _IsTwoTimesPath = false;
-            }
+            //_BreadcrumItemsSelectedTimes++;
+            //if (_BreadcrumItemsSelectedTimes == 1 || _BreadcrumItemsSelectedTimes == 4)
+            //{
+            //    _IsTwoTimesPath = false;
+            //}
+            //else
+            //{
+            //    _IsTwoTimesPath = true;
+            //}
+            string x = e.DisplayPath;
+            _IsTwoTimesPath = !_IsTwoTimesPath;
         }
         #endregion
 
@@ -1342,7 +1340,13 @@ namespace WFTP.Pages
                            };
             return fileList;
         }
-        // Query of Manage: 建立目錄
+        /// <summary>
+        /// Query of Manage: 建立目錄 Mehtod
+        /// </summary>
+        /// <param name="path">欲建立的完整路徑 /Origin/Path/Add/'NewFolderName'</param>
+        /// <param name="idPath">前段路徑的ID Paht : /1/2/3</param>
+        /// <param name="folderName">新建立的NickName</param>
+        /// <returns></returns>
         private bool CreateFolder(string path, string idPath, string folderName)
         {
             string[] paths = path.Split(new char[] {'/'},StringSplitOptions.RemoveEmptyEntries);
@@ -1374,7 +1378,9 @@ namespace WFTP.Pages
                         if (api.CreateDirectory(path))
                         {
                             CLv2Customer.InsertOrUpdate(null, paths[1], folderName, classfyId);
+                            GetBreadcrumbBarPath(2);
                             navBar.Path = path;
+                            
                         }
                     }
                     catch (Exception ex)
@@ -1389,6 +1395,7 @@ namespace WFTP.Pages
                         if (api.CreateDirectory(path))
                         {
                             CLv3CustomerBranch.InsertOrUpdate(null, paths[2], folderName, companyId);
+                            GetBreadcrumbBarPath(3);
                             navBar.Path = path;
                         }
                     }
@@ -1404,6 +1411,7 @@ namespace WFTP.Pages
                         if (api.CreateDirectory(path) && api.CreateCategorys(path))
                         {
                             CLv4Line.InsertOrUpdate(null, paths[3], folderName, branchId);
+                            GetBreadcrumbBarPath(4);
                             navBar.Path = path;
                         }
                     }
@@ -1418,6 +1426,7 @@ namespace WFTP.Pages
                         if (api.AddCategorys(paths[4]))
                         {
                             CFileCategory.InsertOrUpdate(null, paths[4], folderName);
+                            GetBreadcrumbBarPath(5);
                             navBar.Path = path;
                         }
                     }
@@ -1429,7 +1438,11 @@ namespace WFTP.Pages
             };
             return true;
         }
-        // Query of Manage: 刪除目錄或檔案
+        /// <summary>
+        /// Query of Manage: 刪除目錄或檔案
+        /// </summary>
+        /// <param name="path"></param>
+        /// <param name="idPath"></param>
         private void DeleteFolderOrFile(string path, string idPath)
         {
             string[] paths = path.Split(new char[] { '/' }, StringSplitOptions.RemoveEmptyEntries);

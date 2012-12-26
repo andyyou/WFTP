@@ -79,24 +79,30 @@ namespace WFTP
         }
 
         #region Action Events
+        /// <summary>
+        /// 完成設定Path
+        /// </summary>
         private void btnGetPath_Click(object sender, RoutedEventArgs e)
         {
             this.Close();
         }
-
+        /// <summary>
+        /// 取消設定Path
+        /// </summary>
         private void btnCancel_Click(object sender, RoutedEventArgs e)
         {
             this.Path = null;
             this.RealPath = null;
             this.Close();
         }
-
+        /// <summary>
+        /// Lazy Loading 載入Path , 路徑切換事件
+        /// </summary>
         private void navBar_PathChanged(object sender, RoutedPropertyChangedEventArgs<string> e)
         {
             string displayPath = navBar.GetDisplayPath();
             string[] pathList = navBar.GetDisplayPath().Split('\\');
             int level = pathList.Count();
-
             _ftpPath = "/";
             if (!displayPath.Equals("分類"))
             {
@@ -108,10 +114,7 @@ namespace WFTP
                     _ftpPath = String.Format("{0}{1}/", _ftpPath, _catalogLevelName[i]);
                 }
             }
-
             GetCatalog(level);
-            
-
             // Lazy loading for BreadcrumbBar
             if (level > 1)
             {
@@ -123,6 +126,10 @@ namespace WFTP
         #endregion
 
         #region R Methods
+
+        /// <summary>
+        /// 初始化BreadcrumBar XML documnet
+        /// </summary>
         private void GetBreadcrumbBarPath()
         {
             // Combination Datasource of Folder secheme
@@ -155,7 +162,6 @@ namespace WFTP
             XmlDataProvider dataFolders = this.FindResource("dataProvider") as XmlDataProvider;
             dataFolders.Document = _xdoc;
         }
-
         /// <summary>
         /// 效能改善: 延遲載入
         /// </summary>
@@ -285,7 +291,6 @@ namespace WFTP
 
             return lv1Catalog;
         }
-
         private dynamic GetLv2Catalog()
         {
             WFTPDbContext db = new WFTPDbContext();
@@ -306,7 +311,6 @@ namespace WFTP
 
             return lv2Catalog;
         }
-
         private dynamic GetLv3Catalog()
         {
             WFTPDbContext db = new WFTPDbContext();
@@ -327,7 +331,6 @@ namespace WFTP
 
             return lv3Catalog;
         }
-
         private dynamic GetLv4Catalog()
         {
             WFTPDbContext db = new WFTPDbContext();
@@ -347,7 +350,6 @@ namespace WFTP
 
             return lv4Catalog;
         }
-
         private dynamic GetFileCatalog()
         {
             WFTPDbContext db = new WFTPDbContext();
@@ -367,7 +369,6 @@ namespace WFTP
 
             return fileCatalogList;
         }
-
         private dynamic GetFileList()
         {
             WFTPDbContext db = new WFTPDbContext();
@@ -386,6 +387,11 @@ namespace WFTP
 
         #endregion
 
+        /// <summary>
+        /// 處理 _catalogLevelId , _catalogLevelName 全域物件
+        /// </summary>
+        /// <param name="level">更新該階層資料</param>
+        /// <param name="condition">所有階層過濾的條件</param>
         private void GetCatalogInfo(int level, string condition)
         {
             WFTPDbContext db = new WFTPDbContext();
@@ -463,7 +469,6 @@ namespace WFTP
             _catalogLevelId[level] = id;
             _catalogLevelName[level + 1] = name;
         }
-
         /// <summary>
         /// 取得目錄內容
         /// </summary>
