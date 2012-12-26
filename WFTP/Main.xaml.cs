@@ -19,6 +19,7 @@ using System.ComponentModel;
 using System.Threading;
 using System.Collections.ObjectModel;
 using WFTP.Helper;
+using DataProvider;
 
 namespace WFTP
 {
@@ -30,6 +31,9 @@ namespace WFTP
         public Main()
         {
             InitializeComponent();
+
+            // 由資料庫取得 FTP 及 API 相關參數設定
+            GetSystemConfig();
 
             // 初始化各頁面
             Switcher.query = new Query();
@@ -116,6 +120,26 @@ namespace WFTP
         private void btnProgress_Click(object sender, RoutedEventArgs e)
         {
             Switcher.Switch(Switcher.progress);
+        }
+
+        #endregion
+
+        #region Method
+
+        private void GetSystemConfig()
+        {
+            WFTPDbContext db = new WFTPDbContext();
+
+            SystemConfig config = (from conf in db.SystemConfigs select conf).FirstOrDefault();
+            GlobalHelper.ApiKey = config.ApiKey;
+            GlobalHelper.ApiHost = config.ApiHost;
+            GlobalHelper.ApiPort = config.ApiPort;
+            GlobalHelper.ComponentCode = config.FtpComponentCode;
+            GlobalHelper.FtpHost = config.FtpHost;
+            GlobalHelper.FtpUsername = config.FtpUsername;
+            GlobalHelper.FtpPasswrod = config.FtpPassword;
+
+            GlobalHelper.SetApiPath();
         }
 
         #endregion
