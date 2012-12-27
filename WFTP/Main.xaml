@@ -8,7 +8,7 @@
         Width="800"
         WindowStartupLocation="CenterScreen"
         FontFamily="Microsoft JhengHei"
-        Icon="/WFTP;component/Icons/wintriss.ico">
+        Icon="/WFTP;component/Icons/wintriss.ico" MinWidth="800" MinHeight="600">
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
