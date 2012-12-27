@@ -83,18 +83,6 @@ namespace WFTP.Pages
         /// 進階搜尋 一頁筆數 Size
         /// </summary>
         private const int _advPageSize = 12;
-        /// <summary>
-        /// 暫存變更的Paht For 處理同一個Paht 選擇2次 Issue
-        /// </summary>
-        private bool _IsTwoTimesPath = false;
-        /// <summary>
-        /// 暫存變更的Paht For 處理同一個Paht 選擇2次 Issue
-        /// </summary>
-        private bool _IsPathChangeAutoTrigger = false;
-        /// <summary>
-        /// 暫存變更的Paht For 處理同一個Paht 選擇2次 Issue
-        /// </summary>
-        private int _BreadcrumItemsSelectedTimes = 0;
 
         #endregion
 
@@ -364,7 +352,6 @@ namespace WFTP.Pages
         private void navBar_PathChanged(object sender, RoutedPropertyChangedEventArgs<string> e)
         {
             // UNDONE: Change use ID
-            _IsPathChangeAutoTrigger = !_IsPathChangeAutoTrigger;
             string displayPath = navBar.GetDisplayPath();
             string[] pathList = navBar.GetDisplayPath().Split('\\');
             XmlElement x = e.Source as XmlElement;
@@ -399,14 +386,13 @@ namespace WFTP.Pages
                 lvwClassify.Tag = level;
 
                 // Lazy loading for BreadcrumbBar
-                if (level > 1 && _IsTwoTimesPath)
+                if (level > 1)
                 {
                     GetBreadcrumbBarPath(level);
                 }
             }
             else // 點選到最頂層分類時麵包屑已經正確，僅需更新 Listview
             {
-
                 lvwClassify.Tag = 1;
                 GetCatalog(1);
             }
@@ -625,31 +611,6 @@ namespace WFTP.Pages
             {
                 lvwClassify.UnselectAll();
             }
-        }
-        /// <summary>
-        /// 處理因為點擊同一個選項時 navbar_PathChange 會跑兩次 Issue
-        /// </summary>
-        private void navBar_SelectedBreadcrumbChanged(object sender, RoutedEventArgs e)
-        {
-            System.Windows.RoutedPropertyChangedEventArgs<Odyssey.Controls.BreadcrumbItem> i = e as System.Windows.RoutedPropertyChangedEventArgs<Odyssey.Controls.BreadcrumbItem>;
-            string x = i.NewValue.TraceValue;
-        }
-        /// <summary>
-        /// 處理因為點擊同一個選項時 navbar_PathChange 會跑兩次 Issue
-        /// </summary>
-        private void navBar_PathConversion(object sender, PathConversionEventArgs e)
-        {
-            //_BreadcrumItemsSelectedTimes++;
-            //if (_BreadcrumItemsSelectedTimes == 1 || _BreadcrumItemsSelectedTimes == 4)
-            //{
-            //    _IsTwoTimesPath = false;
-            //}
-            //else
-            //{
-            //    _IsTwoTimesPath = true;
-            //}
-            string x = e.DisplayPath;
-            _IsTwoTimesPath = !_IsTwoTimesPath;
         }
         #endregion
 
