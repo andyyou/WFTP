@@ -83,6 +83,7 @@ namespace WFTP.Pages
         /// 進階搜尋 一頁筆數 Size
         /// </summary>
         private const int _advPageSize = 12;
+        private int _tmpLevel = 0;
 
         #endregion
 
@@ -363,7 +364,7 @@ namespace WFTP.Pages
                 // 處理因為非同步目錄已不存在問題,如果找不到該層則往上一層找
                 level = GetCatalogInfo(level, pathList);
                 level++;
-
+                _tmpLevel = level;
                 for (int i = 2; i <= level; i++)
                 {
                     if (String.IsNullOrEmpty(_catalogLevelName[i]))
@@ -386,10 +387,10 @@ namespace WFTP.Pages
                 lvwClassify.Tag = level;
 
                 // Lazy loading for BreadcrumbBar
-                if (level > 1)
-                {
-                    GetBreadcrumbBarPath(level);
-                }
+                //if (level > 1)
+                //{
+                //    GetBreadcrumbBarPath(level);
+                //}
             }
             else // 點選到最頂層分類時麵包屑已經正確，僅需更新 Listview
             {
@@ -397,6 +398,13 @@ namespace WFTP.Pages
                 GetCatalog(1);
             }
 
+        }
+        private void navBar_SelectCompleted(object sender, RoutedEventArgs e)
+        {
+            if (_tmpLevel > 1)
+            {
+                GetBreadcrumbBarPath(_tmpLevel);
+            }
         }
         private void btnTileView_Click(object sender, RoutedEventArgs e)
         {
