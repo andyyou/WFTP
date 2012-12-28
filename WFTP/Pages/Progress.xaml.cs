@@ -575,7 +575,10 @@ namespace WFTP.Pages
 
             // Change Local file name back to original
             string originalFilePath = fileInfo["LocalFilePath"].Replace(GlobalHelper.TempUploadFileExt, String.Empty);
-            File.Move(fileInfo["LocalFilePath"], originalFilePath);
+            if (uploadSuccess || _cancelList.Contains(fileInfo["FileId"]))
+            {
+                File.Move(fileInfo["LocalFilePath"], originalFilePath);
+            }
 
             if (uploadSuccess)
             {
