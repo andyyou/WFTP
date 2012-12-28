@@ -13,7 +13,7 @@ namespace WFTP.Helper
         public static string LoginUserID { set; get; }
 
         //
-        public static string ProgressList = "progress.json";
+        public static string ProgressList = AppDomain.CurrentDomain.BaseDirectory + "progress.json";
         public static string TempDownloadFileExt = ".wftpdl";
         public static string TempUploadFileExt = ".wftpul";
 
