@@ -895,6 +895,7 @@ namespace WFTP.Pages
             WFTPDbContext db = new WFTPDbContext();
             // Lv1 must load
             var lv1 = from classify in db.Lv1Classifications
+                      orderby classify.NickName
                       select classify;
 
             foreach (var cls in lv1)
@@ -926,6 +927,7 @@ namespace WFTP.Pages
                 case 2:
                     var lv2 = from company in db.Lv2Customers
                               where company.ClassifyId == _catalogLevelId[1]
+                              orderby company.CompanyNickName
                               select company;
                     string expr = String.Format("/bc/bc[@id={0}]", _catalogLevelId[1]);
                     XmlNode xndClassify = _xdoc.SelectSingleNode(expr);
@@ -949,6 +951,7 @@ namespace WFTP.Pages
                 case 3:
                     var lv3 = from branch in db.Lv3CustomerBranches
                               where branch.CompanyId == _catalogLevelId[2]
+                              orderby branch.BranchNickName
                               select branch;
                     expr = String.Format("/bc/bc[@id={0}]/bc[@id={1}]", _catalogLevelId[1], _catalogLevelId[2]);
                     XmlNode xndCompany = _xdoc.SelectSingleNode(expr);
@@ -972,6 +975,7 @@ namespace WFTP.Pages
                 case 4:
                     var lv4 = from line in db.Lv4Lines
                               where line.BranchId == _catalogLevelId[3]
+                              orderby line.LineNickName
                               select line;
                     expr = String.Format("/bc/bc[@id={0}]/bc[@id={1}]/bc[@id={2}]", _catalogLevelId[1], _catalogLevelId[2], _catalogLevelId[3]);
                     XmlNode xndBranch = _xdoc.SelectSingleNode(expr);
@@ -994,6 +998,7 @@ namespace WFTP.Pages
                     break;
                 case 5:
                     var lv5 = from category in db.Lv5FileCategorys
+                              orderby category.ClassNickName
                               select category;
                     expr = String.Format("/bc/bc[@id={0}]/bc[@id={1}]/bc[@id={2}]/bc[@id={3}]", _catalogLevelId[1], _catalogLevelId[2], _catalogLevelId[3], _catalogLevelId[4]);
                     XmlNode xndLine = _xdoc.SelectSingleNode(expr);
@@ -1059,7 +1064,6 @@ namespace WFTP.Pages
                     classify = GetFileList();
                     break;
             }
-
            
             ApiHelper api = new ApiHelper();
             List<string> remoteFolderFullPathList = api.Dir(_ftpPath).ToList();
@@ -1233,12 +1237,13 @@ namespace WFTP.Pages
         {
             WFTPDbContext db = new WFTPDbContext();
             var lv1Catalog = from classify in db.Lv1Classifications
-                              select new
-                              {
-                                  Id = classify.ClassifyId,
-                                  Name = classify.ClassName,
-                                  NickName = classify.NickName,
-                              };
+                             orderby classify.NickName
+                             select new
+                             {
+                                 Id = classify.ClassifyId,
+                                 Name = classify.ClassName,
+                                 NickName = classify.NickName,
+                             };
 
             return lv1Catalog;
         }
@@ -1251,13 +1256,14 @@ namespace WFTP.Pages
             WFTPDbContext db = new WFTPDbContext();
 
             var lv2Catalog = from customer in db.Lv2Customers
-                              where customer.ClassifyId == _catalogLevelId[1]
-                              select new
-                              {
-                                  Id = customer.CompanyId,
-                                  Name = customer.CompanyName,
-                                  NickName = customer.CompanyNickName,
-                              };
+                             where customer.ClassifyId == _catalogLevelId[1]
+                             orderby customer.CompanyNickName
+                             select new
+                             {
+                                 Id = customer.CompanyId,
+                                 Name = customer.CompanyName,
+                                 NickName = customer.CompanyNickName,
+                             };
 
             return lv2Catalog;
         }
@@ -1270,12 +1276,13 @@ namespace WFTP.Pages
             WFTPDbContext db = new WFTPDbContext();
             var lv3Catalog = from branch in db.Lv3CustomerBranches
                              where branch.CompanyId == _catalogLevelId[2]
-                              select new
-                              {
-                                  Id = branch.BranchId,
-                                  Name = branch.BranchName,
-                                  NickName = branch.BranchNickName,
-                              };
+                             orderby branch.BranchNickName
+                             select new
+                             {
+                                 Id = branch.BranchId,
+                                 Name = branch.BranchName,
+                                 NickName = branch.BranchNickName,
+                             };
 
             return lv3Catalog;
         }
@@ -1293,6 +1300,7 @@ namespace WFTP.Pages
                              let subCount =
                                  (from fileCatalog in db.Lv5FileCategorys
                                   select fileCatalog).Count()
+                             orderby line.LineNickName
                              select new
                              {
                                  Id = line.LineId,
@@ -1311,12 +1319,13 @@ namespace WFTP.Pages
         {
             WFTPDbContext db = new WFTPDbContext();
             var fileCatalogList = from fileCatalog in db.Lv5FileCategorys
-                             select new
-                             {
-                                 Id = fileCatalog.FileCategoryId,
-                                 Name = fileCatalog.ClassName,
-                                 NickName = fileCatalog.ClassNickName,
-                             };
+                                  orderby fileCatalog.ClassNickName
+                                  select new
+                                  {
+                                      Id = fileCatalog.FileCategoryId,
+                                      Name = fileCatalog.ClassName,
+                                      NickName = fileCatalog.ClassNickName,
+                                  };
             return fileCatalogList;
         }
         /// <summary>
@@ -1328,6 +1337,7 @@ namespace WFTP.Pages
             WFTPDbContext db = new WFTPDbContext();
             var fileList = from file in db.Lv6Files
                            where file.LineId == _catalogLevelId[4] && file.FileCategoryId == _catalogLevelId[5] && file.IsDeleted == false
+                           orderby file.FileName
                            select new
                            {
                                Id = file.FileId,
@@ -1662,6 +1672,7 @@ namespace WFTP.Pages
         {
             WFTPDbContext db = new WFTPDbContext();
             var fileCatalogList = from fileCatalog in db.Lv5FileCategorys
+                                  orderby fileCatalog.ClassNickName
                                   select new
                                   {
                                       Id = fileCatalog.FileCategoryId,
@@ -1760,6 +1771,7 @@ namespace WFTP.Pages
         {
             WFTPDbContext db = new WFTPDbContext();
             var companyList = from customer in db.Lv2Customers
+                              orderby customer.CompanyNickName
                               select new
                               {
                                   CompanyId = customer.CompanyId,
@@ -1925,12 +1937,13 @@ namespace WFTP.Pages
             {
                 case 1:
                     var lv1 = from classify in db.Lv1Classifications
-                               where classify.NickName == condition[0]
-                               select new
-                               {
-                                   classify.ClassifyId,
-                                   classify.ClassName
-                               };
+                              where classify.NickName == condition[0]
+                              orderby classify.NickName
+                              select new
+                              {
+                                  classify.ClassifyId,
+                                  classify.ClassName
+                              };
                     if (lv1.Count() > 0)
                     {
                         id = lv1.First().ClassifyId;
@@ -1946,11 +1959,12 @@ namespace WFTP.Pages
                     var lv2 = from customer in db.Lv2Customers
                               where customer.CompanyNickName == condition[1]
                                     && customer.ClassifyId == _catalogLevelId[level - 1]
-                               select new
-                               {
-                                   customer.CompanyId,
-                                   customer.CompanyName
-                               };
+                              orderby customer.CompanyNickName
+                              select new
+                              {
+                                  customer.CompanyId,
+                                  customer.CompanyName
+                              };
                     if (lv2.Count() > 0)
                     {
                         id = lv2.First().CompanyId;
@@ -1966,6 +1980,7 @@ namespace WFTP.Pages
                     var lv3 = from branch in db.Lv3CustomerBranches
                               where branch.BranchNickName == condition[2]
                                     && branch.CompanyId == _catalogLevelId[level - 1]
+                              orderby branch.BranchNickName
                               select new
                               {
                                   branch.BranchId,
@@ -1986,11 +2001,12 @@ namespace WFTP.Pages
                     var lv4 = from line in db.Lv4Lines
                               where line.LineNickName == condition[3]
                                     && line.BranchId == _catalogLevelId[level - 1]
-                               select new
-                               {
-                                   line.LineId,
-                                   line.LineName
-                               };
+                              orderby line.LineNickName
+                              select new
+                              {
+                                  line.LineId,
+                                  line.LineName
+                              };
                     if (lv4.Count() > 0)
                     {
                         id = lv4.First().LineId;
@@ -2005,6 +2021,7 @@ namespace WFTP.Pages
                 case 5:
                     var lv5 = from catalog in db.Lv5FileCategorys
                               where catalog.ClassNickName == condition[4]
+                              orderby catalog.ClassNickName
                               select new
                               {
                                   catalog.FileCategoryId,

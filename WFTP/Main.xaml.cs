@@ -20,6 +20,8 @@ using System.Threading;
 using System.Collections.ObjectModel;
 using WFTP.Helper;
 using DataProvider;
+using System.Reflection;
+using System.Diagnostics;
 
 namespace WFTP
 {
@@ -31,6 +33,11 @@ namespace WFTP
         public Main()
         {
             InitializeComponent();
+
+            // 將程式版號顯示於標題列後方
+            Assembly asm = Assembly.GetExecutingAssembly();
+            FileVersionInfo fvi = FileVersionInfo.GetVersionInfo(asm.Location);
+            this.Title += " Ver." + fvi.ProductVersion;
 
             // 由資料庫取得 FTP 及 API 相關參數設定
             GetSystemConfig();
