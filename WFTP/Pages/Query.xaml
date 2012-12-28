@@ -126,7 +126,8 @@
                                            VerticalAlignment="Stretch"
                                            Width="620"
                                            Height="30"
-                                           PathChanged="navBar_PathChanged" />
+                                           PathChanged="navBar_PathChanged" 
+                                           SelectCompleted="navBar_SelectCompleted"/>
                     </WrapPanel>
                     <Grid DockPanel.Dock="Top" Width="Auto" Height="50">
                         <Button  Name="btnTileView" 
