@@ -27,6 +27,7 @@ namespace WFTP.Pages
         public Login()
         {
             InitializeComponent();
+
             // 檢查是否有記憶 帳號 密碼
             if (Properties.Settings.Default.RememberId)
             {
@@ -38,11 +39,51 @@ namespace WFTP.Pages
                 txtPassword.Password = Properties.Settings.Default.Pwd;
                 togRememberPwd.IsChecked = true;
             }
+            if (String.IsNullOrEmpty(txtID.Text))
+                FocusHelper.Focus(txtID);
+            else
+                FocusHelper.Focus(txtPassword);
         }
         /// <summary>
         /// 執行登入
         /// </summary>
         private void btnLogin_Click(object sender, RoutedEventArgs e)
+        {
+            LoginMethod();
+        }
+        /// <summary>
+        /// 記憶帳號
+        /// </summary>
+        private void togRememberId_Click(object sender, RoutedEventArgs e)
+        {
+            Properties.Settings.Default.RememberId = Convert.ToBoolean(togRememberId.IsChecked);
+            if (!Convert.ToBoolean(togRememberId.IsChecked))
+            {
+                Properties.Settings.Default.Id = "";
+            }
+            Properties.Settings.Default.Save();
+        }
+        /// <summary>
+        /// 記憶密碼
+        /// </summary>
+        private void togRememberPwd_Click(object sender, RoutedEventArgs e)
+        {
+            Properties.Settings.Default.RememberPwd = Convert.ToBoolean(togRememberPwd.IsChecked);
+            if (!Convert.ToBoolean(togRememberPwd.IsChecked))
+            {
+                Properties.Settings.Default.Pwd = "";
+            }
+            Properties.Settings.Default.Save();
+        }
+       
+        private void txtPassword_KeyUp(object sender, KeyEventArgs e)
+        {
+            
+        }
+        /// <summary>
+        /// 登入 Method
+        /// </summary>
+        private void LoginMethod()
         {
             if (String.IsNullOrEmpty(txtID.Text.Trim()) || String.IsNullOrEmpty(txtPassword.Password))
             {
@@ -55,8 +96,8 @@ namespace WFTP.Pages
                 string pwd = txtPassword.Password;
 
                 CEmployee user = (from employe in db.Employees
-                           where employe.Account == account && employe.Password == pwd
-                           select employe).FirstOrDefault();
+                                  where employe.Account == account && employe.Password == pwd
+                                  select employe).FirstOrDefault();
 
                 if (user != null && user.Activity)
                 {
@@ -87,29 +128,18 @@ namespace WFTP.Pages
                 }
             }
         }
-        /// <summary>
-        /// 記憶帳號
-        /// </summary>
-        private void togRememberId_Click(object sender, RoutedEventArgs e)
+       
+        private void txtPassword_LayoutUpdated(object sender, EventArgs e)
         {
-            Properties.Settings.Default.RememberId = Convert.ToBoolean(togRememberId.IsChecked);
-            if (!Convert.ToBoolean(togRememberId.IsChecked))
-            {
-                Properties.Settings.Default.Id = "";
-            }
-            Properties.Settings.Default.Save();
+           
         }
         /// <summary>
-        /// 記憶密碼
+        /// 輸入完畢後直接鍵盤 Enter 登入
         /// </summary>
-        private void togRememberPwd_Click(object sender, RoutedEventArgs e)
+        private void txtPassword_KeyDown(object sender, KeyEventArgs e)
         {
-            Properties.Settings.Default.RememberPwd = Convert.ToBoolean(togRememberPwd.IsChecked);
-            if (!Convert.ToBoolean(togRememberPwd.IsChecked))
-            {
-                Properties.Settings.Default.Pwd = "";
-            }
-            Properties.Settings.Default.Save();
+             if (e.Key == Key.Enter)
+                LoginMethod();
         }
     }
 }

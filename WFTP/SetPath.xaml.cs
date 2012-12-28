@@ -15,13 +15,14 @@ using DataProvider;
 using System.Xml.XPath;
 using System.IO;
 using WFTP.Helper;
+using MahApps.Metro.Controls;
 
 namespace WFTP
 {
     /// <summary>
     /// SetPath.xaml 的互動邏輯
     /// </summary>
-    public partial class SetPath : Window
+    public partial class SetPath : MetroWindow
     {
         #region Data Members
         private XmlDocument _xdoc;

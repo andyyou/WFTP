@@ -14,13 +14,14 @@ using WFTP.Helper;
 using System.ComponentModel;
 using DataProvider;
 using System.Text.RegularExpressions;
+using MahApps.Metro.Controls;
 
 namespace WFTP
 {
     /// <summary>
     /// Update.xaml 的互動邏輯: 編輯資料視窗
     /// </summary>
-    public partial class Update : Window
+    public partial class Update : MetroWindow
     {
         private const string PATTERN_SYSTEMNAME = @"^[\w\-]*$";
         private const string PATTERN_NICKNAME = @"^[\w\- ]*$";
@@ -50,10 +51,7 @@ namespace WFTP
         /// 設定完成指標
         /// </summary>
         public bool IsDone { set; get; }
-        /// <summary>
-        /// Combobox Datasource
-        /// </summary>
-        private BindingList<ClassifyItem> _dataClassifyItem = new BindingList<ClassifyItem>();
+       
 
         #endregion
 
@@ -79,32 +77,13 @@ namespace WFTP
             this.NewPath = path.Substring(0, path.LastIndexOf('/') + 1);
             txtNickName.Text = oldNickName;
             txtName.Text = path.Substring(path.LastIndexOf('/')+1);
-
-            // 如果是 Lv2 提供可編輯分類
-            string[] level = path.Split(new char[]{'/'},StringSplitOptions.RemoveEmptyEntries);
-            if (level.Length == 2)
+            TextBox[] txtArray = { txtNickName, txtName };
+            foreach (TextBox txt in txtArray)
             {
-                cmbClassify.Visibility = System.Windows.Visibility.Visible;
-                lbClassify.Visibility = System.Windows.Visibility.Visible;
-
-                // 取得資料
-                WFTPDbContext db = new WFTPDbContext();
-                var classifies = from classes in db.Lv1Classifications
-                                 select classes;
-                int classifyId = 0 ;
-                foreach (var cls in classifies)
-                {
-                    _dataClassifyItem.Add(new ClassifyItem() { Id = cls.ClassifyId, Name = cls.ClassName, NickName = cls.NickName });
-                    if (cls.ClassName == level[0])
-                        classifyId = cls.ClassifyId;
-                }
-                cmbClassify.ItemsSource = _dataClassifyItem;
-                cmbClassify.SelectedValue = classifyId;
-            }
-            else
-            {
-                cmbClassify.Visibility = System.Windows.Visibility.Collapsed;
-                lbClassify.Visibility = System.Windows.Visibility.Collapsed;
+                if (String.IsNullOrEmpty(txt.Text))
+                    FocusHelper.Focus(txt);
+                else
+                    FocusHelper.Focus(txtNickName);
             }
         }
         /// <summary>
@@ -123,6 +102,24 @@ namespace WFTP
         /// </summary>
         private void btnGetPath_Click(object sender, RoutedEventArgs e)
         {
+            GetPath();
+        }
+        /// <summary>
+        /// 當欄位都有資料時 Enter 直接可以確認
+        /// </summary>
+        private void txtNickName_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+                GetPath();
+        }
+        private void GetPath()
+        {
+            if (String.IsNullOrEmpty(txtName.Text) || String.IsNullOrEmpty(txtNickName.Text))
+            {
+                lbMessage.Content = "欄位不得為空白";
+                return;
+            }
+
             if (!Regex.IsMatch(txtName.Text.Trim(), PATTERN_SYSTEMNAME))
             {
                 lbMessage.Content = "系統名稱格式錯誤";
@@ -145,23 +142,13 @@ namespace WFTP
             // 把資料設置 Properties
             this.SystemName = txtName.Text.Trim();
             this.NickName = txtNickName.Text.Trim();
-            
-            ClassifyItem item = cmbClassify.SelectedItem as ClassifyItem;
-            if (item == null)
-            {
-                this.ClassifyId = 0;
-                this.NewPath = this.NewPath.Substring(0, this.NewPath.LastIndexOf('/') + 1) + this.SystemName;
-            }
-            else
-            {
-                this.ClassifyId = item.Id;
-                this.NewPath = String.Format("/{0}/{1}", item.Name, this.SystemName);
-            }
-         
+            this.ClassifyId = 0;
+            this.NewPath = this.NewPath.Substring(0, this.NewPath.LastIndexOf('/') + 1) + this.SystemName;
+
             // 判斷如果有這個名稱則提醒
             ApiHelper api = new ApiHelper();
             // True: 可以編輯, False: 不能編輯
-            if (api.CheckRenamePath(this.OldPath,this.NewPath))
+            if (api.CheckRenamePath(this.OldPath, this.NewPath))
             {
                 txtName.Foreground = Brushes.Black;
                 lbMessage.Content = "";
@@ -173,63 +160,6 @@ namespace WFTP
                 txtName.Foreground = Brushes.Red;
                 lbMessage.Content = "此系統名稱已存在,請換別的名稱";
             }
-
         }
     }
-
-    #region Model
-    /// <summary>
-    /// Combobox 分類使用 Model
-    /// </summary>
-    public class ClassifyItem : INotifyPropertyChanged
-    {
-        private int _id;
-        private string _name;
-        private string _nickName;
-        public string Name
-        {
-            get
-            {
-                return _name;
-            }
-            set
-            {
-                _name = value;
-                RaisePropertyChanged("Name");
-            }
-        }
-        public string NickName
-        {
-            get
-            {
-                return _nickName;
-            }
-            set
-            {
-                _nickName = value;
-                RaisePropertyChanged("Name");
-            }
-        }
-        public int Id
-        {
-            get
-            {
-                return _id;
-            }
-            set
-            {
-                _id = value;
-                RaisePropertyChanged("ClassifyId");
-            }
-        }
-        public event PropertyChangedEventHandler PropertyChanged;
-        protected virtual void RaisePropertyChanged(String propertyName)
-        {
-            if ((PropertyChanged != null))
-            {
-                PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
-            }
-        }
-    }
-    #endregion
 }

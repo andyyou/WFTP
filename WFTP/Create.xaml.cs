@@ -12,13 +12,14 @@ using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using WFTP.Helper;
 using System.Text.RegularExpressions;
+using MahApps.Metro.Controls;
 
 namespace WFTP
 {
     /// <summary>
     /// Create.xaml 的互動邏輯 : 新增目錄取得設定的參數
     /// </summary>
-    public partial class Create : Window
+    public partial class Create : MetroWindow
     {
         private const string PATTERN_SYSTEMNAME = @"^[\w\-]*$";
         private const string PATTERN_NICKNAME = @"^[\w\- ]*$";
@@ -57,6 +58,14 @@ namespace WFTP
             this.Top = y;
             this.PrePath = path;
             this.IsDone = false;
+            TextBox[] txtArray = { txtNickName,txtName };
+            foreach (TextBox txt in txtArray)
+            { 
+               if (String.IsNullOrEmpty(txt.Text))
+                   FocusHelper.Focus(txt);
+               else
+                  FocusHelper.Focus(txtNickName);
+            }
         }
         /// <summary>
         /// 取消關閉新增視窗
@@ -75,6 +84,26 @@ namespace WFTP
         /// <param name="e"></param>
         private void btnGetPath_Click(object sender, RoutedEventArgs e)
         {
+            GetPath();
+        }
+        /// <summary>
+        /// 當欄位資料時 Enter 直接可以確認
+        /// </summary>
+        private void txtNickName_KeyDown(object sender, KeyEventArgs e)
+        {
+            if(e.Key == Key.Enter)
+                GetPath();
+        }
+        /// <summary>
+        /// 處理取得路徑
+        /// </summary>
+        private void GetPath()
+        {
+            if (String.IsNullOrEmpty(txtName.Text)|| String.IsNullOrEmpty(txtNickName.Text))
+            {
+                lbMessage.Content = "欄位不得為空白";
+                return;
+            }
 
             if (!Regex.IsMatch(txtName.Text.Trim(), PATTERN_SYSTEMNAME))
             {
@@ -112,8 +141,6 @@ namespace WFTP
                 txtName.Foreground = Brushes.Red;
                 lbMessage.Content = "此系統名稱已存在,請換別的名稱";
             }
-
-            
         }
     }
 }

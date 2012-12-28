@@ -91,6 +91,7 @@
     </Compile>
     <Compile Include="Helper\ApiHelper.cs" />
     <Compile Include="Helper\ExtensionHelper.cs" />
+    <Compile Include="Helper\FocusHelper.cs" />
     <Compile Include="Helper\GlobalHelper.cs" />
     <Compile Include="Lib\Editbox.cs" />
     <Compile Include="Lib\Editboxadorner.cs" />
