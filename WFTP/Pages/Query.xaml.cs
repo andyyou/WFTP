@@ -276,7 +276,7 @@ namespace WFTP.Pages
                 Dictionary<string, string> tag = item.Tag as Dictionary<string, string>;
                 pathServer.Append(tag["Name"]);
                 pathId.Append(tag["Id"]);
-                Update getInput = new Update(400, 200, pathServer.ToString(), item.Title);
+                Update getInput = new Update(400, 200, pathServer.ToString(), tag["NickName"]);
                 getInput.ShowDialog();
                 if (getInput.IsDone)
                 {
@@ -305,19 +305,19 @@ namespace WFTP.Pages
             int level = Convert.ToInt32(lvwClassify.Tag) + 1;
 
             Tile tile = (Tile)sender;
+            Dictionary<string, string> info = (Dictionary<string, string>)tile.Tag;
 
             if (level == 2)
             {
-                navBar.Path = tile.Title;
+                navBar.Path = info["NickName"];
             }
             else if (level <= 6)
             {
-                navBar.Path = String.Format(@"{0}\{1}", navBar.Path, tile.Title);
+                navBar.Path = String.Format(@"{0}\{1}", navBar.Path, info["NickName"]);
             }
             else
             {
                 // download chosen file here
-                Dictionary<string, string> info = (Dictionary<string, string>)tile.Tag;
                 DownloadFile(DBHelper.GenerateFileFullPath(Convert.ToInt32(info["Id"])));
             }
         }
@@ -326,22 +326,22 @@ namespace WFTP.Pages
         /// </summary>
         private void lstDown_Click(object sender, RoutedEventArgs e)
         {
-            int level = Convert.ToInt32(lvwClassify.Tag) + 1;
+            //int level = Convert.ToInt32(lvwClassify.Tag) + 1;
             Button btn = (Button)sender;
 
-            if (level == 2)
-            {
-                navBar.Path = btn.Tag.ToString();
-            }
-            else if (level <= 6)
-            {
-                navBar.Path = String.Format(@"{0}\{1}", navBar.Path, btn.Tag.ToString());
-            }
-            else
-            {
+            //if (level == 2)
+            //{
+            //    navBar.Path = btn.Tag.ToString();
+            //}
+            //else if (level <= 6)
+            //{
+            //    navBar.Path = String.Format(@"{0}\{1}", navBar.Path, btn.Tag.ToString());
+            //}
+            //else
+            //{
                 // download chosen file here
                 DownloadFile(DBHelper.GenerateFileFullPath(Convert.ToInt32(btn.Tag)));
-            }
+            //}
         }
         
         private void lstAdvanceDown_Click(object sender, RoutedEventArgs e)
@@ -1048,6 +1048,7 @@ namespace WFTP.Pages
                     Dictionary<string, string> dicInfo = new Dictionary<string, string>();
                     dicInfo.Add("Id", classifyItem.Id.ToString());
                     dicInfo.Add("Name", classifyItem.Name);
+                    dicInfo.Add("NickName", classifyItem.NickName);
 
                     if (_isTileView || level < 6)
                     {
@@ -1080,7 +1081,7 @@ namespace WFTP.Pages
                             }
                         }
                         bitmap.EndInit();
-                        
+
                         Image img = new Image();
                         if (!isImageFile)
                         {
@@ -1094,7 +1095,6 @@ namespace WFTP.Pages
                         }
                         img.Source = bitmap;
 
-                        string title = Convert.ToString(classifyItem.NickName);
                         Tile tile = new Tile();
                         tile.FontFamily = new FontFamily("Microsoft JhengHei");
                         tile.Width = 120;
@@ -1118,18 +1118,10 @@ namespace WFTP.Pages
                             tile.Count = "";
                         }
 
-                        if (level == 6)
-                        {
-                            // tile.Tag = remoteFileList[classifyItem.Name];
-                            tile.Tag = dicInfo;
-                            ToolTip tip = new ToolTip();
-                            tip.Content = title;
-                            tile.ToolTip = tip;
-                        }
-                        else
-                        {
-                            tile.Tag = dicInfo;
-                        }
+                        tile.Tag = dicInfo;
+                        ToolTip tip = new ToolTip();
+                        tip.Content = dicInfo["NickName"];
+                        tile.ToolTip = tip;
                         tile.Click += new RoutedEventHandler(tile_Click);
 
                         if (tile.Count == "0")
@@ -1142,16 +1134,17 @@ namespace WFTP.Pages
                         }
                         else
                         {
-                            tile.Title = title.Length > 12 ? String.Format("{0}…", title.Substring(0, 11)) : title;
+                            tile.Title = dicInfo["NickName"].Length > 12 ? String.Format("{0}…", dicInfo["NickName"].Substring(0, 11)) : dicInfo["NickName"];
                         }
-                        
+
                         lvwClassify.Items.Add(tile);
                     }
                     else
                     {
                         lvwClassify.View = lvwClassify.FindResource("ListView") as ViewBase;
 
-                        fileCollection.Add(new FileInfo{
+                        fileCollection.Add(new FileInfo
+                        {
                             FileName = classifyItem.Name,
                             FilePath = remoteFileList[classifyItem.Name],
                             FileId = classifyItem.Id
@@ -1193,6 +1186,7 @@ namespace WFTP.Pages
                 tile.Margin = new Thickness(5);
                 tile.Content = img;
                 tile.Tag = catalog.Id;
+                tile.ToolTip = title;
                 tile.Title = title.Length > 12 ? String.Format("{0}…", title.Substring(0, 11)) : title;
                 tile.Click += new RoutedEventHandler(tileAdvance_Click);
                 lvwAdvanceClassify.Items.Add(tile);
