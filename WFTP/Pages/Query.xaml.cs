@@ -1583,6 +1583,7 @@ namespace WFTP.Pages
                         try
                         {
                             CLv2Customer.InsertOrUpdate(id, newPaths[1], newNickName, classfyId);
+                            GetBreadcrumbBarPath(2);
                             navBar.Path = path;
                         }
                         catch (Exception ex)
@@ -1598,6 +1599,7 @@ namespace WFTP.Pages
                         try
                         {
                             CLv3CustomerBranch.InsertOrUpdate(id, newPaths[2], newNickName, 0);
+                            GetBreadcrumbBarPath(3);
                             navBar.Path = path;
                         }
                         catch (Exception ex)
@@ -1613,6 +1615,7 @@ namespace WFTP.Pages
                         try
                         {
                             CLv4Line.InsertOrUpdate(id, newPaths[3], newNickName, 0);
+                            GetBreadcrumbBarPath(4);
                             navBar.Path = path;
                         }
                         catch (Exception ex)
@@ -1629,6 +1632,7 @@ namespace WFTP.Pages
                         try
                         {
                             CFileCategory.InsertOrUpdate(id, newPaths[4], newNickName);
+                            GetBreadcrumbBarPath(5);
                             navBar.Path = path;
                         }
                         catch (Exception ex)

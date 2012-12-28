@@ -54,7 +54,7 @@
                      Height="26"
                      Margin="313,235,345,300"
                      FontFamily="Microsoft JhengHei" 
-                     Controls:TextboxHelper.Watermark="請輸入密碼" />
+                     Controls:TextboxHelper.Watermark="請輸入密碼" KeyUp="txtPassword_KeyUp" LayoutUpdated="txtPassword_LayoutUpdated" KeyDown="txtPassword_KeyDown" />
         <Button Name="btnLogin"
                 Width="50" 
                 Height="50"

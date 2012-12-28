@@ -50,6 +50,9 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>wintriss.ico</ApplicationIcon>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="ChilkatDotNet4, Version=9.3.2.0, Culture=neutral, PublicKeyToken=eb5fc1fc52ef09bd, processorArchitecture=x86" />
     <Reference Include="MahApps.Metro">
@@ -91,6 +94,7 @@
     </Compile>
     <Compile Include="Helper\ApiHelper.cs" />
     <Compile Include="Helper\ExtensionHelper.cs" />
+    <Compile Include="Helper\FocusHelper.cs" />
     <Compile Include="Helper\GlobalHelper.cs" />
     <Compile Include="Lib\Editbox.cs" />
     <Compile Include="Lib\Editboxadorner.cs" />
@@ -249,6 +253,7 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
+    <Resource Include="wintriss.ico" />
     <Resource Include="Images\icon_plus.png" />
     <Resource Include="Images\icon_remove.png" />
     <Resource Include="Images\icon_cancel.png" />
