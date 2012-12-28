@@ -302,23 +302,35 @@ namespace WFTP.Pages
         /// </summary>
         private void tile_Click(object sender, RoutedEventArgs e)
         {
-            int level = Convert.ToInt32(lvwClassify.Tag) + 1;
-
             Tile tile = (Tile)sender;
-            Dictionary<string, string> info = (Dictionary<string, string>)tile.Tag;
+            lvwClassify.SelectedItem = tile;
+        }
+        /// <summary>
+        /// Tile模式 一般查詢的 MouseDoubleClick Event
+        /// </summary>
+        private void tile_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            // 僅限雙擊左鍵才有效
+            if (e.ChangedButton == MouseButton.Left)
+            {
+                int level = Convert.ToInt32(lvwClassify.Tag) + 1;
 
-            if (level == 2)
-            {
-                navBar.Path = info["NickName"];
-            }
-            else if (level <= 6)
-            {
-                navBar.Path = String.Format(@"{0}\{1}", navBar.Path, info["NickName"]);
-            }
-            else
-            {
-                // download chosen file here
-                DownloadFile(DBHelper.GenerateFileFullPath(Convert.ToInt32(info["Id"])));
+                Tile tile = (Tile)sender;
+                Dictionary<string, string> info = (Dictionary<string, string>)tile.Tag;
+
+                if (level == 2)
+                {
+                    navBar.Path = info["NickName"];
+                }
+                else if (level <= 6)
+                {
+                    navBar.Path = String.Format(@"{0}\{1}", navBar.Path, info["NickName"]);
+                }
+                else
+                {
+                    // download chosen file here
+                    DownloadFile(DBHelper.GenerateFileFullPath(Convert.ToInt32(info["Id"])));
+                }
             }
         }
         /// <summary>
@@ -326,22 +338,8 @@ namespace WFTP.Pages
         /// </summary>
         private void lstDown_Click(object sender, RoutedEventArgs e)
         {
-            //int level = Convert.ToInt32(lvwClassify.Tag) + 1;
             Button btn = (Button)sender;
-
-            //if (level == 2)
-            //{
-            //    navBar.Path = btn.Tag.ToString();
-            //}
-            //else if (level <= 6)
-            //{
-            //    navBar.Path = String.Format(@"{0}\{1}", navBar.Path, btn.Tag.ToString());
-            //}
-            //else
-            //{
-                // download chosen file here
-                DownloadFile(DBHelper.GenerateFileFullPath(Convert.ToInt32(btn.Tag)));
-            //}
+            DownloadFile(DBHelper.GenerateFileFullPath(Convert.ToInt32(btn.Tag)));
         }
         
         private void lstAdvanceDown_Click(object sender, RoutedEventArgs e)
@@ -627,19 +625,28 @@ namespace WFTP.Pages
         private void tileAdvance_Click(object sender, RoutedEventArgs e)
         {
             Tile originTile = (Tile)sender;
-            int level = Convert.ToInt32(lvwAdvanceClassify.Tag);
-            
-            if (level == 0)
+            lvwAdvanceClassify.SelectedItem = originTile;
+        }
+        private void tileAdvance_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            // 僅限雙擊左鍵才有效
+            if (e.ChangedButton == MouseButton.Left)
             {
-                grdSearch.Visibility = System.Windows.Visibility.Visible;
-                
-                _searchConditions["FileCategoryId"] = originTile.Tag.ToString();
-                lvwAdvanceClassify.Items.Clear();
-                lvwAdvanceClassify.Tag = 1;
-            }
-            else
-            {
-                DownloadFile(originTile.Tag.ToString());
+                Tile originTile = (Tile)sender;
+                int level = Convert.ToInt32(lvwAdvanceClassify.Tag);
+
+                if (level == 0)
+                {
+                    grdSearch.Visibility = System.Windows.Visibility.Visible;
+
+                    _searchConditions["FileCategoryId"] = originTile.Tag.ToString();
+                    lvwAdvanceClassify.Items.Clear();
+                    lvwAdvanceClassify.Tag = 1;
+                }
+                else
+                {
+                    DownloadFile(originTile.Tag.ToString());
+                }
             }
         }
         // 回Advance Query首頁
@@ -1123,6 +1130,7 @@ namespace WFTP.Pages
                         tip.Content = dicInfo["NickName"];
                         tile.ToolTip = tip;
                         tile.Click += new RoutedEventHandler(tile_Click);
+                        tile.MouseDoubleClick += new MouseButtonEventHandler(tile_MouseDoubleClick);
 
                         if (tile.Count == "0")
                         {
@@ -1189,6 +1197,7 @@ namespace WFTP.Pages
                 tile.ToolTip = title;
                 tile.Title = title.Length > 12 ? String.Format("{0}…", title.Substring(0, 11)) : title;
                 tile.Click += new RoutedEventHandler(tileAdvance_Click);
+                tile.MouseDoubleClick += new MouseButtonEventHandler(tileAdvance_MouseDoubleClick);
                 lvwAdvanceClassify.Items.Add(tile);
             }
         }
@@ -1827,6 +1836,7 @@ namespace WFTP.Pages
                         tile.Tag = path; // Download Path
                         tile.ToolTip = file.NickName;
                         tile.Click += new RoutedEventHandler(tileAdvance_Click);
+                        tile.MouseDoubleClick += new MouseButtonEventHandler(tileAdvance_MouseDoubleClick);
                         if (isImageFile)
                         {
                             tile.Background = new SolidColorBrush(Color.FromArgb(0, 0, 0, 0));
