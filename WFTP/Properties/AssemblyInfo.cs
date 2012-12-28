@@ -10,9 +10,9 @@ using System.Windows;
 [assembly: AssemblyTitle("WFTP")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany("Apputu Info. Co., Ltd.")]
 [assembly: AssemblyProduct("WFTP")]
-[assembly: AssemblyCopyright("Copyright ©  2012")]
+[assembly: AssemblyCopyright("Copyright © 2012 Apputu Info. Co., Ltd. All rights reserved.")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
