@@ -40,6 +40,7 @@ namespace WFTP
             Switcher.progress = new Progress();
             Switcher.upload = new Upload();
             Switcher.manage = new Manage();
+            Switcher.login = new Login();
 
             // 登入前隱藏功能
             btnQuery.Visibility = Visibility.Hidden;
@@ -49,7 +50,7 @@ namespace WFTP
 
             // 初始化Switcher
             Switcher.main = this;
-            Switcher.Switch(new Login()); //載入 Login
+            Switcher.Switch(Switcher.login); //載入 Login
         }
 
         #region User Control Event

@@ -13,6 +13,7 @@ namespace WFTP
         public static Progress progress;
         public static Upload upload;
         public static Manage manage;
+        public static Login login;
 
         public static void Switch(UserControl newPage)
         {
