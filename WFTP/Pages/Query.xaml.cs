@@ -145,6 +145,12 @@ namespace WFTP.Pages
         /// </summary>
         private void rmenuAdd_Click(object sender, RoutedEventArgs e)
         {
+            // 每次編輯都要確認權限
+            if (!CheckRankOrActivity())
+            {
+                return;
+            }
+            if(GlobalHelper.AdminItem.Activity)
             // 在本層新增
             if (lvwClassify.SelectedItems.Count == 0 || Convert.ToInt32(lvwClassify.Tag) == 5) 
             {
@@ -189,6 +195,11 @@ namespace WFTP.Pages
         /// </summary>
         private void rmenuDelete_Click(object sender, RoutedEventArgs e)
         {
+            // 每次編輯都要確認權限
+            if (!CheckRankOrActivity())
+            {
+                return;
+            }
             if (tabMain.SelectedIndex == 0)
             {
                 if (lvwClassify.SelectedItems.Count != 1)
@@ -261,6 +272,12 @@ namespace WFTP.Pages
         /// </summary>
         private void rmenuEdit_Click(object sender, RoutedEventArgs e)
         {
+            // 每次編輯都要確認權限
+            if (!CheckRankOrActivity())
+            {
+                return;
+            }
+
             if (lvwClassify.SelectedItems.Count != 1)
             {
                 return;
@@ -849,7 +866,29 @@ namespace WFTP.Pages
         #endregion
 
         #region R Method
+        /// <summary>
+        /// 每次執行編輯DB確認是否擁有權限
+        /// </summary>
+        private bool CheckRankOrActivity()
+        {
 
+            GlobalHelper.RefreshLogginUser();
+            if (!GlobalHelper.AdminItem.IsAdmin || !GlobalHelper.AdminItem.Activity)
+            {
+                MessageBox.Show("您的權限已被更改請重新登入。");
+                Switcher.main.btnManage.Visibility = Visibility.Hidden;
+                Switcher.main.btnProgress.Visibility = Visibility.Hidden;
+                Switcher.main.btnQuery.Visibility = Visibility.Hidden;
+                Switcher.main.btnUpload.Visibility = Visibility.Hidden;
+                Switcher.Switch(Switcher.login);
+
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+        }
         /// <summary>
         /// Query:改善效能第一次載入只讀取第一層
         /// </summary>

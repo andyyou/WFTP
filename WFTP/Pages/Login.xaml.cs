@@ -111,8 +111,9 @@ namespace WFTP.Pages
 
                     // 儲存全域需要的帳號資訊
                     GlobalHelper.AdminItem = new AdminItem();
-                    GlobalHelper.AdminItem.IsAdmin = (rank <= 2) ? true : false; // 管理權限定義
+                    GlobalHelper.AdminItem.IsAdmin = (rank > 5) ? true : false; // 管理權限定義
                     GlobalHelper.AdminItem.Rank = rank;
+                    GlobalHelper.AdminItem.Activity = user.Activity;
                     GlobalHelper.LoginUserID = account;
 
                     // 顯示可執行的頁面按鈕
