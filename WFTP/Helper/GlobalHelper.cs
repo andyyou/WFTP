@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using WFTP.Pages;
+using DataProvider;
+using System.Windows;
 
 namespace WFTP.Helper
 {
@@ -81,5 +83,21 @@ namespace WFTP.Helper
             ApiRemoveCategorys = String.Format("http://{0}:{1}/removecategorys?key={2}&n={3}", ApiHost, ApiPort, ApiKey, "{0}");
             ApiGetCount = String.Format("http://{0}:{1}/getfoldercount?key={2}&p={3}", ApiHost, ApiPort, ApiKey, "{0}");
         }
+        /// <summary>
+        /// 需登入後才能呼叫 管理權限只需動這邊和Loggin
+        /// </summary>
+        public static void RefreshLogginUser()
+        {
+            WFTPDbContext db = new WFTPDbContext();
+            var logger = (from user in db.GetTable<CEmployee>()
+                          where user.Account == Properties.Settings.Default.Id && user.Password == Properties.Settings.Default.Pwd
+                          select user).SingleOrDefault();
+            int rank = Convert.ToInt32(logger.Rank);
+            GlobalHelper.AdminItem.Activity = logger.Activity;
+            GlobalHelper.AdminItem.IsAdmin = (rank > 5) ? true : false; // 管理權限定義
+            GlobalHelper.AdminItem.Rank = rank;
+           
+        }
+
     }
 }

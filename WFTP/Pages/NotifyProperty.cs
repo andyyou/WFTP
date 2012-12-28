@@ -65,6 +65,7 @@ namespace WFTP.Pages
     {
         private bool _isAdmin;
         private int _rank;
+        private bool _activity;
 
         public bool IsAdmin
         {
@@ -88,6 +89,19 @@ namespace WFTP.Pages
             {
                 _rank = value;
                 RaisePropertyChanged("Rank");
+            }
+        }
+
+        public bool Activity
+        {
+            get
+            {
+                return _activity;
+            }
+            set
+            {
+                _activity = value;
+                RaisePropertyChanged("Activity");
             }
         }
         public event PropertyChangedEventHandler PropertyChanged;

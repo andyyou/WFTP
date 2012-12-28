@@ -146,7 +146,11 @@ namespace WFTP.Pages
         private void rmenuAdd_Click(object sender, RoutedEventArgs e)
         {
             // 每次編輯都要確認權限
-            CheckRankOrActivity();
+            if (!CheckRankOrActivity())
+            {
+                return;
+            }
+            if(GlobalHelper.AdminItem.Activity)
             // 在本層新增
             if (lvwClassify.SelectedItems.Count == 0 || Convert.ToInt32(lvwClassify.Tag) == 5) 
             {
@@ -192,7 +196,10 @@ namespace WFTP.Pages
         private void rmenuDelete_Click(object sender, RoutedEventArgs e)
         {
             // 每次編輯都要確認權限
-            CheckRankOrActivity();
+            if (!CheckRankOrActivity())
+            {
+                return;
+            }
             if (tabMain.SelectedIndex == 0)
             {
                 if (lvwClassify.SelectedItems.Count != 1)
@@ -266,7 +273,10 @@ namespace WFTP.Pages
         private void rmenuEdit_Click(object sender, RoutedEventArgs e)
         {
             // 每次編輯都要確認權限
-            CheckRankOrActivity();
+            if (!CheckRankOrActivity())
+            {
+                return;
+            }
 
             if (lvwClassify.SelectedItems.Count != 1)
             {
@@ -859,19 +869,24 @@ namespace WFTP.Pages
         /// <summary>
         /// 每次執行編輯DB確認是否擁有權限
         /// </summary>
-        private void CheckRankOrActivity()
+        private bool CheckRankOrActivity()
         {
-            
-            WFTPDbContext db = new WFTPDbContext();
-            var logger = (from user in db.GetTable<CEmployee>()
-                          where user.Account == Properties.Settings.Default.Id && user.Password == Properties.Settings.Default.Pwd
-                          select user).SingleOrDefault();
-            int rank = Convert.ToInt32(logger.Rank);
-            bool activity = logger.Activity;
-            if (rank < 5 || !activity)
+
+            GlobalHelper.RefreshLogginUser();
+            if (!GlobalHelper.AdminItem.IsAdmin || !GlobalHelper.AdminItem.Activity)
             {
                 MessageBox.Show("您的權限已被更改請重新登入。");
+                Switcher.main.btnManage.Visibility = Visibility.Hidden;
+                Switcher.main.btnProgress.Visibility = Visibility.Hidden;
+                Switcher.main.btnQuery.Visibility = Visibility.Hidden;
+                Switcher.main.btnUpload.Visibility = Visibility.Hidden;
                 Switcher.Switch(Switcher.login);
+
+                return false;
+            }
+            else
+            {
+                return true;
             }
         }
         /// <summary>
