@@ -13,6 +13,7 @@ using System.Windows.Shapes;
 using WFTP.Helper;
 using System.ComponentModel;
 using DataProvider;
+using System.Text.RegularExpressions;
 
 namespace WFTP
 {
@@ -21,6 +22,9 @@ namespace WFTP
     /// </summary>
     public partial class Update : Window
     {
+        private const string PATTERN_SYSTEMNAME = @"^[\w\-]*$";
+        private const string PATTERN_NICKNAME = @"^[\w\- ]*$";
+
         #region Properties
         /// <summary>
         /// FileName, LineName 使用於Server實際檔案或目錄名稱
@@ -119,6 +123,25 @@ namespace WFTP
         /// </summary>
         private void btnGetPath_Click(object sender, RoutedEventArgs e)
         {
+            if (!Regex.IsMatch(txtName.Text.Trim(), PATTERN_SYSTEMNAME))
+            {
+                lbMessage.Content = "系統名稱格式錯誤";
+                return;
+            }
+            else
+            {
+                lbMessage.Content = "";
+            }
+
+            if (!Regex.IsMatch(txtNickName.Text.Trim(), PATTERN_NICKNAME))
+            {
+                lbMessage.Content = "瀏覽名稱格式錯誤";
+                return;
+            }
+            else
+            {
+                lbMessage.Content = "";
+            }
             // 把資料設置 Properties
             this.SystemName = txtName.Text.Trim();
             this.NickName = txtNickName.Text.Trim();
