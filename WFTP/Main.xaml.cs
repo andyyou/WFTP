@@ -33,31 +33,54 @@ namespace WFTP
         public Main()
         {
             InitializeComponent();
+            bool connSuccess = false;
 
             // 將程式版號顯示於標題列後方
             Assembly asm = Assembly.GetExecutingAssembly();
             FileVersionInfo fvi = FileVersionInfo.GetVersionInfo(asm.Location);
             this.Title += " Ver." + fvi.ProductVersion;
 
-            // 由資料庫取得 FTP 及 API 相關參數設定
-            GetSystemConfig();
+            try
+            {
+                // 由資料庫取得 FTP 及 API 相關參數設定
+                GetSystemConfig();
+                connSuccess = true;
+            }
+            catch (Exception)
+            {
+                MessageBox.Show("網路連線失敗，請確認已連線至網路。", "連線失敗", MessageBoxButton.OK, MessageBoxImage.Error);
+                Application.Current.Shutdown(1);
+            }
 
-            // 初始化各頁面
-            Switcher.query = new Query();
-            Switcher.progress = new Progress();
-            Switcher.upload = new Upload();
-            Switcher.manage = new Manage();
-            Switcher.login = new Login();
+            if (connSuccess)
+            {
+                // 檢查進度記錄檔是否存在，不存在就建立
+                if (!File.Exists(GlobalHelper.ProgressList))
+                {
+                    File.WriteAllText(GlobalHelper.ProgressList, "[]", Encoding.UTF8);
+                }
 
-            // 登入前隱藏功能
-            btnQuery.Visibility = Visibility.Hidden;
-            btnManage.Visibility = Visibility.Hidden;
-            btnUpload.Visibility = Visibility.Hidden;
-            btnProgress.Visibility = Visibility.Hidden;
+                // 初始化各頁面
+                Switcher.query = new Query();
+                Switcher.progress = new Progress();
+                Switcher.upload = new Upload();
+                Switcher.manage = new Manage();
+                Switcher.login = new Login();
 
-            // 初始化Switcher
-            Switcher.main = this;
-            Switcher.Switch(Switcher.login); //載入 Login
+                // 登入前隱藏功能
+                btnQuery.Visibility = Visibility.Hidden;
+                btnManage.Visibility = Visibility.Hidden;
+                btnUpload.Visibility = Visibility.Hidden;
+                btnProgress.Visibility = Visibility.Hidden;
+
+                // 初始化Switcher
+                Switcher.main = this;
+                Switcher.Switch(Switcher.login); //載入 Login
+            }
+            else
+            {
+                Application.Current.Shutdown(1);
+            }
         }
 
         #region User Control Event

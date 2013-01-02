@@ -119,7 +119,9 @@ namespace WFTP.Pages
                     // 顯示可執行的頁面按鈕
                     Switcher.Switch(Switcher.query);
                     Switcher.main.btnQuery.Visibility = Visibility.Visible;
-                    Switcher.main.btnManage.Visibility = (GlobalHelper.AdminItem.IsAdmin) ? Visibility.Visible : Visibility.Collapsed;
+                    // 使用者管理暫不實做
+                    //Switcher.main.btnManage.Visibility = (GlobalHelper.AdminItem.IsAdmin) ? Visibility.Visible : Visibility.Collapsed;
+                    Switcher.main.btnManage.Visibility = Visibility.Collapsed;
                     Switcher.main.btnUpload.Visibility = Visibility.Visible;
                     Switcher.main.btnProgress.Visibility = Visibility.Visible;
                 }
