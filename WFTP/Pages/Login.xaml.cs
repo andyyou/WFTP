@@ -13,6 +13,8 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using DataProvider;
 using WFTP.Helper;
+using System.Data.SqlClient;
+using System.Data;
 
 namespace WFTP.Pages
 {
@@ -124,6 +126,18 @@ namespace WFTP.Pages
                     Switcher.main.btnManage.Visibility = Visibility.Collapsed;
                     Switcher.main.btnUpload.Visibility = Visibility.Visible;
                     Switcher.main.btnProgress.Visibility = Visibility.Visible;
+
+                    // 更新使用者最後登入日期
+                    using (SqlConnection conn = new SqlConnection(DBHelper.GetConnctionString()))
+                    {
+                        SqlCommand cmd = new SqlCommand("UPDATE [dbo].[Employees] SET [LastLoginDate] = @time WHERE [Account] = @account");
+                        cmd.CommandType = CommandType.Text;
+                        cmd.Connection = conn;
+                        cmd.Parameters.AddWithValue("@time", DateTime.Now);
+                        cmd.Parameters.AddWithValue("@account", account);
+                        conn.Open();
+                        cmd.ExecuteNonQuery();
+                    }
                 }
                 else
                 {

@@ -22,6 +22,7 @@ using WFTP.Helper;
 using DataProvider;
 using System.Reflection;
 using System.Diagnostics;
+using System.Deployment.Application;
 
 namespace WFTP
 {
@@ -36,9 +37,17 @@ namespace WFTP
             bool connSuccess = false;
 
             // 將程式版號顯示於標題列後方
-            Assembly asm = Assembly.GetExecutingAssembly();
-            FileVersionInfo fvi = FileVersionInfo.GetVersionInfo(asm.Location);
-            this.Title += " Ver." + fvi.ProductVersion;
+            if (ApplicationDeployment.IsNetworkDeployed)
+            {
+                ApplicationDeployment ad = ApplicationDeployment.CurrentDeployment;
+                this.Title += " Ver." + ad.CurrentVersion.ToString();
+            }
+            else
+            {
+                Assembly asm = Assembly.GetExecutingAssembly();
+                FileVersionInfo fvi = FileVersionInfo.GetVersionInfo(asm.Location);
+                this.Title += " Ver." + fvi.ProductVersion;                
+            }
 
             try
             {
